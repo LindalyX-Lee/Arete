@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ARETE">
+  <meta name="theme-color" content="#1A1A1A">
+  <title>ARETE</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127963;</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #1A1A1A;
+      --bg-secondary: #242424;
+      --bg-card: #2A2A2A;
+      --bg-overlay: rgba(0, 0, 0, 0.88);
+      --pink: #FF1493;
+      --pink-glow: #FF69B4;
+      --pink-dim: rgba(255, 20, 147, 0.15);
+      --gold: #D4AF37;
+      --purple: #8B5CF6;
+      --cyan: #06B6D4;
+      --green: #4ADE80;
+      --text-primary: #FFFFFF;
+      --text-secondary: #A0A0A0;
+      --text-muted: #666666;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-ui: 'DM Sans', -apple-system, sans-serif;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --transition-fast: 150ms ease;
+      --transition-normal: 300ms ease;
+      --max-width: 600px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+      height: -webkit-fill-available;
+    }
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    /* === Screens === */
+    .screen { display: none; max-width: var(--max-width); margin: 0 auto; padding: var(--space-md); min-height: 100vh; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* === Overlays === */
+    .overlay { position: fixed; inset: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 100; animation: fadeIn var(--transition-fast); }
+    .overlay[hidden] { display: none; }
+    .overlay-content { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: var(--space-xl); width: min(420px, 90vw); max-height: 85vh; overflow-y: auto; text-align: center; }
+
+    /* === Settings Panel === */
+    .panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 88vw); background: var(--bg-secondary); z-index: 90; transform: translateX(100%); transition: transform var(--transition-normal); overflow-y: auto; padding: var(--space-lg); }
+    .panel.open { transform: translateX(0); }
+    .panel-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 89; display: none; }
+    .panel-backdrop.open { display: block; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl); }
+    .panel-header h2 { font-family: var(--font-display); font-size: 1.5rem; color: var(--gold); }
+
+    /* === Header === */
+    .app-header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-md) 0; }
+    .brand-title { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; letter-spacing: 0.3em; color: var(--text-primary); }
+    .brand-subtitle { font-family: var(--font-display); font-size: 0.85rem; color: var(--gold); font-style: italic; display: block; letter-spacing: 0.15em; margin-top: -4px; }
+    .icon-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer; padding: var(--space-sm); min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
+    .icon-btn:active { background: rgba(255,255,255,0.1); }
+
+    /* === Date & Quote === */
+    .date-display { font-size: 0.9rem; color: var(--text-secondary); margin-top: var(--space-sm); }
+    .quote-display { font-family: var(--font-display); font-style: italic; color: var(--pink-glow); font-size: 1rem; margin: var(--space-md) 0; line-height: 1.5; min-height: 2.5em; }
+
+    /* === Focus Label === */
+    .focus-label { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: var(--space-sm) 0 var(--space-lg); color: var(--text-primary); }
+    .focus-label .focus-type { color: var(--purple); }
+    .focus-label .focus-surprise { color: var(--gold); }
+
+    /* === Playlist === */
+    .playlist { flex: 1; display: flex; flex-direction: column; gap: var(--space-sm); margin-bottom: var(--space-lg); }
+    .playlist-item { display: flex; align-items: center; gap: var(--space-md); background: var(--bg-card); border-radius: var(--radius-md); padding: var(--space-md); border-left: 3px solid var(--text-muted); animation: slideUp var(--transition-normal) backwards; cursor: default; transition: background var(--transition-fast); position: relative; }
+    .playlist-item:active { background: #333; }
+    .playlist-item:nth-child(1) { animation-delay: 0ms; }
+    .playlist-item:nth-child(2) { animation-delay: 60ms; }
+    .playlist-item:nth-child(3) { animation-delay: 120ms; }
+    .playlist-item:nth-child(4) { animation-delay: 180ms; }
+    .playlist-item:nth-child(5) { animation-delay: 240ms; }
+    .playlist-item:nth-child(6) { animation-delay: 300ms; }
+    .playlist-item:nth-child(7) { animation-delay: 360ms; }
+    .playlist-item.phase-warmup { border-left-color: var(--pink-glow); }
+    .playlist-item.phase-cardio { border-left-color: var(--cyan); }
+    .playlist-item.phase-main { border-left-color: var(--purple); }
+    .playlist-item.phase-surprise { border-left-color: var(--gold); }
+    .playlist-item.phase-cooldown { border-left-color: var(--green); }
+    .phase-tag { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: var(--radius-full); white-space: nowrap; min-width: 70px; text-align: center; }
+    .phase-tag.tag-warmup { background: rgba(255,105,180,0.2); color: var(--pink-glow); }
+    .phase-tag.tag-cardio { background: rgba(6,182,212,0.2); color: var(--cyan); }
+    .phase-tag.tag-main { background: rgba(139,92,246,0.2); color: var(--purple); }
+    .phase-tag.tag-surprise { background: rgba(212,175,55,0.2); color: var(--gold); }
+    .phase-tag.tag-cooldown { background: rgba(74,222,128,0.2); color: var(--green); }
+    .video-info { flex: 1; min-width: 0; }
+    .video-title { font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .video-meta { display: flex; gap: var(--space-sm); font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
+    .video-meta .creator { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .video-meta .duration { white-space: nowrap; color: var(--text-muted); }
+    .btn-edit-video { background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; padding: var(--space-xs); min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: color var(--transition-fast); }
+    .btn-edit-video:active { color: var(--pink); }
+
+    /* === Action Buttons === */
+    .action-buttons { display: flex; flex-direction: column; gap: var(--space-sm); padding-bottom: var(--space-lg); }
+    .btn-primary { font-family: var(--font-ui); font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; color: #fff; background: linear-gradient(135deg, var(--pink), var(--pink-glow)); border: none; border-radius: var(--radius-full); padding: var(--space-md) var(--space-xl); cursor: pointer; animation: glow 2.5s ease-in-out infinite; transition: transform var(--transition-fast), opacity var(--transition-fast); }
+    .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+    .btn-secondary { font-family: var(--font-ui); font-size: 0.95rem; font-weight: 500; color: var(--pink); background: transparent; border: 1.5px solid var(--pink); border-radius: var(--radius-full); padding: var(--space-sm) var(--space-xl); cursor: pointer; transition: background var(--transition-fast); }
+    .btn-secondary:active { background: var(--pink-dim); }
+    .btn-small { font-family: var(--font-ui); font-size: 0.8rem; font-weight: 500; color: var(--pink); background: var(--pink-dim); border: none; border-radius: var(--radius-sm); padding: 6px 14px; cursor: pointer; }
+
+    /* === Player Screen === */
+    .player-header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-sm) 0; }
+    .now-playing { text-align: center; flex: 1; }
+    .phase-indicator { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pink-glow); }
+    .video-counter { font-size: 0.75rem; color: var(--text-muted); margin-left: var(--space-sm); }
+    .btn-skip { font-family: var(--font-ui); font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); background: none; border: 1px solid var(--text-muted); border-radius: var(--radius-full); padding: 6px 14px; cursor: pointer; min-height: 36px; white-space: nowrap; }
+    .btn-skip:active { color: var(--pink); border-color: var(--pink); }
+    .player-wrapper { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: var(--radius-md); overflow: hidden; margin: var(--space-md) 0; }
+    .player-wrapper iframe { width: 100%; height: 100%; border: none; }
+    .player-info { margin-bottom: var(--space-md); }
+    .player-title { font-size: 1rem; font-weight: 500; }
+    .player-creator { font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; }
+    .playlist-progress { display: flex; gap: 6px; justify-content: center; padding: var(--space-md) 0; }
+    .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); transition: background var(--transition-normal), transform var(--transition-normal); }
+    .progress-dot.done { background: var(--pink); }
+    .progress-dot.current { background: var(--pink-glow); transform: scale(1.3); box-shadow: 0 0 8px var(--pink-glow); }
+
+    /* === RPE Overlay === */
+    .rpe-content h3 { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: var(--space-lg); color: var(--gold); }
+    .rpe-options { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+    .rpe-btn { font-family: var(--font-ui); font-size: 1rem; font-weight: 500; border: 1.5px solid var(--text-muted); background: var(--bg-card); color: var(--text-primary); border-radius: var(--radius-md); padding: var(--space-md); cursor: pointer; min-height: 60px; transition: border-color var(--transition-fast), background var(--transition-fast); }
+    .rpe-btn:active { border-color: var(--pink); background: var(--pink-dim); }
+    .auto-advance-timer { font-size: 0.8rem; color: var(--text-muted); margin-top: var(--space-md); }
+
+    /* === Category Picker === */
+    .category-content h3 { font-family: var(--font-display); font-size: 1.3rem; margin-bottom: var(--space-sm); color: var(--gold); }
+    .category-content p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: var(--space-md); }
+    .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xs); margin-bottom: var(--space-md); }
+    .cat-btn { font-family: var(--font-ui); font-size: 0.8rem; font-weight: 500; border: 1px solid var(--text-muted); background: var(--bg-card); color: var(--text-primary); border-radius: var(--radius-sm); padding: var(--space-sm) var(--space-md); cursor: pointer; transition: border-color var(--transition-fast); }
+    .cat-btn:active { border-color: var(--purple); background: rgba(139,92,246,0.15); }
+    .btn-cancel { font-family: var(--font-ui); font-size: 0.85rem; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: var(--space-sm); }
+
+    /* === Edit Modal === */
+    .edit-content h3 { font-family: var(--font-display); font-size: 1.3rem; margin-bottom: var(--space-lg); color: var(--gold); }
+    .edit-field { margin-bottom: var(--space-md); text-align: left; }
+    .edit-field label { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: var(--space-xs); }
+    .edit-field select, .edit-field input { font-family: var(--font-ui); font-size: 0.95rem; width: 100%; padding: var(--space-sm) var(--space-md); background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); -webkit-appearance: none; appearance: none; }
+    .edit-field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23A0A0A0'%3E%3Cpath d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    .edit-field input:focus, .edit-field select:focus { outline: none; border-color: var(--pink); }
+    .edit-video-title { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: var(--space-md); font-style: italic; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .edit-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-lg); }
+    .edit-actions .btn-primary, .edit-actions .btn-secondary { flex: 1; font-size: 0.95rem; padding: var(--space-sm) var(--space-md); animation: none; }
+
+    /* === Settings === */
+    .setting-group { margin-bottom: var(--space-xl); }
+    .setting-group label { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: var(--space-sm); }
+    .setting-group input[type="text"] { font-family: var(--font-ui); font-size: 0.9rem; width: 100%; padding: var(--space-sm) var(--space-md); background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); margin-bottom: var(--space-sm); }
+    .setting-group input[type="text"]:focus { outline: none; border-color: var(--pink); }
+    .setting-group h3 { font-family: var(--font-display); font-size: 1.1rem; color: var(--text-primary); margin-bottom: var(--space-sm); }
+    .surprise-pool-status { font-size: 0.8rem; color: var(--text-muted); margin-top: var(--space-sm); }
+    .surprise-pool-status.has-data { color: var(--green); }
+    .weekly-plan-table { width: 100%; font-size: 0.8rem; border-collapse: collapse; }
+    .weekly-plan-table th, .weekly-plan-table td { padding: var(--space-sm); text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .weekly-plan-table th { color: var(--text-muted); font-weight: 500; }
+    .weekly-plan-table td:first-child { color: var(--text-secondary); }
+    .weekly-plan-table .today-row { color: var(--pink); font-weight: 600; }
+    .api-key-row { display: flex; gap: var(--space-sm); }
+    .api-key-row input { flex: 1; }
+    .settings-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: var(--space-xs); font-style: italic; }
+
+    /* === Completion Screen === */
+    #screen-complete { justify-content: center; align-items: center; text-align: center; }
+    .completion-icon { font-size: 4rem; margin-bottom: var(--space-lg); }
+    .completion-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; letter-spacing: 0.2em; color: var(--gold); margin-bottom: var(--space-md); }
+    .completion-quote { font-family: var(--font-display); font-style: italic; font-size: 1.05rem; color: var(--pink-glow); margin-bottom: var(--space-xl); line-height: 1.5; max-width: 350px; }
+    .session-stats { display: flex; gap: var(--space-2xl); justify-content: center; margin-bottom: var(--space-xl); }
+    .stat { display: flex; flex-direction: column; align-items: center; }
+    .stat-value { font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--text-primary); }
+    .stat-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* === Notification Toast === */
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--text-muted); border-radius: var(--radius-md); padding: var(--space-sm) var(--space-lg); font-size: 0.85rem; z-index: 200; transition: transform 0.3s ease; pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.toast-warning { border-color: var(--gold); color: var(--gold); }
+    .toast.toast-success { border-color: var(--green); color: var(--green); }
+
+    /* === Animations === */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(255, 20, 147, 0.35); } 50% { box-shadow: 0 0 35px rgba(255, 20, 147, 0.65); } }
+
+    /* === Responsive === */
+    @media (min-width: 768px) {
+      :root { --max-width: 680px; }
+      .playlist-item { padding: var(--space-md) var(--space-lg); }
+      .btn-primary { font-size: 1.2rem; padding: 18px var(--space-xl); }
+      .rpe-btn { min-height: 70px; font-size: 1.1rem; }
+    }
+    @media (max-width: 767px) {
+      :root { --max-width: 100%; }
+      .brand-title { font-size: 1.8rem; }
+      .focus-label { font-size: 1.3rem; }
+    }
+    @media (max-width: 375px) {
+      .brand-title { font-size: 1.5rem; }
+      .quote-display { font-size: 0.85rem; }
+      .phase-tag { font-size: 0.55rem; min-width: 60px; }
+    }
+
+    /* === Loading State === */
+    .loading-text { color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: var(--space-xl); }
+  </style>
+</head>
+<body>
+
+  <!-- ===== SCREEN: Main (Today's Menu) ===== -->
+  <div id="screen-main" class="screen active">
+    <header class="app-header">
+      <div class="brand">
+        <h1 class="brand-title">ARETE</h1>
+        <span class="brand-subtitle">ἀρετή</span>
+      </div>
+      <button id="btn-settings" class="icon-btn" aria-label="Settings">&#9881;</button>
+    </header>
+    <div id="date-display" class="date-display"></div>
+    <div id="quote-display" class="quote-display"></div>
+    <div id="focus-label" class="focus-label"></div>
+    <div id="playlist-container" class="playlist">
+      <div class="loading-text">Generating your workout...</div>
+    </div>
+    <div class="action-buttons">
+      <button id="btn-lets-go" class="btn-primary">LET'S GO &#128293;</button>
+      <button id="btn-surprise" class="btn-secondary">SURPRISE ME &#10024;</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN: Video Player ===== -->
+  <div id="screen-player" class="screen">
+    <div class="player-header">
+      <button id="btn-back" class="icon-btn" aria-label="Back">&#8592;</button>
+      <div class="now-playing">
+        <span id="phase-indicator" class="phase-indicator"></span>
+        <span id="video-counter" class="video-counter"></span>
+      </div>
+      <button id="btn-skip" class="btn-skip">SKIP &#8594;</button>
+    </div>
+    <div class="player-wrapper">
+      <div id="youtube-player"></div>
+    </div>
+    <div class="player-info">
+      <div id="player-title" class="player-title"></div>
+      <div id="player-creator" class="player-creator"></div>
+    </div>
+    <div id="playlist-progress" class="playlist-progress"></div>
+  </div>
+
+  <!-- ===== SCREEN: Completion ===== -->
+  <div id="screen-complete" class="screen">
+    <div class="completion-content">
+      <div class="completion-icon">&#127963;</div>
+      <h2 class="completion-title">ARETE Achieved</h2>
+      <p id="completion-quote" class="completion-quote"></p>
+      <div class="session-stats">
+        <div class="stat">
+          <span id="stat-time" class="stat-value">--</span>
+          <span class="stat-label">minutes</span>
+        </div>
+        <div class="stat">
+          <span id="stat-videos" class="stat-value">--</span>
+          <span class="stat-label">videos</span>
+        </div>
+      </div>
+      <button id="btn-done" class="btn-primary" style="animation:none">Done &#10003;</button>
+    </div>
+  </div>
+
+  <!-- ===== OVERLAY: RPE Rating ===== -->
+  <div id="overlay-rpe" class="overlay" hidden>
+    <div class="overlay-content rpe-content">
+      <h3>How was that?</h3>
+      <div id="rpe-video-title" style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-md);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+      <div class="rpe-options">
+        <button class="rpe-btn" data-rpe="loved">&#128293; Loved</button>
+        <button class="rpe-btn" data-rpe="good">&#9989; Good</button>
+        <button class="rpe-btn" data-rpe="easy">&#128564; Too Easy</button>
+        <button class="rpe-btn" data-rpe="remove">&#10060; Remove</button>
+      </div>
+      <div class="auto-advance-timer">Auto-advancing in <span id="rpe-countdown">3</span>s...</div>
+    </div>
+  </div>
+
+  <!-- ===== OVERLAY: Category Picker ===== -->
+  <div id="overlay-category" class="overlay" hidden>
+    <div class="overlay-content category-content">
+      <h3>Add to Library</h3>
+      <p id="cat-video-title"></p>
+      <div id="category-grid" class="category-grid"></div>
+      <button id="btn-cat-skip" class="btn-cancel">Skip</button>
+    </div>
+  </div>
+
+  <!-- ===== OVERLAY: Edit Video ===== -->
+  <div id="overlay-edit" class="overlay" hidden>
+    <div class="overlay-content edit-content">
+      <h3>Edit Video</h3>
+      <div id="edit-video-title" class="edit-video-title"></div>
+      <div class="edit-field">
+        <label for="edit-category">Category</label>
+        <select id="edit-category"></select>
+      </div>
+      <div class="edit-field">
+        <label for="edit-start-at">Start At (seconds)</label>
+        <input type="number" id="edit-start-at" min="0" step="1" placeholder="0">
+      </div>
+      <div class="edit-field">
+        <label for="edit-end-at">End At (seconds, 0 = end)</label>
+        <input type="number" id="edit-end-at" min="0" step="1" placeholder="0">
+      </div>
+      <div class="edit-actions">
+        <button id="btn-edit-save" class="btn-primary">Save</button>
+        <button id="btn-edit-cancel" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Settings Panel ===== -->
+  <div id="settings-backdrop" class="panel-backdrop"></div>
+  <div id="panel-settings" class="panel">
+    <div class="panel-header">
+      <h2>Settings</h2>
+      <button id="btn-close-settings" class="icon-btn">&#10005;</button>
+    </div>
+    <div class="settings-content">
+      <div class="setting-group">
+        <label>YouTube API Key</label>
+        <div class="api-key-row">
+          <input type="text" id="input-api-key" placeholder="Enter your API key">
+          <button id="btn-save-api-key" class="btn-small">Save</button>
+        </div>
+        <div class="settings-hint">Required to fetch surprise pool videos</div>
+      </div>
+      <div class="setting-group">
+        <button id="btn-fetch-surprise" class="btn-secondary" style="width:100%">Fetch Surprise Pool &#127922;</button>
+        <div id="surprise-pool-status" class="surprise-pool-status">Not yet fetched</div>
+      </div>
+      <div class="setting-group">
+        <h3>Weekly Plan</h3>
+        <table class="weekly-plan-table" id="weekly-plan-table"></table>
+      </div>
+      <div class="setting-group">
+        <h3>Library</h3>
+        <div id="library-stats" style="font-size:0.8rem;color:var(--text-secondary);"></div>
+      </div>
+      <div class="setting-group">
+        <button id="btn-reset-data" class="btn-cancel" style="color:var(--text-muted);font-size:0.75rem;">Reset all data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Toast ===== -->
+  <div id="toast" class="toast"></div>
+
+<script>
+// ============================================================
+// ARETE — Daily Workout Playlist Generator
+// ============================================================
+
+// === EMBEDDED VIDEO LIBRARY (247 videos) ===
+const ARETE_LIBRARY_RAW = [
+    {"id": "wtVyZmHnlxM", "title": "30 MIN PILATES WORKOUT || Beginner to Moderate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 30.3, "startAt": 0, "endAt": 0, "effectiveDuration": 30.3, "rpe": null, "addedAt": "2026-02-14T08:05:59.130Z"},
+    {"id": "efiqud5yKLw", "title": "10분 공복 모닝 홈트 - No 층간소음 No 휴식 No 반복", "creator": "Bigsis", "category": "cardio", "intensity": "hard", "totalDuration": 11.4, "startAt": 0, "endAt": 0, "effectiveDuration": 11.4, "rpe": null, "addedAt": "2026-02-14T08:06:07.663Z"},
+    {"id": "OMgkDnDOpqI", "title": "상쾌한 아침 운동 20분 - 홈트로 하루를 건강하게 시작해 보세요 💖", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 21.4, "startAt": 0, "endAt": 0, "effectiveDuration": 21.4, "rpe": null, "addedAt": "2026-02-14T08:06:17.414Z"},
+    {"id": "bkiatp2muRs", "title": "30 MIN FULL BODY WORKOUT || Power Pilates With Weights (Intermediate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 35.4, "startAt": 0, "endAt": 0, "effectiveDuration": 35.4, "rpe": null, "addedAt": "2026-02-14T08:06:25.731Z"},
+    {"id": "eLSmIAmvyCo", "title": "추석이 두렵지 않다💪 미리준비해요 - NO반복 NO층간 논스톱 40동작 - 23분 전신 운동 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 24.7, "startAt": 0, "endAt": 0, "effectiveDuration": 24.7, "rpe": null, "addedAt": "2026-02-14T08:06:34.531Z"},
+    {"id": "9Yb8hFaoEhY", "title": "8 MIN PROFESSIONAL AB CRUSHER - short, hard & burns like fire - Sixpack goes Eightpack", "creator": "Pamela Reif", "category": "abs", "intensity": "hard", "totalDuration": 9.1, "startAt": 0, "endAt": 0, "effectiveDuration": 9.1, "rpe": null, "addedAt": "2026-02-14T08:06:42.080Z"},
+    {"id": "K2hACMvdHyk", "title": "20 MIN EXPRESS PILATES WORKOUT || At-Home Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 24.2, "startAt": 0, "endAt": 0, "effectiveDuration": 24.2, "rpe": null, "addedAt": "2026-02-14T08:06:57.682Z"},
+    {"id": "mQ28UJUerlg", "title": "50 MIN FULL BODY WORKOUT || At-Home Pilates Ring Workout (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 50.3, "startAt": 0, "endAt": 0, "effectiveDuration": 50.3, "rpe": null, "addedAt": "2026-02-14T08:07:05.200Z"},
+    {"id": "Lw8500fEQAM", "title": "🔥 탄력 UP 체지방 DOWN - 전신 근력 덤벨 20분 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "hard", "totalDuration": 21.3, "startAt": 0, "endAt": 0, "effectiveDuration": 21.3, "rpe": null, "addedAt": "2026-02-14T08:07:11.083Z"},
+    {"id": "p5lfjSGygpQ", "title": "30 Min All Standing Full Body Fat Burn | Aerobic Workout | Sweaty HIIT Party, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "hard", "totalDuration": 30.8, "startAt": 0, "endAt": 0, "effectiveDuration": 30.8, "rpe": null, "addedAt": "2026-02-14T08:07:58.301Z"},
+    {"id": "xMyW3jbg0y0", "title": "35 MIN ABS & BOOTY WORKOUT || Intermediate Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 37.2, "startAt": 0, "endAt": 0, "effectiveDuration": 37.2, "rpe": null, "addedAt": "2026-02-14T08:08:05.317Z"},
+    {"id": "po7WxPoB7UA", "title": "30 MIN FULL BODY SWEATY PILATES HIIT Workout | Fat Burning | No Repeat | Warm Up + Cool Down", "creator": "Eleni Fit", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T08:08:16.884Z"},
+    {"id": "Ww-14vcwCQw", "title": "30 MIN FULL BODY CARDIO PILATES WORKOUT At-Home| Fat Burning + Muscle Toning | No Repeat, No Jumping", "creator": "Eleni Fit", "category": "cardio", "intensity": "hard", "totalDuration": 34.1, "startAt": 0, "endAt": 0, "effectiveDuration": 34.1, "rpe": null, "addedAt": "2026-02-14T08:08:35.784Z"},
+    {"id": "avyhBrDwqGE", "title": "30 Min BOOTY BUILDING WORKOUT + Weights |  Grow your Glutes | No Jumping, Warm Up + Cool Down", "creator": "Eleni Fit", "category": "glutes_legs", "intensity": "hard", "totalDuration": 33.8, "startAt": 0, "endAt": 0, "effectiveDuration": 33.8, "rpe": null, "addedAt": "2026-02-14T08:08:43.917Z"},
+    {"id": "CwD9fdfz-gk", "title": "30 Min Full Body Fat Burning HIIT + BUTT LIFT | Sweaty Cardio Workout | No Equipment, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "hard", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T08:08:51.583Z"},
+    {"id": "9ENNbbYNXxw", "title": "12 MIN PRETTY ABS + ARMS I floor only, creative exercises, Pilates inspired I No Equipment", "creator": "Pamela Reif", "category": "abs", "intensity": "medium", "totalDuration": 12, "startAt": 0, "endAt": 0, "effectiveDuration": 12, "rpe": null, "addedAt": "2026-02-14T08:09:02.717Z"},
+    {"id": "S7sxZxVHs6Q", "title": "20 Min PILATES TONED LEGS / ROUND BOOTY Workout | No Jumping, No Equipment | No Repeat", "creator": "Eleni Fit", "category": "targeted_pilates", "intensity": "hard", "totalDuration": 22.3, "startAt": 0, "endAt": 0, "effectiveDuration": 22.3, "rpe": null, "addedAt": "2026-02-14T08:09:12.617Z"},
+    {"id": "cFIpoX0179g", "title": "10 MIN RISE + SHINE PILATES - Slow Full Body / great music: Vacation, Tech-House, Dance-Pop", "creator": "Pamela Reif", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 11.8, "startAt": 0, "endAt": 0, "effectiveDuration": 11.8, "rpe": null, "addedAt": "2026-02-14T08:09:22.800Z"},
+    {"id": "UKlaiuMPLtU", "title": "30 MIN INTENSE CARDIO DANCE HIIT Workout | All Standing | All Levels | Full Body Fat Burn, Super Fun", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T08:09:32.451Z"},
+    {"id": "G58Pn_ELIXQ", "title": "15 MIN CHEST + FLABBY ARMS I Boob Lift, Bingo Wings - weights or bottles", "creator": "Pamela Reif", "category": "upper_body", "intensity": "hard", "totalDuration": 15.3, "startAt": 0, "endAt": 0, "effectiveDuration": 15.3, "rpe": null, "addedAt": "2026-02-14T08:09:39.467Z"},
+    {"id": "9aytBZyqOko", "title": "20 MIN Standing Fat Burning Full Body Workout for Total Beginners | No Jumping | No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 22.8, "startAt": 0, "endAt": 0, "effectiveDuration": 22.8, "rpe": null, "addedAt": "2026-02-14T08:09:46.267Z"},
+    {"id": "UyoqRHklKjc", "title": "15 MIN EXPRESS PILATES WORKOUT || Dynamic Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "gentle", "totalDuration": 18.2, "startAt": 0, "endAt": 0, "effectiveDuration": 18.2, "rpe": null, "addedAt": "2026-02-14T08:09:54.600Z"},
+    {"id": "2mkR5LPhOC4", "title": "30 MIN FULL BODY WORKOUT || At-Home Beginner Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "gentle", "totalDuration": 31.3, "startAt": 0, "endAt": 0, "effectiveDuration": 31.3, "rpe": null, "addedAt": "2026-02-14T08:10:01.318Z"},
+    {"id": "sHnf-9zP998", "title": "25 MIN ABS & BOOTY WORKOUT || Intermediate Pilates With Mini Band (Optional)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 25.9, "startAt": 0, "endAt": 0, "effectiveDuration": 25.9, "rpe": null, "addedAt": "2026-02-14T08:10:08.300Z"},
+    {"id": "OgDaJl1l6AM", "title": "30 MIN FULL BODY WORKOUT || Power Pilates With Weights (Intermediate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 35.1, "startAt": 0, "endAt": 0, "effectiveDuration": 35.1, "rpe": null, "addedAt": "2026-02-14T08:10:14.568Z"},
+    {"id": "aAYtXOvl-PY", "title": "10 MIN 360° ABS - intense core workout for the ultimate sixpack I lower & upper abs, obliques", "creator": "Pamela Reif", "category": "cardio", "intensity": "hard", "totalDuration": 11.4, "startAt": 0, "endAt": 0, "effectiveDuration": 11.4, "rpe": null, "addedAt": "2026-02-14T08:10:21.783Z"},
+    {"id": "ndTg1V2ua3Q", "title": "30 Min METABOLISM BOOST Workout | No Jumping HIIT - Full Body Fat Burn | No Repeat, Sweaty", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 30.8, "startAt": 0, "endAt": 0, "effectiveDuration": 30.8, "rpe": null, "addedAt": "2026-02-14T08:10:29.600Z"},
+    {"id": "hgPPy_zNtlU", "title": "30 MIN PILATES WORKOUT || Classical Mat Pilates Inspired (No Equipment)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 35.6, "startAt": 0, "endAt": 0, "effectiveDuration": 35.6, "rpe": null, "addedAt": "2026-02-14T08:10:37.383Z"},
+    {"id": "VkBPozjTZVo", "title": "10 MIN HARD BUT(T) WORTH IT - Booty Activation, it’s magic for your glutes!", "creator": "Pamela Reif", "category": "glutes_legs", "intensity": "hard", "totalDuration": 12, "startAt": 0, "endAt": 0, "effectiveDuration": 12, "rpe": null, "addedAt": "2026-02-14T08:10:43.550Z"},
+    {"id": "LphBXB0KfxU", "title": "10 MIN EASY HAPPY CARDIO - Beginner Friendly, nothing complicated", "creator": "Pamela Reif", "category": "cardio", "intensity": "medium", "totalDuration": 11.5, "startAt": 0, "endAt": 0, "effectiveDuration": 11.5, "rpe": null, "addedAt": "2026-02-14T08:10:49.483Z"},
+    {"id": "9Te82opGhiQ", "title": "35 MIN FULL BODY WORKOUT || Intermediate Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 38.7, "startAt": 0, "endAt": 0, "effectiveDuration": 38.7, "rpe": null, "addedAt": "2026-02-14T08:10:57.733Z"},
+    {"id": "HLTYHepZ1EA", "title": "15 MIN STANDING ABS + FAT BURN - on the music, 100% standing core, HIIT I No Equipment", "creator": "Pamela Reif", "category": "abs", "intensity": "medium", "totalDuration": 15, "startAt": 0, "endAt": 0, "effectiveDuration": 15, "rpe": null, "addedAt": "2026-02-14T08:11:07.149Z"},
+    {"id": "hL7T0IQ0N6w", "title": "12 MIN BOOTY PUMP VOL. 2 - make your butt grow I update of my fave Butt Activation - harder & better", "creator": "Pamela Reif", "category": "glutes_legs", "intensity": "hard", "totalDuration": 13.8, "startAt": 0, "endAt": 0, "effectiveDuration": 13.8, "rpe": null, "addedAt": "2026-02-14T08:11:13.550Z"},
+    {"id": "MvSK7dBbt8Q", "title": "30 MIN ABS & BOOTY WORKOUT || Intermediate Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "hard", "totalDuration": 31, "startAt": 0, "endAt": 0, "effectiveDuration": 31, "rpe": null, "addedAt": "2026-02-14T08:11:21.316Z"},
+    {"id": "AYq1a5GxE9M", "title": "10 MIN TECHNO HIIT - Cardio on the beat, fast beats, fun - MOTIVATION BOOST", "creator": "Pamela Reif", "category": "cardio", "intensity": "hard", "totalDuration": 10.8, "startAt": 0, "endAt": 0, "effectiveDuration": 10.8, "rpe": null, "addedAt": "2026-02-14T08:11:27.484Z"},
+    {"id": "1Eu_d3okzm0", "title": "20 MIN EXPRESS PILATES WORKOUT || Intermediate Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 23.4, "startAt": 0, "endAt": 0, "effectiveDuration": 23.4, "rpe": null, "addedAt": "2026-02-14T08:11:33.549Z"},
+    {"id": "F1PpwZPD1zc", "title": "30 Min FULL BODY FLEXIBILITY + STRETCHING ROUTINE | Relaxation | Beginner Friendly, YOGA inspired", "creator": "Eleni Fit", "category": "cooldown", "intensity": "gentle", "totalDuration": 30.5, "startAt": 0, "endAt": 0, "effectiveDuration": 30.5, "rpe": null, "addedAt": "2026-02-14T08:11:43.566Z"},
+    {"id": "zdw1V-IBekc", "title": "30 MIN FULL BODY WORKOUT || Intermediate/Advanced Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 31.3, "startAt": 0, "endAt": 0, "effectiveDuration": 31.3, "rpe": null, "addedAt": "2026-02-14T08:11:53.432Z"},
+    {"id": "pVVYvYU7dXY", "title": "15 MIN BOOTY SHELF - LIFT YOUR GLUTES, Gym Style I Weight & Booty Band", "creator": "Pamela Reif", "category": "glutes_legs", "intensity": "hard", "totalDuration": 17.1, "startAt": 0, "endAt": 0, "effectiveDuration": 17.1, "rpe": null, "addedAt": "2026-02-14T08:11:59.716Z"},
+    {"id": "KsxdWABRBFM", "title": "10 MIN SEXY DANCE WORKOUT - shake your hips for happiness, self-confidence & fat burn", "creator": "Pamela Reif", "category": "dance", "intensity": "medium", "totalDuration": 10.3, "startAt": 0, "endAt": 0, "effectiveDuration": 10.3, "rpe": null, "addedAt": "2026-02-14T08:12:05.366Z"},
+    {"id": "TbYkJXqdUP0", "title": "30 MIN FULL BODY WORKOUT || At-Home Beginner Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "gentle", "totalDuration": 30.3, "startAt": 0, "endAt": 0, "effectiveDuration": 30.3, "rpe": null, "addedAt": "2026-02-14T08:12:12.049Z"},
+    {"id": "_bpnk9mxDk0", "title": "15 MIN COMPLETE UPPER BODY - all you need for back, arms & chest I with weight or bottle", "creator": "Pamela Reif", "category": "upper_body", "intensity": "hard", "totalDuration": 16.4, "startAt": 0, "endAt": 0, "effectiveDuration": 16.4, "rpe": null, "addedAt": "2026-02-14T08:12:21.265Z"},
+    {"id": "3q8SDN4QWf0", "title": "20 MIN CARDIO STEP WORKOUT to the BEAT | Walking Fat Burn, No Repeat, No Equipment, Fun & Sweaty", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 20.7, "startAt": 0, "endAt": 0, "effectiveDuration": 20.7, "rpe": null, "addedAt": "2026-02-14T08:12:27.433Z"},
+    {"id": "NGDgKlbeUw4", "title": "30 MIN CARDIO PILATES || Full Body Workout (Low Impact)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 30.9, "startAt": 0, "endAt": 0, "effectiveDuration": 30.9, "rpe": null, "addedAt": "2026-02-14T08:13:53.365Z"},
+    {"id": "1ltZQ9rJiFw", "title": "25 MIN EXPRESS PILATES WORKOUT || Moderate to Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 27.4, "startAt": 0, "endAt": 0, "effectiveDuration": 27.4, "rpe": null, "addedAt": "2026-02-14T08:14:00.397Z"},
+    {"id": "qVCtvvFmzHU", "title": "30 MIN ALL STANDING FAT BURN - Lose Weight While Having FUN | No Repeat,  Super Sweaty", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T08:14:09.398Z"},
+    {"id": "Ay2JDmOM5tU", "title": "10 MIN UPPER BODY + Booty Band I seems simple but is magic for your back & posture!", "creator": "Pamela Reif", "category": "upper_body", "intensity": "medium", "totalDuration": 11.3, "startAt": 0, "endAt": 0, "effectiveDuration": 11.3, "rpe": null, "addedAt": "2026-02-14T08:14:15.549Z"},
+    {"id": "CEu1vQxQfsE", "title": "30 Min STANDING CARDIO WORKOUT | Full Body HIIT, No Jumping  | Sweaty, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 34.1, "startAt": 0, "endAt": 0, "effectiveDuration": 34.1, "rpe": null, "addedAt": "2026-02-14T08:14:23.198Z"},
+    {"id": "gXn-b_ov3n8", "title": "15 MIN EXPRESS PILATES WORKOUT || At-Home Mat Pilates (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 18.6, "startAt": 0, "endAt": 0, "effectiveDuration": 18.6, "rpe": null, "addedAt": "2026-02-14T08:14:30.948Z"},
+    {"id": "0kS0Q-x08c4", "title": "10 MIN CHRISTMAS DANCE WORKOUT 2025 - happiness in winter wonderland I special guest: white horses", "creator": "Pamela Reif", "category": "dance", "intensity": "medium", "totalDuration": 10.5, "startAt": 0, "endAt": 0, "effectiveDuration": 10.5, "rpe": null, "addedAt": "2026-02-14T08:14:38.698Z"},
+    {"id": "qxY4t0QJ3vM", "title": "15 MIN MORNING YOGA FLOW || Wake Up & Feel Energised", "creator": "Move With Nicole", "category": "yoga", "intensity": "gentle", "totalDuration": 19.4, "startAt": 0, "endAt": 0, "effectiveDuration": 19.4, "rpe": null, "addedAt": "2026-02-14T08:14:44.515Z"},
+    {"id": "ngMFpsqjPEA", "title": "30 MIN FULL BODY WORKOUT || At-Home Pilates Ring Workout (Intermediate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 32, "startAt": 0, "endAt": 0, "effectiveDuration": 32, "rpe": null, "addedAt": "2026-02-14T08:14:50.982Z"},
+    {"id": "B1U-Z1b-EOg", "title": "30 MIN YOGA WORKOUT || Dancer Inspired Flow For Strength, Flexibility & Grace", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 32.4, "startAt": 0, "endAt": 0, "effectiveDuration": 32.4, "rpe": null, "addedAt": "2026-02-14T08:14:57.664Z"},
+    {"id": "_1vWvGfR0yc", "title": "30 MIN FULL BODY CARDIO X HIIT  | Fat Burn, No Repeat, No Equipment, Warm Up + Cool Down@_fit_mo_", "creator": "Eleni Fit", "category": "cardio", "intensity": "hard", "totalDuration": 33.4, "startAt": 0, "endAt": 0, "effectiveDuration": 33.4, "rpe": null, "addedAt": "2026-02-14T08:15:05.997Z"},
+    {"id": "euFvYQODM8Y", "title": "10 MIN C-POP DANCE WORKOUT - Chinese Music - the quickest 10min of your day", "creator": "Pamela Reif", "category": "dance", "intensity": "gentle", "totalDuration": 10.4, "startAt": 0, "endAt": 0, "effectiveDuration": 10.4, "rpe": null, "addedAt": "2026-02-14T08:15:12.815Z"},
+    {"id": "toFOWvqOjDY", "title": "35 MIN FULL BODY WORKOUT || Intermediate/Advanced Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "hard", "totalDuration": 36.5, "startAt": 0, "endAt": 0, "effectiveDuration": 36.5, "rpe": null, "addedAt": "2026-02-14T08:15:19.132Z"},
+    {"id": "C3LB3Qszx2I", "title": "30 MIN MORNING PILATES || Full Body Mat Pilates Workout (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 31.7, "startAt": 0, "endAt": 0, "effectiveDuration": 31.7, "rpe": null, "addedAt": "2026-02-14T08:15:25.132Z"},
+    {"id": "9kT9UxSK1RM", "title": "10 MIN LATIN Dance Cardio - shake your hips to a healthier & happier you", "creator": "Pamela Reif", "category": "dance", "intensity": "gentle", "totalDuration": 11.3, "startAt": 0, "endAt": 0, "effectiveDuration": 11.3, "rpe": null, "addedAt": "2026-02-14T08:15:37.431Z"},
+    {"id": "-hIBmCM3jPA", "title": "15 MIN KNEE FRIENDLY BOOTY + Weight / No Squats, Deadlift + Glute Bridge Focus, Gym Style", "creator": "Pamela Reif", "category": "glutes_legs", "intensity": "medium", "totalDuration": 16.3, "startAt": 0, "endAt": 0, "effectiveDuration": 16.3, "rpe": null, "addedAt": "2026-02-14T08:15:55.131Z"},
+    {"id": "DKp9VyRprV4", "title": "30 Min High Intense Fat Burn | Full Body Cardio HIIT Workout, Super Sweaty, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "hard", "totalDuration": 32.5, "startAt": 0, "endAt": 0, "effectiveDuration": 32.5, "rpe": null, "addedAt": "2026-02-14T08:16:01.347Z"},
+    {"id": "04Z2sdziZ2s", "title": "15 Min Stretches for HEADACHE to Relief Neck, Shoulder + Back Pain | Yoga Style | QUICK HELP", "creator": "Eleni Fit", "category": "meridian_yoga", "intensity": "gentle", "totalDuration": 15.5, "startAt": 0, "endAt": 0, "effectiveDuration": 15.5, "rpe": null, "addedAt": "2026-02-14T08:16:12.165Z"},
+    {"id": "opjPvRniwRA", "title": "물렁살 안녕 👋🏽 날씬 탄탄바디 만드는 덤벨 전신운동 10분 홈트", "creator": "Bigsis", "category": "fullbody_pilates", "intensity": "hard", "totalDuration": 11.3, "startAt": 0, "endAt": 0, "effectiveDuration": 11.3, "rpe": null, "addedAt": "2026-02-14T08:16:19.330Z"},
+    {"id": "imWc_27U9w8", "title": "25 MIN PILATES WORKOUT || Pilates For Better Posture & A Healthy Spine (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 27.9, "startAt": 0, "endAt": 0, "effectiveDuration": 27.9, "rpe": null, "addedAt": "2026-02-14T08:16:26.530Z"},
+    {"id": "AD6a9qqBZvg", "title": "20 Min Standing Abs, Small Waist + Tones Arms Workout | Daily Routine, No Jumping, No Repeat", "creator": "Eleni Fit", "category": "abs", "intensity": "gentle", "totalDuration": 21.5, "startAt": 0, "endAt": 0, "effectiveDuration": 21.5, "rpe": null, "addedAt": "2026-02-14T08:16:37.664Z"},
+    {"id": "dOO6-o7ObnU", "title": "40 MIN FULL BODY WORKOUT || Power Pilates With Weights (Intermediate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 44.3, "startAt": 0, "endAt": 0, "effectiveDuration": 44.3, "rpe": null, "addedAt": "2026-02-14T08:16:45.180Z"},
+    {"id": "Ae7VJWvYoZ0", "title": "12 MIN CHRISTMAS DANCE WORKOUT - Best Of + New Hits of 2023 I Sweaty Version", "creator": "Pamela Reif", "category": "dance", "intensity": "gentle", "totalDuration": 12.5, "startAt": 0, "endAt": 0, "effectiveDuration": 12.5, "rpe": null, "addedAt": "2026-02-14T08:16:54.213Z"},
+    {"id": "efiqud5yKLw", "title": "10분 공복 모닝 홈트 - No 층간소음 No 휴식 No 반복", "creator": "Bigsis", "category": "cardio", "intensity": "hard", "totalDuration": 11.4, "startAt": 0, "endAt": 0, "effectiveDuration": 11.4, "rpe": null, "addedAt": "2026-02-14T08:17:01.796Z"},
+    {"id": "bkiatp2muRs", "title": "30 MIN FULL BODY WORKOUT || Power Pilates With Weights (Intermediate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "hard", "totalDuration": 35.4, "startAt": 0, "endAt": 0, "effectiveDuration": 35.4, "rpe": null, "addedAt": "2026-02-14T08:17:07.996Z"},
+    {"id": "a1GlGJfRc88", "title": "40 MIN CARDIO BARRE & PILATES || Mini Ball Workout (Low Impact Options)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "hard", "totalDuration": 43.3, "startAt": 0, "endAt": 0, "effectiveDuration": 43.3, "rpe": null, "addedAt": "2026-02-14T08:17:14.281Z"},
+    {"id": "oZvjDn9aQfw", "title": "30 Min Full Body Fat Burn Extreme + Small Weights | All Standing - No Jumping | Beginner Friendly", "creator": "Eleni Fit", "category": "cardio", "intensity": "hard", "totalDuration": 34.1, "startAt": 0, "endAt": 0, "effectiveDuration": 34.1, "rpe": null, "addedAt": "2026-02-14T08:17:20.064Z"},
+    {"id": "zYPiaw-Yftk", "title": "여름맞이 특집 시리즈 - HIIT 18분 전신 근력 유산소 2편", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 19.5, "startAt": 0, "endAt": 0, "effectiveDuration": 19.5, "rpe": null, "addedAt": "2026-02-14T08:17:32.196Z"},
+    {"id": "qpeIfg3kxpE", "title": "10 MIN TONED ARMS - STANDING / burns like fire, for all levels (just switch size of bottle/weight)", "creator": "Pamela Reif", "category": "upper_body", "intensity": "medium", "totalDuration": 10.8, "startAt": 0, "endAt": 0, "effectiveDuration": 10.8, "rpe": null, "addedAt": "2026-02-14T08:17:38.013Z"},
+    {"id": "kmT1m59egfw", "title": "여름맞이 특집 시리즈 - HIIT 18분 전신 근력 유산소 3편", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 19.4, "startAt": 0, "endAt": 0, "effectiveDuration": 19.4, "rpe": null, "addedAt": "2026-02-14T08:18:00.329Z"},
+    {"id": "j-Sjl8kOLLU", "title": "10 MIN CHRISTMAS DANCE WORKOUT 2024 - high energy, supeeeeer happy", "creator": "Pamela Reif", "category": "dance", "intensity": "gentle", "totalDuration": 9.9, "startAt": 0, "endAt": 0, "effectiveDuration": 9.9, "rpe": null, "addedAt": "2026-02-14T08:18:12.313Z"},
+    {"id": "ERhNj7i3Bw4", "title": "중고급자 - 방탄몸매 만들기 -전신 덤벨 30분 근력운동 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 31.4, "startAt": 0, "endAt": 0, "effectiveDuration": 31.4, "rpe": null, "addedAt": "2026-02-14T08:18:23.512Z"},
+    {"id": "mQ28UJUerlg", "title": "50 MIN FULL BODY WORKOUT || At-Home Pilates Ring Workout (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 50.3, "startAt": 0, "endAt": 0, "effectiveDuration": 50.3, "rpe": null, "addedAt": "2026-02-14T08:18:31.896Z"},
+    {"id": "beoa3-Al870", "title": "30 MIN PILATES WORKOUT || Mat Pilates With Weights (Intermediate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 35.2, "startAt": 0, "endAt": 0, "effectiveDuration": 35.2, "rpe": null, "addedAt": "2026-02-14T08:18:40.445Z"},
+    {"id": "DAdjf01N310", "title": "20 MIN MORNING PILATES || Full Body Mat Pilates Workout (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "gentle", "totalDuration": 19.8, "startAt": 0, "endAt": 0, "effectiveDuration": 19.8, "rpe": null, "addedAt": "2026-02-14T08:18:47.895Z"},
+    {"id": "_rdbS8Vko3k", "title": "20 MIN SUNSET PILATES YOGA WORKOUT || Feel Good Routine", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "gentle", "totalDuration": 23.8, "startAt": 0, "endAt": 0, "effectiveDuration": 23.8, "rpe": null, "addedAt": "2026-02-14T08:19:27.545Z"},
+    {"id": "2IEcA7ZnvD0", "title": "10 MIN BURN DOWN SLOWLY - Ab Workout, Medium-Beginner I with pelvic floor + deep core activation", "creator": "Pamela Reif", "category": "abs", "intensity": "medium", "totalDuration": 11, "startAt": 0, "endAt": 0, "effectiveDuration": 11, "rpe": null, "addedAt": "2026-02-14T08:19:33.995Z"},
+    {"id": "HLp3tgBsPbw", "title": "35 MIN BARRE CARDIO WORKOUT || Low Impact Dancer Workout (No Equipment)", "creator": "Move With Nicole", "category": "cardio", "intensity": "hard", "totalDuration": 37, "startAt": 0, "endAt": 0, "effectiveDuration": 37, "rpe": null, "addedAt": "2026-02-14T08:19:41.145Z"},
+    {"id": "0tYM4PtIFGU", "title": "30 MIN FULL BODY SWEATY PILATES X BALLET Workout | Fat Burning | No Repeat | Warm Up + Cool Down", "creator": "Eleni Fit", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 32.5, "startAt": 0, "endAt": 0, "effectiveDuration": 32.5, "rpe": null, "addedAt": "2026-02-14T08:20:08.195Z"},
+    {"id": "AQ7778lCNZY", "title": "30분 중고급자 하체덤벨운동 - 이거 하나로 끝 시리즈 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 32.9, "startAt": 0, "endAt": 0, "effectiveDuration": 32.9, "rpe": null, "addedAt": "2026-02-14T08:20:19.194Z"},
+    {"id": "ZuH-DuRUWvk", "title": "15분 - 운동 후나 근육통 있는 날 꼭 해주세요 - 허리가 시원해지고 자세가 발라지는 전신 쿨다운 스트레칭", "creator": "Bigsis", "category": "cooldown", "intensity": "gentle", "totalDuration": 16.8, "startAt": 0, "endAt": 0, "effectiveDuration": 16.8, "rpe": null, "addedAt": "2026-02-14T08:20:25.645Z"},
+    {"id": "x0UKQEG-mi4", "title": "10 MIN ONLY BACK - Bodyweight Workout, on the floor - maximum focus on back muscles I No Equipment", "creator": "Pamela Reif", "category": "upper_body", "intensity": "medium", "totalDuration": 10.9, "startAt": 0, "endAt": 0, "effectiveDuration": 10.9, "rpe": null, "addedAt": "2026-02-14T08:21:34.394Z"},
+    {"id": "RBVyRi_dX1o", "title": "10분 홈트의 정석 10동작 - 꼭 숙지해야 하는 효과 좋은 동작 모음", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 11.3, "startAt": 0, "endAt": 0, "effectiveDuration": 11.3, "rpe": null, "addedAt": "2026-02-14T08:21:42.278Z"},
+    {"id": "oYVfTcJSRTE", "title": "맨몸 전신 + 코어 12분 - 동적 안정성 훈련  부상 방지 덤벨 선행 홈트", "creator": "Bigsis", "category": "abs", "intensity": "medium", "totalDuration": 13.3, "startAt": 0, "endAt": 0, "effectiveDuration": 13.3, "rpe": null, "addedAt": "2026-02-14T08:21:49.177Z"},
+    {"id": "73z9fDeoYqY", "title": "40 MIN FULL BODY WORKOUT || Intermediate Pilates With Mini Band (Optional)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 40.3, "startAt": 0, "endAt": 0, "effectiveDuration": 40.3, "rpe": null, "addedAt": "2026-02-14T08:21:58.727Z"},
+    {"id": "_RQ5m9aoTGQ", "title": "35 MIN FULL BODY WORKOUT || Intermediate Power Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 37.7, "startAt": 0, "endAt": 0, "effectiveDuration": 37.7, "rpe": null, "addedAt": "2026-02-14T08:22:09.860Z"},
+    {"id": "LbG1ovCGp-E", "title": "30 MIN MORNING PILATES || Energising Full Body Workout (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 34.7, "startAt": 0, "endAt": 0, "effectiveDuration": 34.7, "rpe": null, "addedAt": "2026-02-14T12:44:17.198Z"},
+    {"id": "vRDM5WFmmZc", "title": "5000 STEPS IN 30 MIN - WALKING FAT BURN - Lose Weight and Have Fun | No Repeat, No Jumping, Sweaty", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 34.1, "startAt": 0, "endAt": 0, "effectiveDuration": 34.1, "rpe": null, "addedAt": "2026-02-14T12:44:28.381Z"},
+    {"id": "F0jRehe7l8s", "title": "30 MIN FULL BODY Advanced HIIT - Intense Fat Burn + Build Muscles | With Weights | No Repeat", "creator": "Eleni Fit", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T12:44:40.331Z"},
+    {"id": "8cltCOUpYTQ", "title": "20 MIN GENTLE YOGA FLOW || Relaxing Flow to Stretch & Feel Good", "creator": "Move With Nicole", "category": "yoga", "intensity": "gentle", "totalDuration": 20.4, "startAt": 0, "endAt": 0, "effectiveDuration": 20.4, "rpe": null, "addedAt": "2026-02-14T12:44:46.681Z"},
+    {"id": "kQACrehFaLA", "title": "35 MIN PILATES WORKOUT || At-Home Mat Pilates (No Standing & No Equipment)", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 38.7, "startAt": 0, "endAt": 0, "effectiveDuration": 38.7, "rpe": null, "addedAt": "2026-02-14T12:45:20.764Z"},
+    {"id": "huSKtEzN0EA", "title": "20 MIN PILATES HIIT || Low Impact & No Repeat Workout (Stretch Included)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 25, "startAt": 0, "endAt": 0, "effectiveDuration": 25, "rpe": null, "addedAt": "2026-02-14T12:45:31.897Z"},
+    {"id": "-U88syMdrgw", "title": "모닝 ☀️ 공복 유산소 - 서서하는 논스탑 홈트 15분", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 15.9, "startAt": 0, "endAt": 0, "effectiveDuration": 15.9, "rpe": null, "addedAt": "2026-02-14T12:45:43.797Z"},
+    {"id": "uaQyf7dbAMM", "title": "6 MIN UPPER BODY Mobility + Stretch I Back, Shoulder + Spine / fix your posture + pain", "creator": "Pamela Reif", "category": "upper_body", "intensity": "medium", "totalDuration": 7.2, "startAt": 0, "endAt": 0, "effectiveDuration": 7.2, "rpe": null, "addedAt": "2026-02-14T12:52:36.962Z"},
+    {"id": "z_36xu4nsOQ", "title": "러닝 후 바로 할 수 있는 서서하는 스트레칭 - 쿨다운 8분 - 정적 스트레칭", "creator": "Bigsis", "category": "warmup", "intensity": "gentle", "totalDuration": 8.8, "startAt": 0, "endAt": 0, "effectiveDuration": 8.8, "rpe": null, "addedAt": "2026-02-14T12:52:48.379Z"},
+    {"id": "efxKEO9H1A8", "title": "30 MIN ABS & BOOTY WORKOUT || Intermediate Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 34.2, "startAt": 0, "endAt": 0, "effectiveDuration": 34.2, "rpe": null, "addedAt": "2026-02-14T12:53:01.045Z"},
+    {"id": "-QU_3VLGyug", "title": "10 MIN TOUCHDOWN CARDIO with Bijan Robinson - no jumping, quick feet, calorie burner I  Bonus: Abs", "creator": "Pamela Reif", "category": "cardio", "intensity": "hard", "totalDuration": 11.2, "startAt": 0, "endAt": 0, "effectiveDuration": 11.2, "rpe": null, "addedAt": "2026-02-14T12:53:08.345Z"},
+    {"id": "U2fTFRBpTZU", "title": "요요없는 덤벨 다이어트 HIIT - 🐴 말도 나도 살찌는 계절🍂 근력 + 유산소 고강도 인터벌 홈트 운동", "creator": "Bigsis", "category": "upper_body", "intensity": "medium", "totalDuration": 25.5, "startAt": 0, "endAt": 0, "effectiveDuration": 25.5, "rpe": null, "addedAt": "2026-02-14T15:14:38.062Z"},
+    {"id": "j0yYbeMBYSs", "title": "6 MIN BARBIE DANCE WORKOUT - Fun Cardio Session, Moods: cute, latin, gangster & KEN", "creator": "Pamela Reif", "category": "dance", "intensity": "medium", "totalDuration": 6.5, "startAt": 0, "endAt": 0, "effectiveDuration": 6.5, "rpe": null, "addedAt": "2026-02-14T15:14:46.112Z"},
+    {"id": "AItUENUJqOA", "title": "20 MIN ABS + WEIGHTS I 360° Solution, everything you need for a 6-pack - Lower, Upper + Side Abs", "creator": "Pamela Reif", "category": "abs", "intensity": "hard", "totalDuration": 22.6, "startAt": 0, "endAt": 0, "effectiveDuration": 22.6, "rpe": null, "addedAt": "2026-02-14T15:15:11.628Z"},
+    {"id": "WJcA-yAvgP8", "title": "10 MIN LOWER AB WORKOUT - Beginner, with Medium Options I Pamela Reif", "creator": "Pamela Reif", "category": "abs", "intensity": "hard", "totalDuration": 10.6, "startAt": 0, "endAt": 0, "effectiveDuration": 10.6, "rpe": null, "addedAt": "2026-02-14T15:15:18.095Z"},
+    {"id": "Q98t9cbp-xo", "title": "35 MIN UPPER BODY & CORE WORKOUT || At-Home Pilates (No Equipment)", "creator": "Move With Nicole", "category": "upper_body", "intensity": "medium", "totalDuration": 36.7, "startAt": 0, "endAt": 0, "effectiveDuration": 36.7, "rpe": null, "addedAt": "2026-02-14T15:15:38.928Z"},
+    {"id": "VEZsItc0f0Q", "title": "20 Min Intense NON STOP Full Body Fat Burn | All Standing - No Jumping Workout | Sweaty, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 20.5, "startAt": 0, "endAt": 0, "effectiveDuration": 20.5, "rpe": null, "addedAt": "2026-02-14T15:15:45.995Z"},
+    {"id": "hkm2CQuWKkg", "title": "30 Min FULL BODY YOGA FLEXIBILITY + Strength | Deep Tension Relief, Beginner Friendly, No Repeat", "creator": "Eleni Fit", "category": "yoga", "intensity": "gentle", "totalDuration": 30.5, "startAt": 0, "endAt": 0, "effectiveDuration": 30.5, "rpe": null, "addedAt": "2026-02-14T15:15:55.111Z"},
+    {"id": "-_6uhR46pvE", "title": "20 MIN EXPRESS PILATES WORKOUT || Power Pilates For Energy (Moderate/Intermediate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 24.6, "startAt": 0, "endAt": 0, "effectiveDuration": 24.6, "rpe": null, "addedAt": "2026-02-14T15:16:01.362Z"},
+    {"id": "OMgkDnDOpqI", "title": "상쾌한 아침 운동 20분 - 홈트로 하루를 건강하게 시작해 보세요 💖", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 21.4, "startAt": 0, "endAt": 0, "effectiveDuration": 21.4, "rpe": null, "addedAt": "2026-02-14T15:16:17.312Z"},
+    {"id": "seeFFgbCVvA", "title": "운동할 때 무릎 아픈분들 다 모여라 - 힙힌지 훈련 + 관절무리 없는 하체운동 홈트", "creator": "Bigsis", "category": "glutes_legs", "intensity": "medium", "totalDuration": 22.7, "startAt": 0, "endAt": 0, "effectiveDuration": 22.7, "rpe": null, "addedAt": "2026-02-14T15:16:27.796Z"},
+    {"id": "kxYN_vHZY5o", "title": "20 MIN PILATES CARDIO & ABS || Low Impact Workout (Stretch Included)", "creator": "Move With Nicole", "category": "abs", "intensity": "medium", "totalDuration": 24.4, "startAt": 0, "endAt": 0, "effectiveDuration": 24.4, "rpe": null, "addedAt": "2026-02-14T15:16:34.061Z"},
+    {"id": "hAd_izzfBdU", "title": "15 MIN POWER PILATES - this is a proper workout, my personal favorite / floor only, knee friendly", "creator": "Pamela Reif", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 16.4, "startAt": 0, "endAt": 0, "effectiveDuration": 16.4, "rpe": null, "addedAt": "2026-02-14T15:16:43.962Z"},
+    {"id": "dY_HDYIiZHk", "title": "여름 스페셜 확실하게 빼줄게 - 체지방 소멸 50분 - 전신 근력 유산소 홈트 운동", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 52.6, "startAt": 0, "endAt": 0, "effectiveDuration": 52.6, "rpe": null, "addedAt": "2026-02-14T15:16:53.944Z"},
+    {"id": "dYcNLMwwlMA", "title": "15 MIN PILATES CORE & ABS WORKOUT || Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "abs", "intensity": "medium", "totalDuration": 19, "startAt": 0, "endAt": 0, "effectiveDuration": 19, "rpe": null, "addedAt": "2026-02-14T15:17:01.111Z"},
+    {"id": "hAQ2CdK5A_o", "title": "10 MIN MONSTER CARDIO - SMILE GUARANTEE I + Standing Abs I Fast Beats, Drum & Bass, Techno, Pop", "creator": "Pamela Reif", "category": "cardio", "intensity": "hard", "totalDuration": 10, "startAt": 0, "endAt": 0, "effectiveDuration": 10, "rpe": null, "addedAt": "2026-02-14T15:17:06.411Z"},
+    {"id": "yniZSd9_TSM", "title": "20 MIN Non Stop Fat Burning Workout for Total Beginners | All Standing - No Jumping | No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "gentle", "totalDuration": 23.1, "startAt": 0, "endAt": 0, "effectiveDuration": 23.1, "rpe": null, "addedAt": "2026-02-14T15:17:13.396Z"},
+    {"id": "_d14T-Bztx8", "title": "5 MIN QUICK MOBILITY - Daily Routine I Good morning, Bedtime or Warm Up I advanced", "creator": "Pamela Reif", "category": "warmup", "intensity": "gentle", "totalDuration": 5.8, "startAt": 0, "endAt": 0, "effectiveDuration": 5.8, "rpe": null, "addedAt": "2026-02-14T15:17:21.195Z"},
+    {"id": "uNeAR-CKFnQ", "title": "10 MIN CARDIO + BOTTLES - on the music / calorie burn, small weights, bonus: arms + standing abs", "creator": "Pamela Reif", "category": "cardio", "intensity": "medium", "totalDuration": 10.1, "startAt": 0, "endAt": 0, "effectiveDuration": 10.1, "rpe": null, "addedAt": "2026-02-14T15:17:28.012Z"},
+    {"id": "7Zk21u_lopU", "title": "6 MIN QUICK + DIRTY ABS - short & VERY effective - intense sixpack workout", "creator": "Pamela Reif", "category": "abs", "intensity": "hard", "totalDuration": 7.6, "startAt": 0, "endAt": 0, "effectiveDuration": 7.6, "rpe": null, "addedAt": "2026-02-14T15:17:33.661Z"},
+    {"id": "Ed69soS-dIM", "title": "버피 중고급자용 - 근력 키우며 체지방 폭파 10분 덤벨 버피 HIIT", "creator": "Bigsis", "category": "upper_body", "intensity": "medium", "totalDuration": 11.4, "startAt": 0, "endAt": 0, "effectiveDuration": 11.4, "rpe": null, "addedAt": "2026-02-14T15:17:42.394Z"},
+    {"id": "Xe-Uo4Ta3AY", "title": "30 Min All Standing Fat Burning HIIT | Standing Cardio, Super Sweaty, Kickboxing Style, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:17:49.595Z"},
+    {"id": "lNftFawOAUM", "title": "30 MIN FULL BODY WORKOUT || At-Home Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 35.8, "startAt": 0, "endAt": 0, "effectiveDuration": 35.8, "rpe": null, "addedAt": "2026-02-14T15:17:56.979Z"},
+    {"id": "b_DX9MKazMA", "title": "추석동안 많이 먹은 사람 드루와 💪 송편타파 전신 근력 + 유산소 25분 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 26.5, "startAt": 0, "endAt": 0, "effectiveDuration": 26.5, "rpe": null, "addedAt": "2026-02-14T15:18:06.427Z"},
+    {"id": "gqaWri2NEL0", "title": "20 MIN SWEATY CARDIO DANCE Workout | All Standing | All Levels | Full Body Fat Burn, Super Fun", "creator": "Eleni Fit", "category": "dance", "intensity": "medium", "totalDuration": 23.6, "startAt": 0, "endAt": 0, "effectiveDuration": 23.6, "rpe": null, "addedAt": "2026-02-14T15:18:12.777Z"},
+    {"id": "7syChYkN5BU", "title": "30 MIN FULL BODY PILATES WORKOUT | At-Home, No Equipment | Fat Burning + Muscle Toning | No Repeat", "creator": "Eleni Fit", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:18:21.811Z"},
+    {"id": "cTsZweJPois", "title": "30 MIN PILATES FOR BEGINNERS || At-Home Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "gentle", "totalDuration": 31.8, "startAt": 0, "endAt": 0, "effectiveDuration": 31.8, "rpe": null, "addedAt": "2026-02-14T15:18:31.310Z"},
+    {"id": "K2hACMvdHyk", "title": "20 MIN EXPRESS PILATES WORKOUT || At-Home Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 24.2, "startAt": 0, "endAt": 0, "effectiveDuration": 24.2, "rpe": null, "addedAt": "2026-02-14T15:18:39.077Z"},
+    {"id": "1TXj_U23bPs", "title": "30 MIN PILATES WORKOUT || Intermediate Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 33, "startAt": 0, "endAt": 0, "effectiveDuration": 33, "rpe": null, "addedAt": "2026-02-14T15:18:44.711Z"},
+    {"id": "YE3PpKTCkj8", "title": "30 MIN FULL BODY FAT BURNING PILATES HIIT | Tone Lean Muscles | No Repeat, No Jumping", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:18:55.642Z"},
+    {"id": "VUoMwEkmMMk", "title": "35 MIN PILATES WORKOUT || Power Pilates With Weights (Intermediate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 36.3, "startAt": 0, "endAt": 0, "effectiveDuration": 36.3, "rpe": null, "addedAt": "2026-02-14T15:19:04.258Z"},
+    {"id": "5TzqqPJFHeQ", "title": "30 MIN DAILY YOGA FLOW || Full Body Flow To Feel Good", "creator": "Move With Nicole", "category": "yoga", "intensity": "gentle", "totalDuration": 34.8, "startAt": 0, "endAt": 0, "effectiveDuration": 34.8, "rpe": null, "addedAt": "2026-02-14T15:19:14.175Z"},
+    {"id": "ezke0GlKeM4", "title": "20 MIN EXPRESS PILATES WORKOUT || Everyday Pilates For Energy (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 21.7, "startAt": 0, "endAt": 0, "effectiveDuration": 21.7, "rpe": null, "addedAt": "2026-02-14T15:19:21.858Z"},
+    {"id": "wLCQC5WmVKo", "title": "20 MIN THIGHS & BOOTY WORKOUT || Sculpting Barre Workout", "creator": "Move With Nicole", "category": "glutes_legs", "intensity": "medium", "totalDuration": 22.6, "startAt": 0, "endAt": 0, "effectiveDuration": 22.6, "rpe": null, "addedAt": "2026-02-14T15:19:38.856Z"},
+    {"id": "vkQzCqYpu6Q", "title": "30 Min Knee Friendly Full Body Cardio Workout | All Standing - No Jumping | Sweaty, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 33, "startAt": 0, "endAt": 0, "effectiveDuration": 33, "rpe": null, "addedAt": "2026-02-14T15:19:53.041Z"},
+    {"id": "ZxeSanWDWR4", "title": "스쿼트 중고급자용 - 근력 키우며 체지방 폭파 10분 덤벨 스쿼트 HIIT", "creator": "Bigsis", "category": "glutes_legs", "intensity": "hard", "totalDuration": 11.5, "startAt": 0, "endAt": 0, "effectiveDuration": 11.5, "rpe": null, "addedAt": "2026-02-14T15:20:02.190Z"},
+    {"id": "UpUEktyiSpE", "title": "20 MIN PILATES WORKOUT - Slow Full Body Toning I Floor only, Low Impact", "creator": "Pamela Reif", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 20, "startAt": 0, "endAt": 0, "effectiveDuration": 20, "rpe": null, "addedAt": "2026-02-14T15:20:07.956Z"},
+    {"id": "y2RcYo36boM", "title": "20 MIN EXPRESS PILATES WORKOUT || Beginner to Moderate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 24.1, "startAt": 0, "endAt": 0, "effectiveDuration": 24.1, "rpe": null, "addedAt": "2026-02-14T15:20:19.240Z"},
+    {"id": "bKVvGqSF89c", "title": "15 Min Stretches for BACK PAIN | Deep Tension Relief Yoga Style | QUICK HELP", "creator": "Eleni Fit", "category": "meridian_yoga", "intensity": "gentle", "totalDuration": 15.4, "startAt": 0, "endAt": 0, "effectiveDuration": 15.4, "rpe": null, "addedAt": "2026-02-14T15:20:47.006Z"},
+    {"id": "AMLSBnAxLbU", "title": "35 MIN PILATES WORKOUT || Pilates For A Strong & Healthy Back (Intermediate)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "hard", "totalDuration": 36.4, "startAt": 0, "endAt": 0, "effectiveDuration": 36.4, "rpe": null, "addedAt": "2026-02-14T15:20:54.557Z"},
+    {"id": "CRhh0LBjgrY", "title": "🌸 봄맞이 군살 정리 🌸 근력 유산소 15분 - 덤벨 HIIT 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "hard", "totalDuration": 16.6, "startAt": 0, "endAt": 0, "effectiveDuration": 16.6, "rpe": null, "addedAt": "2026-02-14T15:21:02.690Z"},
+    {"id": "eLSmIAmvyCo", "title": "추석이 두렵지 않다💪 미리준비해요 - NO반복 NO층간 논스톱 40동작 - 23분 전신 운동 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 24.7, "startAt": 0, "endAt": 0, "effectiveDuration": 24.7, "rpe": null, "addedAt": "2026-02-14T15:21:12.924Z"},
+    {"id": "AaQ2cWPelEY", "title": "8 MIN PAM’S MORNING ROUTINE - QiGong, deep breathing, lymphatic activation, body tapping, stretching", "creator": "Pamela Reif", "category": "warmup", "intensity": "gentle", "totalDuration": 8.5, "startAt": 0, "endAt": 0, "effectiveDuration": 8.5, "rpe": null, "addedAt": "2026-02-14T15:21:20.573Z"},
+    {"id": "OJxXA4EwTf0", "title": "25 MIN PILATES CORE & ABS WORKOUT || Moderate to Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 26.5, "startAt": 0, "endAt": 0, "effectiveDuration": 26.5, "rpe": null, "addedAt": "2026-02-14T15:21:29.490Z"},
+    {"id": "dmjyyH_UMPY", "title": "25 MIN EXPRESS PILATES WORKOUT || Dynamic Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 27.3, "startAt": 0, "endAt": 0, "effectiveDuration": 27.3, "rpe": null, "addedAt": "2026-02-14T15:21:35.390Z"},
+    {"id": "Lw8500fEQAM", "title": "🔥 탄력 UP 체지방 DOWN - 전신 근력 덤벨 20분 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 21.3, "startAt": 0, "endAt": 0, "effectiveDuration": 21.3, "rpe": null, "addedAt": "2026-02-14T15:21:43.557Z"},
+    {"id": "MSdg5XDWOHE", "title": "2탄 - 요요 없이 살빼기 다이어터 전용 30분 논스톱 2탄 - 덤벨 근력 유산소", "creator": "Bigsis", "category": "upper_body", "intensity": "medium", "totalDuration": 31.4, "startAt": 0, "endAt": 0, "effectiveDuration": 31.4, "rpe": null, "addedAt": "2026-02-14T15:21:51.240Z"},
+    {"id": "OPyJVW7BMqU", "title": "35 MIN DANCER PILATES WORKOUT || Full Body Sculpt (No Equipment)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 37.4, "startAt": 0, "endAt": 0, "effectiveDuration": 37.4, "rpe": null, "addedAt": "2026-02-14T15:22:00.106Z"},
+    {"id": "CDntpk7UQHs", "title": "10 MIN HIIT THOSE ABS - 2in1 Cardio & Core I high intensity calorie burn", "creator": "Pamela Reif", "category": "abs", "intensity": "hard", "totalDuration": 11.5, "startAt": 0, "endAt": 0, "effectiveDuration": 11.5, "rpe": null, "addedAt": "2026-02-14T15:22:06.073Z"},
+    {"id": "S3KJj3OReKc", "title": "슬림탄탄 몸매 원하시는 분을 위한👙 전신 덤벨 근력 + 유산소 - 이걸로 하루 운동 끝!", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 30.5, "startAt": 0, "endAt": 0, "effectiveDuration": 30.5, "rpe": null, "addedAt": "2026-02-14T15:22:11.857Z"},
+    {"id": "M4dyK28GrE0", "title": "35 MIN PILATES WORKOUT || Intermediate Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 38.6, "startAt": 0, "endAt": 0, "effectiveDuration": 38.6, "rpe": null, "addedAt": "2026-02-14T15:22:17.173Z"},
+    {"id": "dF2dXejdKHM", "title": "20 MIN PILATES CORE & ABS WORKOUT || At-Home Pilates For All Levels", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 23.5, "startAt": 0, "endAt": 0, "effectiveDuration": 23.5, "rpe": null, "addedAt": "2026-02-14T15:22:23.505Z"},
+    {"id": "-RF9eqIZBew", "title": "12 MIN CREATIVE BOOTY - magic Glute Activation I knee friendly, no fire hydrants, no squats", "creator": "Pamela Reif", "category": "glutes_legs", "intensity": "hard", "totalDuration": 13.4, "startAt": 0, "endAt": 0, "effectiveDuration": 13.4, "rpe": null, "addedAt": "2026-02-14T15:22:36.055Z"},
+    {"id": "tLMZE2vxTSk", "title": "30 MIN FULL BODY FAT BURNING PILATES At Home | + Muscle Toning | No Repeat, No Jumping", "creator": "Eleni Fit", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:22:44.573Z"},
+    {"id": "e4A58O1oLJc", "title": "40 MIN FULL BODY WORKOUT || Intermediate Pilates With Mini Band (Optional)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "hard", "totalDuration": 39.8, "startAt": 0, "endAt": 0, "effectiveDuration": 39.8, "rpe": null, "addedAt": "2026-02-14T15:22:53.390Z"},
+    {"id": "9Yb8hFaoEhY", "title": "8 MIN PROFESSIONAL AB CRUSHER - short, hard & burns like fire - Sixpack goes Eightpack", "creator": "Pamela Reif", "category": "abs", "intensity": "hard", "totalDuration": 9.1, "startAt": 0, "endAt": 0, "effectiveDuration": 9.1, "rpe": null, "addedAt": "2026-02-14T15:22:58.572Z"},
+    {"id": "ta_k5QZLkfk", "title": "20 MIN PILATES WORKOUT || Upper Body & Core (Moderate/Intermediate)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 21.9, "startAt": 0, "endAt": 0, "effectiveDuration": 21.9, "rpe": null, "addedAt": "2026-02-14T15:23:07.289Z"},
+    {"id": "6mV4VJiJJIc", "title": "30 Min Toned Legs + Booty Building Workout | No Jumping, Light Weights, Beginner Friendly, No Repeat", "creator": "Eleni Fit", "category": "glutes_legs", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:23:15.723Z"},
+    {"id": "_y39T5jQfFM", "title": "25 MIN FEEL GOOD PILATES || At-Home Pilates Workout (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "gentle", "totalDuration": 27, "startAt": 0, "endAt": 0, "effectiveDuration": 27, "rpe": null, "addedAt": "2026-02-14T15:23:22.239Z"},
+    {"id": "I5IrG-JbvXg", "title": "10 MIN HEARTBEAT ON FIRE - Cardio HIIT / fast, fun, on the beat - this makes you SWEAT!", "creator": "Pamela Reif", "category": "cardio", "intensity": "hard", "totalDuration": 10.9, "startAt": 0, "endAt": 0, "effectiveDuration": 10.9, "rpe": null, "addedAt": "2026-02-14T15:23:27.755Z"},
+    {"id": "_0DPfRiGTns", "title": "10 MIN PAM’S BIRTHDAY DANCE - good mood cardio, burn lots of calories & smile / Benson Boone music", "creator": "Pamela Reif", "category": "dance", "intensity": "medium", "totalDuration": 10.9, "startAt": 0, "endAt": 0, "effectiveDuration": 10.9, "rpe": null, "addedAt": "2026-02-14T15:23:33.606Z"},
+    {"id": "wPF-l9gt-hw", "title": "새해 시작은 덤벨 - 체지방 빼며 근육 잡는 20분 전신 덤벨 근력 유산소 홈트 운동", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 21.6, "startAt": 0, "endAt": 0, "effectiveDuration": 21.6, "rpe": null, "addedAt": "2026-02-14T15:23:39.939Z"},
+    {"id": "3d2_0R8vEAU", "title": "2026 🎉 새해새몸 | 새해, 다시 나를 돌보는 시간", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 30, "startAt": 0, "endAt": 0, "effectiveDuration": 30, "rpe": null, "addedAt": "2026-02-14T15:23:46.789Z"},
+    {"id": "sLT2JQNOZRg", "title": "30 MIN FULL BODY FAT BURNING PILATES HIIT + Tone Lean Muscles | With Weights, No Repeat, No Jumping", "creator": "Eleni Fit", "category": "targeted_pilates", "intensity": "hard", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:23:55.771Z"},
+    {"id": "PihehJutQP4", "title": "30 MIN STANDING XMAS FULL BODY PILATES X HIIT Workout | Fat Burning | No Repeat | Super Sweaty", "creator": "Eleni Fit", "category": "cardio", "intensity": "hard", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:24:05.039Z"},
+    {"id": "98rmMgBwJXE", "title": "20 MIN EVERYDAY YOGA || Daily Yoga Flow To Stretch & Feel Good", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 24.4, "startAt": 0, "endAt": 0, "effectiveDuration": 24.4, "rpe": null, "addedAt": "2026-02-14T15:24:11.605Z"},
+    {"id": "C2HX2pNbUCM", "title": "30 MIN FULL BODY WORKOUT || At-Home Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 32.6, "startAt": 0, "endAt": 0, "effectiveDuration": 32.6, "rpe": null, "addedAt": "2026-02-14T15:24:16.472Z"},
+    {"id": "ecZ09liTiFI", "title": "40 MIN MORNING PILATES || Mat Pilates Flow For Strength & Flexibility (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 41.1, "startAt": 0, "endAt": 0, "effectiveDuration": 41.1, "rpe": null, "addedAt": "2026-02-14T15:24:25.739Z"},
+    {"id": "zpRoJ_V0r7w", "title": "5 MIN HIP, LEG + BUTT MOBILITY - Stretching & Emotional Stress Relief I Bonus: Lower Back", "creator": "Pamela Reif", "category": "cooldown", "intensity": "gentle", "totalDuration": 6.2, "startAt": 0, "endAt": 0, "effectiveDuration": 6.2, "rpe": null, "addedAt": "2026-02-14T15:24:35.972Z"},
+    {"id": "PZB7EkWkj_M", "title": "45 MIN FULL BODY YOGA FLOW || Vinyasa Flow For Balance, Flexibility & Strength", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 47.8, "startAt": 0, "endAt": 0, "effectiveDuration": 47.8, "rpe": null, "addedAt": "2026-02-14T15:24:50.038Z"},
+    {"id": "uqJ-jANozcE", "title": "40 MIN YOGA WORKOUT || Full Body Yoga Flow For Strength & Flexibility", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 41.4, "startAt": 0, "endAt": 0, "effectiveDuration": 41.4, "rpe": null, "addedAt": "2026-02-14T15:24:55.521Z"},
+    {"id": "l05LtuMAeAQ", "title": "끈적한 여름철에 하기좋은 서서하는 복근 운동 - 15분 매끈한 허리라인 유산소 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 16.1, "startAt": 0, "endAt": 0, "effectiveDuration": 16.1, "rpe": null, "addedAt": "2026-02-14T15:25:08.672Z"},
+    {"id": "R1Dfx5PL5zE", "title": "20 Min Intense NON STOP Full Body Fat Burn | Intense No Jumping Workout | Sweaty, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 21, "startAt": 0, "endAt": 0, "effectiveDuration": 21, "rpe": null, "addedAt": "2026-02-14T15:25:15.105Z"},
+    {"id": "sqh_EjMteu8", "title": "40 MIN FULL BODY WORKOUT || Dynamic Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 39.1, "startAt": 0, "endAt": 0, "effectiveDuration": 39.1, "rpe": null, "addedAt": "2026-02-14T15:26:49.521Z"},
+    {"id": "dBD7wH5ElyQ", "title": "40 Min All Standing Fat Burning HIIT + Abs | Standing Cardio, No Jumping, Super Sweaty, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 41.7, "startAt": 0, "endAt": 0, "effectiveDuration": 41.7, "rpe": null, "addedAt": "2026-02-14T15:26:56.654Z"},
+    {"id": "KhRDQdXRGq8", "title": "송편타파 3 - 15분 체지방 활활 태우는 전신운동 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 17.4, "startAt": 0, "endAt": 0, "effectiveDuration": 17.4, "rpe": null, "addedAt": "2026-02-14T15:27:03.620Z"},
+    {"id": "qcjD6HJlSRk", "title": "15 MIN BACK ATTACK, Back-Only Workout - 100% strength, 0% cardio I Equipment: weights + towel", "creator": "Pamela Reif", "category": "upper_body", "intensity": "hard", "totalDuration": 16.4, "startAt": 0, "endAt": 0, "effectiveDuration": 16.4, "rpe": null, "addedAt": "2026-02-14T15:27:10.237Z"},
+    {"id": "XDt6xS3dI60", "title": "20 MIN BOOTY WORKOUT || At-Home Pilates (No Squats & No Equipment)", "creator": "Move With Nicole", "category": "glutes_legs", "intensity": "medium", "totalDuration": 22.2, "startAt": 0, "endAt": 0, "effectiveDuration": 22.2, "rpe": null, "addedAt": "2026-02-14T15:27:16.070Z"},
+    {"id": "2eC7TlC2NLs", "title": "30 MIN DAILY YOGA FLOW || Yoga Flow To Stretch & Feel Good", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 33.4, "startAt": 0, "endAt": 0, "effectiveDuration": 33.4, "rpe": null, "addedAt": "2026-02-14T15:27:23.953Z"},
+    {"id": "dqIZnyUtKXI", "title": "25 MIN MORNING YOGA FLOW || Energising Yoga Flow To Feel Your Best", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 26.6, "startAt": 0, "endAt": 0, "effectiveDuration": 26.6, "rpe": null, "addedAt": "2026-02-14T15:27:28.936Z"},
+    {"id": "oiToJsf_SQ4", "title": "30 MIN PILATES WORKOUT || Upper Body Pilates For Strength & Better Posture (Moderate)", "creator": "Move With Nicole", "category": "upper_body", "intensity": "medium", "totalDuration": 31.8, "startAt": 0, "endAt": 0, "effectiveDuration": 31.8, "rpe": null, "addedAt": "2026-02-14T15:27:36.470Z"},
+    {"id": "gpTYMAxN0CM", "title": "10분  덤벨 서서하는 복근운동 홈트", "creator": "Bigsis", "category": "abs", "intensity": "medium", "totalDuration": 11, "startAt": 0, "endAt": 0, "effectiveDuration": 11, "rpe": null, "addedAt": "2026-02-14T15:27:42.153Z"},
+    {"id": "8URMcK7_PjY", "title": "15 MIN MORNING YOGA FLOW || Feel Good Yoga Flow", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 18.3, "startAt": 0, "endAt": 0, "effectiveDuration": 18.3, "rpe": null, "addedAt": "2026-02-14T15:27:47.620Z"},
+    {"id": "gw4XRKN0Tdk", "title": "30 MIN Standing SWEATY PILATES HIIT Workout | Full Body Fat Burning, Lean Muscles, No Repeat", "creator": "Eleni Fit", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:27:58.621Z"},
+    {"id": "TePGRXdH3TA", "title": "빅씨스 이사 - 노출이 두렵지 않은 탄탄한 몸 제대로 만들기 - 새로운 공간에서 15분 전신 덤벨 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 16.4, "startAt": 0, "endAt": 0, "effectiveDuration": 16.4, "rpe": null, "addedAt": "2026-02-14T15:28:04.270Z"},
+    {"id": "mREx1RkRv5g", "title": "25 MIN PILATES CORE & ABS WORKOUT || At-Home Pilates (Intermediate)", "creator": "Move With Nicole", "category": "targeted_pilates", "intensity": "medium", "totalDuration": 25.8, "startAt": 0, "endAt": 0, "effectiveDuration": 25.8, "rpe": null, "addedAt": "2026-02-14T15:28:10.853Z"},
+    {"id": "O1cubPjoB-E", "title": "20 MIN PILATES CORE WORKOUT || Pilates Abs With Mini Ball (Intermediate)", "creator": "Move With Nicole", "category": "abs", "intensity": "medium", "totalDuration": 22.5, "startAt": 0, "endAt": 0, "effectiveDuration": 22.5, "rpe": null, "addedAt": "2026-02-14T15:28:17.786Z"},
+    {"id": "xNCj6JnQq4Q", "title": "25 MIN PILATES WORKOUT || Intermediate Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 26.5, "startAt": 0, "endAt": 0, "effectiveDuration": 26.5, "rpe": null, "addedAt": "2026-02-14T15:28:22.686Z"},
+    {"id": "Od8rOWG_LC4", "title": "15 MIN PAM POWER Workout - Dance Style Cardio with amazing music", "creator": "Pamela Reif", "category": "cardio", "intensity": "hard", "totalDuration": 15.2, "startAt": 0, "endAt": 0, "effectiveDuration": 15.2, "rpe": null, "addedAt": "2026-02-14T15:28:28.270Z"},
+    {"id": "_yjAaOBaGh8", "title": "No 관절무리 논스톱 30분 💦 - 쉽고 재밌게 체지방 태우기 유산소 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 30.7, "startAt": 0, "endAt": 0, "effectiveDuration": 30.7, "rpe": null, "addedAt": "2026-02-14T15:28:33.770Z"},
+    {"id": "9x-ItUnm7P4", "title": "20 MIN MORNING PILATES || Pilates Workout For Strength & Energy (Intermediate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 23.9, "startAt": 0, "endAt": 0, "effectiveDuration": 23.9, "rpe": null, "addedAt": "2026-02-14T15:28:39.921Z"},
+    {"id": "U5LwQW_IQOc", "title": "30 MIN PILATES CORE WORKOUT || At-Home Pilates Abs (Moderate)", "creator": "Move With Nicole", "category": "abs", "intensity": "medium", "totalDuration": 33.1, "startAt": 0, "endAt": 0, "effectiveDuration": 33.1, "rpe": null, "addedAt": "2026-02-14T15:30:26.235Z"},
+    {"id": "6wSbM7Oz7F0", "title": "30 MIN FULL BODY WORKOUT || Power Pilates With Weights (Moderate)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 33.4, "startAt": 0, "endAt": 0, "effectiveDuration": 33.4, "rpe": null, "addedAt": "2026-02-14T15:30:32.085Z"},
+    {"id": "fQJ3ydfSAP0", "title": "15 MIN STANDING ARMS + WEIGHTS - Gym Style / burns like fire, everything you need for toned arms", "creator": "Pamela Reif", "category": "upper_body", "intensity": "medium", "totalDuration": 15.9, "startAt": 0, "endAt": 0, "effectiveDuration": 15.9, "rpe": null, "addedAt": "2026-02-14T15:30:40.835Z"},
+    {"id": "Vr3h5X9kmUo", "title": "15 MIN MORNING YOGA FLOW || Wake Up & Feel Energised", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 15.7, "startAt": 0, "endAt": 0, "effectiveDuration": 15.7, "rpe": null, "addedAt": "2026-02-14T15:30:47.420Z"},
+    {"id": "uOGhFFy2dBk", "title": "20분 루틴 - 체험단 10인과 함께한 2주 다이어트 챌린지", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 21.6, "startAt": 0, "endAt": 0, "effectiveDuration": 21.6, "rpe": null, "addedAt": "2026-02-14T15:30:58.469Z"},
+    {"id": "kUO7jlDq7Yw", "title": "30 Min ALL STANDING CARDIO HIIT | Burn Calories & Have Fun | Sweaty, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 35, "startAt": 0, "endAt": 0, "effectiveDuration": 35, "rpe": null, "addedAt": "2026-02-14T15:31:05.469Z"},
+    {"id": "iYS1P-ZjNsA", "title": "25 MIN POWER YOGA WORKOUT || Full Body Yoga Flow For Strength", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 28.5, "startAt": 0, "endAt": 0, "effectiveDuration": 28.5, "rpe": null, "addedAt": "2026-02-14T15:31:11.019Z"},
+    {"id": "HIuJA4xS4WM", "title": "30 MIN YOGA PILATES FLOW || Yoga Workout For Healthy & Happy Hips", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 29.7, "startAt": 0, "endAt": 0, "effectiveDuration": 29.7, "rpe": null, "addedAt": "2026-02-14T15:31:17.152Z"},
+    {"id": "QY2SysbkaBM", "title": "여름준비 - 너무 쉬운데 땀범벅💦이 되는 체지방 버닝 유산소 20분", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 21.3, "startAt": 0, "endAt": 0, "effectiveDuration": 21.3, "rpe": null, "addedAt": "2026-02-14T15:31:22.135Z"},
+    {"id": "FF4almNwuIU", "title": "20 MIN PILATES HIIT || Low Impact Workout With Mini Band (Optional)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "hard", "totalDuration": 23.5, "startAt": 0, "endAt": 0, "effectiveDuration": 23.5, "rpe": null, "addedAt": "2026-02-14T15:31:28.835Z"},
+    {"id": "rjKUSPxZ6pw", "title": "15 MIN HOURGLASS WORKOUT - 3in1 Legs, Abs & Back - Beginner to Medium Level", "creator": "Pamela Reif", "category": "cardio", "intensity": "gentle", "totalDuration": 16.2, "startAt": 0, "endAt": 0, "effectiveDuration": 16.2, "rpe": null, "addedAt": "2026-02-14T15:31:38.185Z"},
+    {"id": "bn8f3EAS0UQ", "title": "20 MIN THIGHS & BOOTY PILATES WORKOUT || Sculpting Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "glutes_legs", "intensity": "medium", "totalDuration": 22.2, "startAt": 0, "endAt": 0, "effectiveDuration": 22.2, "rpe": null, "addedAt": "2026-02-14T15:31:48.102Z"},
+    {"id": "Orrs4JXn98M", "title": "아침 전신운동 NO 스쿼트 올인원 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 43.4, "startAt": 0, "endAt": 0, "effectiveDuration": 43.4, "rpe": null, "addedAt": "2026-02-14T15:31:53.885Z"},
+    {"id": "tcmoobIT3Gs", "title": "6 MIN BLOATING + STOMACH PAIN RELIEF - exercises, stretches & massaging I quick help", "creator": "Pamela Reif", "category": "cooldown", "intensity": "gentle", "totalDuration": 7.2, "startAt": 0, "endAt": 0, "effectiveDuration": 7.2, "rpe": null, "addedAt": "2026-02-14T15:32:01.035Z"},
+    {"id": "o1NLIzfQiPQ", "title": "12 MIN POWER YOGA - with creative combos to challenge your strength & flexibility", "creator": "Pamela Reif", "category": "cooldown", "intensity": "gentle", "totalDuration": 12.9, "startAt": 0, "endAt": 0, "effectiveDuration": 12.9, "rpe": null, "addedAt": "2026-02-14T15:32:10.235Z"},
+    {"id": "XjoiEhJ4cJo", "title": "10 MIN PARTY DANCE WORKOUT - fun cardio on pop music I Pamela Reif", "creator": "Pamela Reif", "category": "dance", "intensity": "gentle", "totalDuration": 10.2, "startAt": 0, "endAt": 0, "effectiveDuration": 10.2, "rpe": null, "addedAt": "2026-02-14T15:32:16.385Z"},
+    {"id": "7SU59GxGqbo", "title": "40 MIN FULL BODY YOGA FLOW || Vinyasa Flow For Balance, Flexibility & Strength (Intermediate)", "creator": "Move With Nicole", "category": "yoga", "intensity": "medium", "totalDuration": 42.3, "startAt": 0, "endAt": 0, "effectiveDuration": 42.3, "rpe": null, "addedAt": "2026-02-14T15:32:21.685Z"},
+    {"id": "4GnLUIVwPCo", "title": "20 MIN EXPRESS PILATES WORKOUT || Moderate to Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 24.2, "startAt": 0, "endAt": 0, "effectiveDuration": 24.2, "rpe": null, "addedAt": "2026-02-14T15:32:26.952Z"},
+    {"id": "zdz8c9a-rDo", "title": "30 MIN FULL BODY WORKOUT || Intermediate Power Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 34.5, "startAt": 0, "endAt": 0, "effectiveDuration": 34.5, "rpe": null, "addedAt": "2026-02-14T15:32:32.285Z"},
+    {"id": "xG6epreSCek", "title": "10분 서서하는 복근운동 홈트", "creator": "Bigsis", "category": "abs", "intensity": "medium", "totalDuration": 11.1, "startAt": 0, "endAt": 0, "effectiveDuration": 11.1, "rpe": null, "addedAt": "2026-02-14T15:32:37.384Z"},
+    {"id": "WjjX7mEuVv0", "title": "30 Min Intense Full Body Fat Burn | All Standing - No Jumping  | Sweaty Kickboxing HIIT, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "hard", "totalDuration": 35, "startAt": 0, "endAt": 0, "effectiveDuration": 35, "rpe": null, "addedAt": "2026-02-14T15:32:43.002Z"},
+    {"id": "FlTTZBQokf0", "title": "30 MIN FAST WALKING FAT BURN - Lose Weight to the Beat | No Repeat, No Jumping, Sweaty + Fun", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 33.5, "startAt": 0, "endAt": 0, "effectiveDuration": 33.5, "rpe": null, "addedAt": "2026-02-14T15:32:48.685Z"},
+    {"id": "wtVyZmHnlxM", "title": "30 MIN PILATES WORKOUT || Beginner to Moderate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 30.3, "startAt": 0, "endAt": 0, "effectiveDuration": 30.3, "rpe": null, "addedAt": "2026-02-14T15:32:54.469Z"},
+    {"id": "VKb4UQikBeY", "title": "35 MIN ABS & BOOTY WORKOUT || At-Home Pilates With Yoga Block (Intermediate)", "creator": "Move With Nicole", "category": "abs", "intensity": "medium", "totalDuration": 37.7, "startAt": 0, "endAt": 0, "effectiveDuration": 37.7, "rpe": null, "addedAt": "2026-02-14T15:35:08.018Z"},
+    {"id": "UxU8OCsNbYY", "title": "10 MIN MORNING YOGA FLOW || Stretch Routine To Wake Up & Feel Good", "creator": "Move With Nicole", "category": "warmup", "intensity": "gentle", "totalDuration": 13, "startAt": 0, "endAt": 0, "effectiveDuration": 13, "rpe": null, "addedAt": "2026-02-14T15:35:13.900Z"},
+    {"id": "3VNXTSP7amw", "title": "30 Min Full Body Fat Loss 🔥| All Standing, No Jumping, No Squats, No Lunges | Super Sweaty + Fun", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:35:19.050Z"},
+    {"id": "mCeFdXQtj5E", "title": "1000 STEPS CARDIO - ON THE BEAT - walk the calories away I fast, fun + sweaty", "creator": "Pamela Reif", "category": "warmup", "intensity": "medium", "totalDuration": 10.5, "startAt": 0, "endAt": 0, "effectiveDuration": 10.5, "rpe": null, "addedAt": "2026-02-14T15:35:31.000Z"},
+    {"id": "gB2emNMs2M0", "title": "15 MIN EXPRESS PILATES WORKOUT || At-Home Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "warmup", "intensity": "medium", "totalDuration": 18.3, "startAt": 0, "endAt": 0, "effectiveDuration": 18.3, "rpe": null, "addedAt": "2026-02-14T15:35:40.484Z"},
+    {"id": "0lDZwCj7l6w", "title": "10 MIN NO JUMPING CARDIO - easy to follow, suitable for all levels", "creator": "Pamela Reif", "category": "cardio", "intensity": "hard", "totalDuration": 11.2, "startAt": 0, "endAt": 0, "effectiveDuration": 11.2, "rpe": null, "addedAt": "2026-02-14T15:35:50.301Z"},
+    {"id": "MaQ7LZcS2ig", "title": "15 MIN EXPRESS PILATES WORKOUT || At-Home Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 18.6, "startAt": 0, "endAt": 0, "effectiveDuration": 18.6, "rpe": null, "addedAt": "2026-02-14T15:35:56.935Z"},
+    {"id": "pldMKviRN14", "title": "12 MIN ABS + BOOTY 2in1 - slow, calm, no hectic, no sweat - Medium to Intense", "creator": "Pamela Reif", "category": "abs", "intensity": "medium", "totalDuration": 13.2, "startAt": 0, "endAt": 0, "effectiveDuration": 13.2, "rpe": null, "addedAt": "2026-02-14T15:36:03.567Z"},
+    {"id": "6RIbWni5JVk", "title": "20 MIN PILATES HIIT || Low Impact & No Repeat Workout (Stretch Included)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 24.3, "startAt": 0, "endAt": 0, "effectiveDuration": 24.3, "rpe": null, "addedAt": "2026-02-14T15:36:09.951Z"},
+    {"id": "fA6CsLEWwk4", "title": "30 Min Intense Full Body Fat Loss in 14 Days🔥 | All Standing - No Jumping Workout, Sweaty, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 32.4, "startAt": 0, "endAt": 0, "effectiveDuration": 32.4, "rpe": null, "addedAt": "2026-02-14T15:36:18.267Z"},
+    {"id": "cOrRZi7eKgA", "title": "30 Min Get Lean Muscles | Full Body Toning + Fat Burning | No Jumping Workout, Sweaty, No Repeat", "creator": "Eleni Fit", "category": "cardio", "intensity": "medium", "totalDuration": 35, "startAt": 0, "endAt": 0, "effectiveDuration": 35, "rpe": null, "addedAt": "2026-02-14T15:36:23.451Z"},
+    {"id": "poZBpvLTHNw", "title": "20 MIN FEEL GOOD YOGA || Yoga Flow To Stretch & Feel Good", "creator": "Move With Nicole", "category": "yoga", "intensity": "gentle", "totalDuration": 21.2, "startAt": 0, "endAt": 0, "effectiveDuration": 21.2, "rpe": null, "addedAt": "2026-02-14T15:36:28.284Z"},
+    {"id": "CoiiwajR-eY", "title": "20 MIN BOSS B*TCH DANCE WORKOUT - shake your booty & burn lots of calories", "creator": "Pamela Reif", "category": "dance", "intensity": "gentle", "totalDuration": 20, "startAt": 0, "endAt": 0, "effectiveDuration": 20, "rpe": null, "addedAt": "2026-02-14T15:36:33.117Z"},
+    {"id": "Im3PXoLmyx8", "title": "10 MIN BEGINNER FULL BODY WORKOUT - 100% Standing for Abs, Legs & Arms I with noonoouri", "creator": "Pamela Reif", "category": "dance", "intensity": "gentle", "totalDuration": 10.8, "startAt": 0, "endAt": 0, "effectiveDuration": 10.8, "rpe": null, "addedAt": "2026-02-14T15:36:38.868Z"},
+    {"id": "I0ZQ5XC0uRk", "title": "흐물흐물 처진 살과 작별하기👋 - 탄탄바디 덤벨 전신 23분 - 좌우불균형 교정", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 24.2, "startAt": 0, "endAt": 0, "effectiveDuration": 24.2, "rpe": null, "addedAt": "2026-02-14T15:36:45.200Z"},
+    {"id": "5uDkkt7r9fA", "title": "10 MIN DANCE CARDIO, No Jumping - endorphin boost, for all levels, low impact, knee friendly", "creator": "Pamela Reif", "category": "dance", "intensity": "medium", "totalDuration": 10.6, "startAt": 0, "endAt": 0, "effectiveDuration": 10.6, "rpe": null, "addedAt": "2026-02-14T15:36:51.100Z"},
+    {"id": "CCgEzLrf45Y", "title": "2000 STEPS CARDIO - ON THE BEAT / burn calories on good music I fast, fun + sweaty", "creator": "Pamela Reif", "category": "cardio", "intensity": "medium", "totalDuration": 21, "startAt": 0, "endAt": 0, "effectiveDuration": 21, "rpe": null, "addedAt": "2026-02-14T15:36:56.467Z"},
+    {"id": "o461fc3IdXg", "title": "10 MIN SLOW ABS - no hectic, no sweat, kind of elegant, intense burn - Sixpack Workout", "creator": "Pamela Reif", "category": "abs", "intensity": "hard", "totalDuration": 11.4, "startAt": 0, "endAt": 0, "effectiveDuration": 11.4, "rpe": null, "addedAt": "2026-02-14T15:37:07.700Z"},
+    {"id": "ywzZXO-A7Pg", "title": "30 MIN PILATES FOR BEGINNERS || Full Body Workout (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "gentle", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:37:15.334Z"},
+    {"id": "W1ACB9u05AQ", "title": "10 MIN SIMPLE CARDIO - On The Beat I not embarrassing, suitable for public places, easy to follow", "creator": "Pamela Reif", "category": "cardio", "intensity": "hard", "totalDuration": 10.5, "startAt": 0, "endAt": 0, "effectiveDuration": 10.5, "rpe": null, "addedAt": "2026-02-14T15:37:20.367Z"},
+    {"id": "-w61-1FCMio", "title": "직각 어깨 + 날씬 팔뚝 15분 홈트 - 연예인 어깨 안부럽다", "creator": "Bigsis", "category": "upper_body", "intensity": "medium", "totalDuration": 16.5, "startAt": 0, "endAt": 0, "effectiveDuration": 16.5, "rpe": null, "addedAt": "2026-02-14T15:37:26.634Z"},
+    {"id": "vMiNEdUPvak", "title": "탄력있게 살빼기 30분 - 덤벨 전신 유산소 홈트", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 30.7, "startAt": 0, "endAt": 0, "effectiveDuration": 30.7, "rpe": null, "addedAt": "2026-02-14T15:37:33.834Z"},
+    {"id": "9KrMFsQBOJs", "title": "15 MIN MORNING YOGA FLOW || Wake Up & Feel Energised", "creator": "Move With Nicole", "category": "yoga", "intensity": "gentle", "totalDuration": 17.7, "startAt": 0, "endAt": 0, "effectiveDuration": 17.7, "rpe": null, "addedAt": "2026-02-14T15:37:39.301Z"},
+    {"id": "6Iuh2_kk1d8", "title": "25 MIN EXPRESS PILATES WORKOUT || Moderate to Intermediate Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 27.4, "startAt": 0, "endAt": 0, "effectiveDuration": 27.4, "rpe": null, "addedAt": "2026-02-14T15:37:47.918Z"},
+    {"id": "grbHIVYHbOc", "title": "10 MIN BEAUTIFUL YOGA - Active & Flowy - full body strength & deep stretching I Pamela Reif", "creator": "Pamela Reif", "category": "yoga", "intensity": "gentle", "totalDuration": 11.2, "startAt": 0, "endAt": 0, "effectiveDuration": 11.2, "rpe": null, "addedAt": "2026-02-14T15:37:55.850Z"},
+    {"id": "K9j-X6GfY_M", "title": "🎅🏻크리스마스 특집 - 논스톱 신나는 유산소 - 🔥체지방 버닝🎄", "creator": "Bigsis", "category": "dance", "intensity": "gentle", "totalDuration": 14.1, "startAt": 0, "endAt": 0, "effectiveDuration": 14.1, "rpe": null, "addedAt": "2026-02-14T15:38:02.766Z"},
+    {"id": "s1OvyDqm-ig", "title": "20 MIN EXPRESS PILATES WORKOUT || Intermediate Mat Pilates (No Equipment)", "creator": "Move With Nicole", "category": "fullbody_pilates", "intensity": "medium", "totalDuration": 24.5, "startAt": 0, "endAt": 0, "effectiveDuration": 24.5, "rpe": null, "addedAt": "2026-02-14T15:38:08.250Z"},
+    {"id": "RrWEFLUs1vs", "title": "10 MIN BACK TO HEAVEN - Back + Spine Mobility, everything you need to fix posture & back pain", "creator": "Pamela Reif", "category": "upper_body", "intensity": "medium", "totalDuration": 10.7, "startAt": 0, "endAt": 0, "effectiveDuration": 10.7, "rpe": null, "addedAt": "2026-02-14T15:38:13.950Z"},
+    {"id": "ddJ9JUcIHvU", "title": "러닝 전 동적 스트레칭 - 워밍업 8분 - 부상방지 퍼포먼스 향상 서서 스트레칭", "creator": "Bigsis", "category": "warmup", "intensity": "gentle", "totalDuration": 8.7, "startAt": 0, "endAt": 0, "effectiveDuration": 8.7, "rpe": null, "addedAt": "2026-02-14T15:38:22.066Z"},
+    {"id": "77JW8_zt2Rc", "title": "살빠졌다는 인증글이 최고로 많은 30분 홈트 - 도저히 안빠질수가 없다💦💦💦 떡꾹타파 2", "creator": "Bigsis", "category": "cardio", "intensity": "medium", "totalDuration": 31.6, "startAt": 0, "endAt": 0, "effectiveDuration": 31.6, "rpe": null, "addedAt": "2026-02-14T15:38:27.633Z"},
+    {"id": "mJY48lJ0tNw", "title": "10 MIN TUMMY TORTURE - Killer Sixpack Vol. 3 - extreme ab workout I PS: no mountain climbers", "creator": "Pamela Reif", "category": "abs", "intensity": "medium", "totalDuration": 10.2, "startAt": 0, "endAt": 0, "effectiveDuration": 10.2, "rpe": null, "addedAt": "2026-02-14T15:38:33.417Z"},
+    {"id": "l4kMqqLJpe0", "title": "10 MIN BYE STIFFNESS - active stretching & mobility I in the morning, before or after a workout", "creator": "Pamela Reif", "category": "cooldown", "intensity": "gentle", "totalDuration": 11.1, "startAt": 0, "endAt": 0, "effectiveDuration": 11.1, "rpe": null, "addedAt": "2026-02-14T15:38:42.100Z"},
+    {"id": "D6etUH5j2MA", "title": "15 MIN LOWER ABS WORKOUT || At- Home Pilates (Intermediate)", "creator": "Move With Nicole", "category": "abs", "intensity": "medium", "totalDuration": 14.6, "startAt": 0, "endAt": 0, "effectiveDuration": 14.6, "rpe": null, "addedAt": "2026-02-14T15:38:47.266Z"},
+    {"id": "9sNuuqIKrR0", "title": "30 Min SMALL WAIST + ABS | All Standing - No Jumping, Calorie Burn, No Repeat, Warm Up + Cool Down", "creator": "Eleni Fit", "category": "abs", "intensity": "medium", "totalDuration": 33.3, "startAt": 0, "endAt": 0, "effectiveDuration": 33.3, "rpe": null, "addedAt": "2026-02-14T15:38:54.067Z"}
+];
+
+// === CONSTANTS ===
+const CONFIG = {
+  HISTORY_DEPTH: 3,
+  SMALL_POOL_THRESHOLD: 6,
+  RPE_AUTO_ADVANCE_MS: 3000,
+  SURPRISE_CHANNELS: {
+    'UCFKE7WVJfvaHW5q283SxchA': 'Yoga With Adriene',
+    'UCWN2FPlvg9r-LnUyepH9IaQ': 'Boho Beautiful Yoga',
+    'UCpHwEwY2MRPMaC_JEBkM3wQ': 'Marie Steffen',
+    'UCDxPOmCkxCPjJnrlBiEGehA': 'growingannanas'
+  },
+  SURPRISE_MIN_DURATION: 3,
+  SURPRISE_MAX_DURATION: 60,
+  SURPRISE_REFRESH_DAYS: 7,
+  LS: {
+    LIBRARY: 'arete_library',
+    HISTORY: 'arete_history',
+    SURPRISE_POOL: 'arete_surprise_pool',
+    SURPRISE_FETCHED: 'arete_surprise_fetched',
+    EXCLUDED: 'arete_excluded',
+    API_KEY: 'arete_api_key',
+    ROUND_ROBIN: 'arete_round_robin',
+    PLAYLIST: 'arete_playlist',
+    PLAYLIST_DATE: 'arete_playlist_date'
+  }
+};
+
+const WEEKLY_PLAN = {
+  1: { focus: 'Full Body Pilates', category: 'fullbody_pilates' },
+  2: { focus: 'Abs & Core',        category: 'abs' },
+  3: { focus: 'Upper Body',        category: 'upper_body' },
+  4: { focus: 'Glutes & Legs',     category: 'glutes_legs' },
+  5: { focus: 'Targeted Pilates',  category: 'targeted_pilates' },
+  6: { focus: 'Surprise',          category: 'surprise' },
+  0: { focus: 'Surprise',          category: 'surprise' }
+};
+
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+const CATEGORIES = {
+  warmup:           { label: 'Warm Up',           color: '#FF69B4' },
+  cardio:           { label: 'Cardio',            color: '#06B6D4' },
+  fullbody_pilates: { label: 'Full Body Pilates', color: '#8B5CF6' },
+  abs:              { label: 'Abs & Core',        color: '#8B5CF6' },
+  upper_body:       { label: 'Upper Body',        color: '#8B5CF6' },
+  glutes_legs:      { label: 'Glutes & Legs',     color: '#8B5CF6' },
+  targeted_pilates: { label: 'Targeted Pilates',  color: '#8B5CF6' },
+  dance:            { label: 'Dance',             color: '#D4AF37' },
+  yoga:             { label: 'Yoga',              color: '#D4AF37' },
+  meridian_yoga:    { label: 'Meridian Yoga',     color: '#D4AF37' },
+  cooldown:         { label: 'Cool Down',         color: '#4ADE80' }
+};
+
+const QUOTES = [
+  "Excellence is not a singular act, but a habit.",
+  "The body achieves what the mind believes.",
+  "You are one workout away from a good mood.",
+  "Sweat is just fat crying.",
+  "Strong is the new beautiful.",
+  "Your only limit is you.",
+  "Fall in love with taking care of yourself.",
+  "Wake up with determination, go to bed with satisfaction.",
+  "A one-hour workout is 4% of your day. No excuses.",
+  "The pain you feel today will be the strength you feel tomorrow.",
+  "Don't wish for it. Work for it.",
+  "Strive for progress, not perfection.",
+  "She believed she could, so she did.",
+  "Be stronger than your excuses.",
+  "It never gets easier, you just get stronger.",
+  "Good things come to those who sweat."
+];
+
+const COMPLETION_QUOTES = [
+  "You showed up for yourself today. That's everything.",
+  "Another day, another step toward your best self.",
+  "Consistency is the real superpower.",
+  "You did that. Remember this feeling.",
+  "Your future self is thanking you right now.",
+  "Today you proved that you are unstoppable.",
+  "Excellence is a daily practice. Well done.",
+  "The hardest part was starting. You conquered it."
+];
+
+// ============================================================
+// APPLICATION
+// ============================================================
+(function() {
+  'use strict';
+
+  // --- State ---
+  const State = {
+    library: [],
+    currentPlaylist: [],
+    currentIndex: -1,
+    isPlaying: false,
+    sessionStartTime: null,
+    ytPlayer: null,
+    ytReady: false,
+    ytReadyCallbacks: [],
+    endCheckInterval: null,
+    rpeTimerId: null,
+    rpeCallback: null,
+    currentRpeVideo: null,
+    currentRpeSource: null,
+    editingVideoId: null,
+    catPickerCallback: null
+  };
+
+  // --- Storage ---
+  const Storage = {
+    get(key) {
+      try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : null; }
+      catch(e) { return null; }
+    },
+    set(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+    },
+    remove(key) { localStorage.removeItem(key); }
+  };
+
+  // --- Library ---
+  const Library = {
+    init() {
+      let lib = Storage.get(CONFIG.LS.LIBRARY);
+      if (lib && lib.length > 0) {
+        State.library = lib;
+      } else {
+        State.library = this.deduplicate(ARETE_LIBRARY_RAW);
+        this.save();
+      }
+      return State.library;
+    },
+    deduplicate(raw) {
+      const seen = new Set();
+      return raw.filter(v => { if (seen.has(v.id)) return false; seen.add(v.id); return true; });
+    },
+    save() { Storage.set(CONFIG.LS.LIBRARY, State.library); },
+    getByCategory(cat) {
+      return State.library.filter(v => v.category === cat && v.rpe !== 'remove');
+    },
+    findById(id) { return State.library.find(v => v.id === id); },
+    updateVideo(id, updates) {
+      const v = State.library.find(v => v.id === id);
+      if (!v) return;
+      Object.assign(v, updates);
+      if ('startAt' in updates || 'endAt' in updates) {
+        const s = v.startAt || 0, e = v.endAt || 0;
+        v.effectiveDuration = (e > s) ? (e - s) / 60 : v.totalDuration;
+      }
+      this.save();
+    },
+    addFromSurprise(videoData, category) {
+      if (State.library.find(v => v.id === videoData.id)) return;
+      State.library.push({
+        id: videoData.id, title: videoData.title, creator: videoData.creator,
+        category: category, intensity: 'medium',
+        totalDuration: videoData.totalDuration || videoData.effectiveDuration || 10,
+        startAt: 0, endAt: 0,
+        effectiveDuration: videoData.totalDuration || videoData.effectiveDuration || 10,
+        rpe: null, addedAt: new Date().toISOString()
+      });
+      this.save();
+    }
+  };
+
+  // --- Playlist ---
+  const Playlist = {
+    generate(forceSurprise) {
+      const dow = new Date().getDay();
+      const plan = WEEKLY_PLAN[dow];
+      const isSurprise = plan.category === 'surprise' || forceSurprise;
+      const items = [];
+
+      // 1. Warm Up
+      const warmup = this.pickFromCategory('warmup');
+      if (warmup) { items.push({ video: warmup, phase: 'WARM UP', source: 'library' }); this.addToHistory('warmup', warmup.id); }
+
+      // 2. Cardio
+      const cardio = this.pickFromCategory('cardio');
+      if (cardio) { items.push({ video: cardio, phase: 'CARDIO', source: 'library' }); this.addToHistory('cardio', cardio.id); }
+
+      // 3. Main
+      if (isSurprise) {
+        const main = this.pickWeekendMain();
+        if (main) items.push({ video: main.video, phase: 'MAIN', source: main.source });
+      } else {
+        const main = this.pickFromCategory(plan.category);
+        if (main) { items.push({ video: main, phase: 'MAIN', source: 'library' }); this.addToHistory(plan.category, main.id); }
+      }
+
+      // 4. Surprise (1-2 videos)
+      const sCount = Math.random() < 0.5 ? 1 : 2;
+      const surprises = this.pickSurpriseVideos(sCount);
+      surprises.forEach(sv => items.push({ video: sv, phase: 'SURPRISE', source: 'surprise' }));
+
+      // 5. Cool Down
+      const cooldown = this.pickFromCategory('cooldown');
+      if (cooldown) { items.push({ video: cooldown, phase: 'COOL DOWN', source: 'library' }); this.addToHistory('cooldown', cooldown.id); }
+
+      return items;
+    },
+
+    pickFromCategory(cat) {
+      const pool = Library.getByCategory(cat);
+      if (pool.length === 0) return null;
+      return pool.length <= CONFIG.SMALL_POOL_THRESHOLD
+        ? this.pickRoundRobin(pool, cat)
+        : this.pickRandom(pool, cat);
+    },
+
+    pickRandom(pool, cat) {
+      const hist = this.getHistory(cat);
+      let eligible = pool.filter(v => !hist.includes(v.id));
+      if (eligible.length === 0) eligible = pool;
+      return eligible[Math.floor(Math.random() * eligible.length)];
+    },
+
+    pickRoundRobin(pool, cat) {
+      const rr = Storage.get(CONFIG.LS.ROUND_ROBIN) || {};
+      const sorted = pool.slice().sort((a, b) => a.id.localeCompare(b.id));
+      const last = rr[cat] ?? -1;
+      const next = (last + 1) % sorted.length;
+      rr[cat] = next;
+      Storage.set(CONFIG.LS.ROUND_ROBIN, rr);
+      return sorted[next];
+    },
+
+    pickSurpriseVideos(count) {
+      const pool = SurprisePool.getAvailable();
+      if (pool.length === 0) return this.pickSurpriseFallback(count);
+      const result = [];
+      const used = new Set();
+      for (let i = 0; i < Math.min(count, pool.length); i++) {
+        const eligible = pool.filter(v => !used.has(v.id));
+        if (eligible.length === 0) break;
+        const pick = weightedRandom(eligible);
+        result.push(pick);
+        used.add(pick.id);
+      }
+      return result.length > 0 ? result : this.pickSurpriseFallback(1);
+    },
+
+    pickSurpriseFallback(count) {
+      const cats = ['dance', 'yoga', 'meridian_yoga'];
+      const all = cats.flatMap(c => Library.getByCategory(c));
+      if (all.length === 0) return [];
+      const result = [];
+      const used = new Set();
+      for (let i = 0; i < Math.min(count, all.length); i++) {
+        const eligible = all.filter(v => !used.has(v.id));
+        if (eligible.length === 0) break;
+        const pick = eligible[Math.floor(Math.random() * eligible.length)];
+        result.push(pick);
+        used.add(pick.id);
+      }
+      return result;
+    },
+
+    pickWeekendMain() {
+      if (Math.random() < 0.5) {
+        const pool = SurprisePool.getAvailable();
+        if (pool.length > 0) {
+          return { video: weightedRandom(pool), source: 'surprise' };
+        }
+      }
+      const cats = ['dance', 'yoga', 'meridian_yoga'];
+      const all = cats.flatMap(c => Library.getByCategory(c));
+      if (all.length > 0) {
+        return { video: all[Math.floor(Math.random() * all.length)], source: 'library' };
+      }
+      const fb = Library.getByCategory('fullbody_pilates');
+      return fb.length > 0 ? { video: fb[0], source: 'library' } : null;
+    },
+
+    getHistory(cat) {
+      const h = Storage.get(CONFIG.LS.HISTORY) || {};
+      return h[cat] || [];
+    },
+
+    addToHistory(cat, id) {
+      const h = Storage.get(CONFIG.LS.HISTORY) || {};
+      const ch = h[cat] || [];
+      ch.push(id);
+      if (ch.length > CONFIG.HISTORY_DEPTH) h[cat] = ch.slice(-CONFIG.HISTORY_DEPTH);
+      else h[cat] = ch;
+      Storage.set(CONFIG.LS.HISTORY, h);
+    }
+  };
+
+  function weightedRandom(pool) {
+    const weights = pool.map(v => v.deprioritized ? 0.2 : 1.0);
+    const total = weights.reduce((s, w) => s + w, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < pool.length; i++) {
+      r -= weights[i];
+      if (r <= 0) return pool[i];
+    }
+    return pool[pool.length - 1];
+  }
+
+  // --- Surprise Pool ---
+  const SurprisePool = {
+    getPool() { return Storage.get(CONFIG.LS.SURPRISE_POOL) || []; },
+    getAvailable() {
+      const pool = this.getPool();
+      const excluded = new Set(Storage.get(CONFIG.LS.EXCLUDED) || []);
+      const libIds = new Set(State.library.map(v => v.id));
+      return pool.filter(v => !excluded.has(v.id) && !libIds.has(v.id));
+    },
+    needsRefresh() {
+      const f = Storage.get(CONFIG.LS.SURPRISE_FETCHED);
+      if (!f) return true;
+      return (Date.now() - new Date(f).getTime()) / 86400000 >= CONFIG.SURPRISE_REFRESH_DAYS;
+    },
+    async fetchFromYouTube(apiKey) {
+      const channels = Object.keys(CONFIG.SURPRISE_CHANNELS);
+      const allVids = [];
+      for (const chId of channels) {
+        try {
+          const vids = await this._fetchChannel(apiKey, chId);
+          allVids.push(...vids);
+        } catch(e) { console.error('Fetch failed for', CONFIG.SURPRISE_CHANNELS[chId], e); }
+      }
+      this._filterAndStore(allVids);
+      Storage.set(CONFIG.LS.SURPRISE_FETCHED, new Date().toISOString());
+      return allVids.length;
+    },
+    async _fetchChannel(apiKey, chId) {
+      const base = 'https://www.googleapis.com/youtube/v3';
+      const chResp = await fetch(base + '/channels?part=contentDetails&id=' + chId + '&key=' + apiKey);
+      const chData = await chResp.json();
+      if (!chData.items || !chData.items.length) return [];
+      const uploadsId = chData.items[0].contentDetails.relatedPlaylists.uploads;
+      const plResp = await fetch(base + '/playlistItems?part=snippet,contentDetails&playlistId=' + uploadsId + '&maxResults=50&key=' + apiKey);
+      const plData = await plResp.json();
+      if (!plData.items) return [];
+      const ids = plData.items.map(i => i.contentDetails.videoId).join(',');
+      const vResp = await fetch(base + '/videos?part=contentDetails,snippet&id=' + ids + '&key=' + apiKey);
+      const vData = await vResp.json();
+      return (vData.items || []).map(i => ({
+        id: i.id,
+        title: i.snippet.title,
+        creator: CONFIG.SURPRISE_CHANNELS[chId],
+        totalDuration: this._parseDuration(i.contentDetails.duration),
+        publishedAt: i.snippet.publishedAt
+      }));
+    },
+    _parseDuration(iso) {
+      const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+      if (!m) return 0;
+      return parseInt(m[1]||0)*60 + parseInt(m[2]||0) + parseInt(m[3]||0)/60;
+    },
+    _filterAndStore(raw) {
+      const filtered = raw.filter(v => v.totalDuration >= CONFIG.SURPRISE_MIN_DURATION && v.totalDuration <= CONFIG.SURPRISE_MAX_DURATION);
+      const existing = this.getPool();
+      const map = new Map(existing.map(v => [v.id, v]));
+      const merged = filtered.map(v => {
+        const prev = map.get(v.id);
+        return prev ? { ...v, deprioritized: prev.deprioritized } : v;
+      });
+      Storage.set(CONFIG.LS.SURPRISE_POOL, merged);
+    },
+    excludeVideo(id) {
+      const ex = Storage.get(CONFIG.LS.EXCLUDED) || [];
+      if (!ex.includes(id)) { ex.push(id); Storage.set(CONFIG.LS.EXCLUDED, ex); }
+    },
+    deprioritize(id) {
+      const pool = this.getPool();
+      const v = pool.find(x => x.id === id);
+      if (v) { v.deprioritized = true; Storage.set(CONFIG.LS.SURPRISE_POOL, pool); }
+    }
+  };
+
+  // --- YouTube Player ---
+  const Player = {
+    init() {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    },
+    onAPIReady() {
+      const pv = { playsinline: 1, controls: 1, modestbranding: 1, rel: 0, fs: 1, iv_load_policy: 3, cc_load_policy: 0 };
+      // Add origin for HTTPS hosts (required by YouTube IFrame API)
+      if (location.protocol === 'https:' || location.protocol === 'http:') {
+        pv.origin = location.origin;
+      }
+      State.ytPlayer = new YT.Player('youtube-player', {
+        height: '100%', width: '100%',
+        playerVars: pv,
+        events: {
+          onReady: () => { State.ytReady = true; State.ytReadyCallbacks.forEach(fn => fn()); State.ytReadyCallbacks = []; },
+          onStateChange: (e) => Player.onStateChange(e),
+          onError: (e) => Player.onError(e)
+        }
+      });
+    },
+    whenReady(fn) {
+      if (State.ytReady) fn(); else State.ytReadyCallbacks.push(fn);
+    },
+    loadVideo(item) {
+      this._endedHandled = false;
+      this.clearEndCheck();
+      const v = item.video;
+      const params = { videoId: v.id, startSeconds: v.startAt || 0 };
+      if (v.endAt && v.endAt > 0) params.endSeconds = v.endAt;
+      State.ytPlayer.loadVideoById(params);
+      UI.renderPlayerScreen(item);
+    },
+    onStateChange(e) {
+      const item = State.currentPlaylist[State.currentIndex];
+      if (!item) return;
+      if (e.data === YT.PlayerState.PLAYING) {
+        const v = item.video;
+        this.clearEndCheck();
+        if (v.endAt && v.endAt > 0) {
+          State.endCheckInterval = setInterval(() => {
+            try {
+              const t = State.ytPlayer.getCurrentTime();
+              if (t >= v.endAt) { this.clearEndCheck(); State.ytPlayer.pauseVideo(); this.onVideoEnded(); }
+            } catch(err) { this.clearEndCheck(); }
+          }, 1000);
+        }
+      } else if (e.data === YT.PlayerState.ENDED) {
+        this.clearEndCheck();
+        this.onVideoEnded();
+      } else {
+        if (e.data !== YT.PlayerState.PLAYING) this.clearEndCheck();
+      }
+    },
+    _errorRetryCount: 0,
+    onError(e) {
+      this.clearEndCheck();
+      const code = e.data;
+      // Error codes: 2=invalid param, 5=HTML5 error, 100=not found, 101/150=embed disabled
+      const errorMsgs = {
+        2: 'Invalid video ID',
+        5: 'Video cannot play in HTML5',
+        100: 'Video not found or private',
+        101: 'Embedding disabled by owner',
+        150: 'Embedding disabled by owner'
+      };
+      const msg = errorMsgs[code] || 'Playback error (code ' + code + ')';
+
+      if (code === 150 || code === 101) {
+        // Embedding restricted — common when opened from file:// protocol
+        if (location.protocol === 'file:') {
+          UI.toast('YouTube requires HTTP server. Run: python3 -m http.server', 'warning');
+          return;
+        }
+        this._errorRetryCount++;
+        if (this._errorRetryCount > 3) {
+          UI.toast('Multiple videos blocked. Check your connection.', 'warning');
+          this._errorRetryCount = 0;
+          return;
+        }
+      }
+
+      UI.toast(msg + ' — skipping...', 'warning');
+      setTimeout(() => this.advanceToNext(), 1500);
+    },
+    clearEndCheck() { if (State.endCheckInterval) { clearInterval(State.endCheckInterval); State.endCheckInterval = null; } },
+    _endedHandled: false,
+    onVideoEnded() {
+      if (!State.isPlaying || this._endedHandled) return;
+      this._endedHandled = true;
+      const item = State.currentPlaylist[State.currentIndex];
+      if (!item) { this._endedHandled = false; this.advanceToNext(); return; }
+      RPE.show(item.video, item.source, () => { this._endedHandled = false; this.advanceToNext(); });
+    },
+    startPlayback() {
+      State.currentIndex = 0;
+      State.isPlaying = true;
+      State.sessionStartTime = Date.now();
+      UI.showScreen('screen-player');
+      this.whenReady(() => this.loadVideo(State.currentPlaylist[0]));
+    },
+    advanceToNext() {
+      State.currentIndex++;
+      if (State.currentIndex >= State.currentPlaylist.length) {
+        this.showCompletion();
+        return;
+      }
+      this.loadVideo(State.currentPlaylist[State.currentIndex]);
+    },
+    skipCurrent() {
+      RPE.hide();
+      this.clearEndCheck();
+      this._endedHandled = false;
+      try { State.ytPlayer.pauseVideo(); } catch(e) {}
+      const cur = State.currentPlaylist[State.currentIndex];
+      if (cur && cur.phase === 'SURPRISE') {
+        let next = State.currentIndex + 1;
+        while (next < State.currentPlaylist.length && State.currentPlaylist[next].phase === 'SURPRISE') next++;
+        State.currentIndex = next;
+        if (State.currentIndex >= State.currentPlaylist.length) { this.showCompletion(); return; }
+        this.loadVideo(State.currentPlaylist[State.currentIndex]);
+      } else {
+        this.advanceToNext();
+      }
+    },
+    showCompletion() {
+      State.isPlaying = false;
+      this.clearEndCheck();
+      try { State.ytPlayer.stopVideo(); } catch(e) {}
+      const elapsed = Math.round((Date.now() - State.sessionStartTime) / 60000);
+      UI.showCompletionScreen(elapsed, State.currentIndex);
+    },
+    stop() {
+      State.isPlaying = false;
+      this.clearEndCheck();
+      try { State.ytPlayer.stopVideo(); } catch(e) {}
+    }
+  };
+
+  // --- RPE ---
+  const RPE = {
+    show(video, source, onComplete) {
+      State.currentRpeVideo = video;
+      State.currentRpeSource = source;
+      State.rpeCallback = onComplete;
+      document.getElementById('rpe-video-title').textContent = video.title;
+      document.getElementById('overlay-rpe').hidden = false;
+      let count = 3;
+      document.getElementById('rpe-countdown').textContent = count;
+      State.rpeTimerId = setInterval(() => {
+        count--;
+        document.getElementById('rpe-countdown').textContent = count;
+        if (count <= 0) { RPE.hide(); if (State.rpeCallback) { const cb = State.rpeCallback; State.rpeCallback = null; cb(); } }
+      }, 1000);
+    },
+    hide() {
+      document.getElementById('overlay-rpe').hidden = true;
+      if (State.rpeTimerId) { clearInterval(State.rpeTimerId); State.rpeTimerId = null; }
+    },
+    handleRating(rpe) {
+      this.hide();
+      const video = State.currentRpeVideo;
+      const source = State.currentRpeSource;
+      const cb = State.rpeCallback;
+      State.rpeCallback = null;
+
+      if (source === 'library' || (!source || source === 'library')) {
+        if (video.id) Library.updateVideo(video.id, { rpe: rpe });
+      } else if (source === 'surprise') {
+        if (rpe === 'loved' || rpe === 'good') {
+          CategoryPicker.show(video, (category) => {
+            if (category) Library.addFromSurprise(video, category);
+            if (cb) cb();
+          });
+          return;
+        } else if (rpe === 'remove') {
+          SurprisePool.excludeVideo(video.id);
+        } else if (rpe === 'easy') {
+          SurprisePool.deprioritize(video.id);
+        }
+      }
+      if (cb) cb();
+    }
+  };
+
+  // --- Category Picker ---
+  const CategoryPicker = {
+    show(video, callback) {
+      State.catPickerCallback = callback;
+      document.getElementById('cat-video-title').textContent = video.title;
+      const grid = document.getElementById('category-grid');
+      grid.innerHTML = '';
+      const mainCats = ['warmup','cardio','fullbody_pilates','abs','upper_body','glutes_legs','targeted_pilates','dance','yoga','meridian_yoga','cooldown'];
+      mainCats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'cat-btn';
+        btn.textContent = CATEGORIES[cat].label;
+        btn.addEventListener('click', () => { this.hide(); if (State.catPickerCallback) { const cb = State.catPickerCallback; State.catPickerCallback = null; cb(cat); } });
+        grid.appendChild(btn);
+      });
+      document.getElementById('overlay-category').hidden = false;
+    },
+    hide() { document.getElementById('overlay-category').hidden = true; }
+  };
+
+  // --- Editor ---
+  const Editor = {
+    open(videoId) {
+      const v = Library.findById(videoId);
+      if (!v) return;
+      State.editingVideoId = videoId;
+      document.getElementById('edit-video-title').textContent = v.title;
+      const sel = document.getElementById('edit-category');
+      sel.innerHTML = '';
+      Object.keys(CATEGORIES).forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat; opt.textContent = CATEGORIES[cat].label;
+        if (v.category === cat) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      document.getElementById('edit-start-at').value = v.startAt || 0;
+      document.getElementById('edit-end-at').value = v.endAt || 0;
+      document.getElementById('overlay-edit').hidden = false;
+    },
+    save() {
+      if (!State.editingVideoId) return;
+      const cat = document.getElementById('edit-category').value;
+      const startAt = parseInt(document.getElementById('edit-start-at').value) || 0;
+      const endAt = parseInt(document.getElementById('edit-end-at').value) || 0;
+      Library.updateVideo(State.editingVideoId, { category: cat, startAt, endAt });
+      this.close();
+      UI.renderPlaylist();
+      UI.toast('Video updated', 'success');
+    },
+    close() {
+      document.getElementById('overlay-edit').hidden = true;
+      State.editingVideoId = null;
+    }
+  };
+
+  // --- Settings ---
+  const Settings = {
+    open() {
+      const key = Storage.get(CONFIG.LS.API_KEY) || '';
+      document.getElementById('input-api-key').value = key;
+      this.renderPoolStatus();
+      this.renderWeeklyPlan();
+      this.renderLibraryStats();
+      document.getElementById('panel-settings').classList.add('open');
+      document.getElementById('settings-backdrop').classList.add('open');
+    },
+    close() {
+      document.getElementById('panel-settings').classList.remove('open');
+      document.getElementById('settings-backdrop').classList.remove('open');
+    },
+    saveApiKey() {
+      const key = document.getElementById('input-api-key').value.trim();
+      Storage.set(CONFIG.LS.API_KEY, key);
+      UI.toast(key ? 'API key saved' : 'API key cleared', 'success');
+    },
+    async fetchSurprise() {
+      const key = Storage.get(CONFIG.LS.API_KEY);
+      if (!key) { UI.toast('Please enter an API key first', 'warning'); return; }
+      const btn = document.getElementById('btn-fetch-surprise');
+      btn.textContent = 'Fetching...';
+      btn.disabled = true;
+      try {
+        const count = await SurprisePool.fetchFromYouTube(key);
+        UI.toast(count + ' videos fetched from YouTube', 'success');
+      } catch(e) {
+        UI.toast('Failed to fetch: ' + e.message, 'warning');
+      }
+      btn.textContent = 'Fetch Surprise Pool \u{1F3B2}';
+      btn.disabled = false;
+      this.renderPoolStatus();
+    },
+    renderPoolStatus() {
+      const pool = SurprisePool.getPool();
+      const el = document.getElementById('surprise-pool-status');
+      if (pool.length > 0) {
+        const available = SurprisePool.getAvailable().length;
+        el.textContent = pool.length + ' videos in pool (' + available + ' available)';
+        el.className = 'surprise-pool-status has-data';
+      } else {
+        el.textContent = 'Not yet fetched. Add API key and fetch to unlock surprise videos from 4 more creators.';
+        el.className = 'surprise-pool-status';
+      }
+    },
+    renderWeeklyPlan() {
+      const today = new Date().getDay();
+      const order = [1,2,3,4,5,6,0];
+      let html = '<tr><th>Day</th><th>Focus</th></tr>';
+      order.forEach(d => {
+        const cls = d === today ? ' class="today-row"' : '';
+        const marker = d === today ? ' \u25C0' : '';
+        html += '<tr' + cls + '><td>' + DAY_NAMES[d] + '</td><td>' + WEEKLY_PLAN[d].focus + marker + '</td></tr>';
+      });
+      document.getElementById('weekly-plan-table').innerHTML = html;
+    },
+    renderLibraryStats() {
+      const cats = {};
+      State.library.forEach(v => { cats[v.category] = (cats[v.category] || 0) + 1; });
+      let html = '<strong>' + State.library.length + ' videos</strong><br>';
+      Object.keys(CATEGORIES).forEach(c => {
+        if (cats[c]) html += CATEGORIES[c].label + ': ' + cats[c] + '<br>';
+      });
+      document.getElementById('library-stats').innerHTML = html;
+    },
+    resetData() {
+      if (!confirm('Reset all Arete data? This will clear your ratings, history, and surprise pool.')) return;
+      Object.values(CONFIG.LS).forEach(k => Storage.remove(k));
+      location.reload();
+    }
+  };
+
+  // --- UI ---
+  const UI = {
+    showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    },
+    renderMainScreen() {
+      const now = new Date();
+      const dow = now.getDay();
+      const plan = WEEKLY_PLAN[dow];
+
+      // Date
+      document.getElementById('date-display').textContent =
+        now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+      // Quote
+      document.getElementById('quote-display').textContent =
+        '"' + QUOTES[Math.floor(Math.random() * QUOTES.length)] + '"';
+
+      // Focus label
+      const fl = document.getElementById('focus-label');
+      if (plan.category === 'surprise') {
+        const surpriseTypes = ['Dance Party', 'Yoga Flow', 'Mystery Workout', 'Explore Mode'];
+        fl.innerHTML = '<span class="focus-surprise">\u2728 Surprise Day \u2014 ' +
+          surpriseTypes[Math.floor(Math.random() * surpriseTypes.length)] + '</span>';
+      } else {
+        fl.innerHTML = '<span class="focus-type">' + plan.focus + '</span>';
+      }
+
+      this.renderPlaylist();
+    },
+    renderPlaylist() {
+      const container = document.getElementById('playlist-container');
+      if (!State.currentPlaylist || State.currentPlaylist.length === 0) {
+        container.innerHTML = '<div class="loading-text">No videos available</div>';
+        return;
+      }
+      container.innerHTML = State.currentPlaylist.map((item, i) => {
+        const v = item.video;
+        const phaseClass = item.phase === 'WARM UP' ? 'warmup' : item.phase === 'CARDIO' ? 'cardio' :
+          item.phase === 'MAIN' ? 'main' : item.phase === 'SURPRISE' ? 'surprise' : 'cooldown';
+        const dur = v.effectiveDuration || v.totalDuration || 0;
+        const durStr = dur >= 60 ? Math.floor(dur/60) + 'h ' + Math.round(dur%60) + 'min' : Math.round(dur) + ' min';
+        return '<div class="playlist-item phase-' + phaseClass + '" data-index="' + i + '" data-video-id="' + v.id + '">' +
+          '<div class="phase-tag tag-' + phaseClass + '">' + item.phase + '</div>' +
+          '<div class="video-info"><div class="video-title">' + escHtml(v.title) + '</div>' +
+          '<div class="video-meta"><span class="creator">' + escHtml(v.creator) + '</span>' +
+          '<span class="duration">' + durStr + '</span></div></div>' +
+          (item.source === 'library' ? '<button class="btn-edit-video" aria-label="Edit">\u270F\uFE0F</button>' : '') +
+          '</div>';
+      }).join('');
+    },
+    renderPlayerScreen(item) {
+      const phaseClass = item.phase === 'WARM UP' ? 'warmup' : item.phase === 'CARDIO' ? 'cardio' :
+        item.phase === 'MAIN' ? 'main' : item.phase === 'SURPRISE' ? 'surprise' : 'cooldown';
+      document.getElementById('phase-indicator').textContent = item.phase;
+      document.getElementById('phase-indicator').style.color =
+        phaseClass === 'warmup' ? '#FF69B4' : phaseClass === 'cardio' ? '#06B6D4' :
+        phaseClass === 'main' ? '#8B5CF6' : phaseClass === 'surprise' ? '#D4AF37' : '#4ADE80';
+      document.getElementById('video-counter').textContent =
+        (State.currentIndex + 1) + ' of ' + State.currentPlaylist.length;
+      document.getElementById('player-title').textContent = item.video.title;
+      document.getElementById('player-creator').textContent = item.video.creator;
+
+      // Progress dots
+      const prog = document.getElementById('playlist-progress');
+      prog.innerHTML = State.currentPlaylist.map((_, i) => {
+        const cls = i < State.currentIndex ? 'done' : i === State.currentIndex ? 'current' : '';
+        return '<div class="progress-dot ' + cls + '"></div>';
+      }).join('');
+    },
+    showCompletionScreen(minutes, videosCompleted) {
+      document.getElementById('stat-time').textContent = minutes;
+      document.getElementById('stat-videos').textContent = videosCompleted;
+      document.getElementById('completion-quote').textContent =
+        '"' + COMPLETION_QUOTES[Math.floor(Math.random() * COMPLETION_QUOTES.length)] + '"';
+      this.showScreen('screen-complete');
+    },
+    toast(msg, type) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast' + (type ? ' toast-' + type : '');
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    }
+  };
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // --- Init ---
+  function init() {
+    Library.init();
+
+    // Warn if opened from file:// protocol
+    if (location.protocol === 'file:') {
+      showFileProtocolWarning();
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const cachedDate = Storage.get(CONFIG.LS.PLAYLIST_DATE);
+    const cachedPlaylist = Storage.get(CONFIG.LS.PLAYLIST);
+
+    if (cachedDate === today && cachedPlaylist && cachedPlaylist.length > 0) {
+      State.currentPlaylist = cachedPlaylist;
+    } else {
+      State.currentPlaylist = Playlist.generate(false);
+      Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
+      Storage.set(CONFIG.LS.PLAYLIST_DATE, today);
+    }
+
+    UI.renderMainScreen();
+    UI.showScreen('screen-main');
+    Player.init();
+    bindEvents();
+  }
+
+  function showFileProtocolWarning() {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:300;background:#D4AF37;color:#1A1A1A;padding:12px 16px;font-size:0.85rem;text-align:center;font-family:var(--font-ui);line-height:1.4;';
+    banner.innerHTML = '<strong>⚠ YouTube requires an HTTP server.</strong> ' +
+      'Open Terminal and run:<br><code style="background:#1A1A1A;color:#FF1493;padding:2px 8px;border-radius:4px;font-size:0.8rem;">cd ' +
+      (location.pathname.substring(0, location.pathname.lastIndexOf('/'))) +
+      ' && python3 -m http.server 8000</code><br>Then visit <strong>http://localhost:8000</strong>' +
+      '<button onclick="this.parentElement.remove()" style="position:absolute;top:6px;right:10px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#1A1A1A;">✕</button>';
+    document.body.prepend(banner);
+  }
+
+  function bindEvents() {
+    // Main buttons
+    document.getElementById('btn-lets-go').addEventListener('click', () => {
+      if (State.currentPlaylist.length === 0) { UI.toast('No playlist to play', 'warning'); return; }
+      Player.startPlayback();
+    });
+    document.getElementById('btn-surprise').addEventListener('click', () => {
+      State.currentPlaylist = Playlist.generate(true);
+      Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
+      UI.renderMainScreen();
+      UI.toast('Surprise playlist generated!', 'success');
+    });
+
+    // Player
+    document.getElementById('btn-back').addEventListener('click', () => {
+      Player.stop();
+      RPE.hide();
+      UI.showScreen('screen-main');
+    });
+    document.getElementById('btn-skip').addEventListener('click', () => Player.skipCurrent());
+
+    // RPE
+    document.querySelectorAll('.rpe-btn').forEach(btn => {
+      btn.addEventListener('click', () => RPE.handleRating(btn.dataset.rpe));
+    });
+
+    // Category picker skip
+    document.getElementById('btn-cat-skip').addEventListener('click', () => {
+      CategoryPicker.hide();
+      if (State.catPickerCallback) { const cb = State.catPickerCallback; State.catPickerCallback = null; cb(null); }
+    });
+
+    // Edit (delegated)
+    document.getElementById('playlist-container').addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-edit-video');
+      if (btn) {
+        const item = btn.closest('.playlist-item');
+        Editor.open(item.dataset.videoId);
+      }
+    });
+    document.getElementById('btn-edit-save').addEventListener('click', () => Editor.save());
+    document.getElementById('btn-edit-cancel').addEventListener('click', () => Editor.close());
+
+    // Settings
+    document.getElementById('btn-settings').addEventListener('click', () => Settings.open());
+    document.getElementById('btn-close-settings').addEventListener('click', () => Settings.close());
+    document.getElementById('settings-backdrop').addEventListener('click', () => Settings.close());
+    document.getElementById('btn-save-api-key').addEventListener('click', () => Settings.saveApiKey());
+    document.getElementById('btn-fetch-surprise').addEventListener('click', () => Settings.fetchSurprise());
+    document.getElementById('btn-reset-data').addEventListener('click', () => Settings.resetData());
+
+    // Completion
+    document.getElementById('btn-done').addEventListener('click', () => UI.showScreen('screen-main'));
+
+    // Close overlays on backdrop click
+    ['overlay-rpe', 'overlay-edit', 'overlay-category'].forEach(id => {
+      document.getElementById(id).addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+          if (id === 'overlay-rpe') { /* don't close RPE on backdrop, force a choice or wait */ }
+          else if (id === 'overlay-edit') Editor.close();
+          else if (id === 'overlay-category') {
+            CategoryPicker.hide();
+            if (State.catPickerCallback) { const cb = State.catPickerCallback; State.catPickerCallback = null; cb(null); }
+          }
+        }
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+
+  // Expose for YouTube callback
+  window._aretePlayerReady = function() { Player.onAPIReady(); };
+})();
+
+// YouTube IFrame API global callback
+function onYouTubeIframeAPIReady() { window._aretePlayerReady(); }
+</script>
+</body>
+</html>
