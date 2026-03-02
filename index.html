@@ -652,11 +652,18 @@ const CONFIG = {
   HISTORY_DEPTH: 3,
   SMALL_POOL_THRESHOLD: 6,
   RPE_AUTO_ADVANCE_MS: 3000,
+  // Support channel IDs, @handles, or full YouTube URLs
   SURPRISE_CHANNELS: {
     'UCFKE7WVJfvaHW5q283SxchA': 'Yoga With Adriene',
     'UCWN2FPlvg9r-LnUyepH9IaQ': 'Boho Beautiful Yoga',
-    'UCpHwEwY2MRPMaC_JEBkM3wQ': 'Marie Steffen',
-    'UCDxPOmCkxCPjJnrlBiEGehA': 'growingannanas'
+    '@lidiavmera': 'Lidia Mera',
+    '@CharlieFollows': 'Charlie Follows',
+    '@growingannanas': 'growingannanas',
+    '@MarieSteffen': 'Marie Steffen',
+    '@BaileyBrown': 'Bailey Brown',
+    '@MadeleineAbeid': 'Madeleine Abeid',
+    // from user provided channel URL
+    'UCpQ34afVgk8cRQBjSJ1xuJQ': 'User Added Channel'
   },
   SURPRISE_MIN_DURATION: 3,
   SURPRISE_MAX_DURATION: 60,
@@ -982,25 +989,47 @@ const COMPLETION_QUOTES = [
       Storage.set(CONFIG.LS.SURPRISE_FETCHED, new Date().toISOString());
       return allVids.length;
     },
-    async _fetchChannel(apiKey, chId) {
+    async _fetchChannel(apiKey, channelRef) {
       const base = 'https://www.googleapis.com/youtube/v3';
-      const chResp = await fetch(base + '/channels?part=contentDetails&id=' + chId + '&key=' + apiKey);
+      const chId = await this._resolveChannelId(apiKey, channelRef);
+      if (!chId) return [];
+      const chResp = await fetch(base + '/channels?part=contentDetails&id=' + encodeURIComponent(chId) + '&key=' + apiKey);
       const chData = await chResp.json();
       if (!chData.items || !chData.items.length) return [];
       const uploadsId = chData.items[0].contentDetails.relatedPlaylists.uploads;
-      const plResp = await fetch(base + '/playlistItems?part=snippet,contentDetails&playlistId=' + uploadsId + '&maxResults=50&key=' + apiKey);
+      const plResp = await fetch(base + '/playlistItems?part=snippet,contentDetails&playlistId=' + encodeURIComponent(uploadsId) + '&maxResults=50&key=' + apiKey);
       const plData = await plResp.json();
       if (!plData.items) return [];
       const ids = plData.items.map(i => i.contentDetails.videoId).join(',');
-      const vResp = await fetch(base + '/videos?part=contentDetails,snippet&id=' + ids + '&key=' + apiKey);
+      const vResp = await fetch(base + '/videos?part=contentDetails,snippet&id=' + encodeURIComponent(ids) + '&key=' + apiKey);
       const vData = await vResp.json();
       return (vData.items || []).map(i => ({
         id: i.id,
         title: i.snippet.title,
-        creator: CONFIG.SURPRISE_CHANNELS[chId],
+        creator: CONFIG.SURPRISE_CHANNELS[channelRef] || i.snippet.channelTitle,
         totalDuration: this._parseDuration(i.contentDetails.duration),
         publishedAt: i.snippet.publishedAt
       }));
+    },
+    async _resolveChannelId(apiKey, channelRef) {
+      const base = 'https://www.googleapis.com/youtube/v3/channels?part=id';
+      // full URL support
+      let ref = channelRef;
+      if (/^https?:\/\//i.test(ref)) {
+        const mId = ref.match(/\/channel\/(UC[\w-]+)/i);
+        if (mId) return mId[1];
+        const mHandle = ref.match(/youtube\.com\/@([\w.-]+)/i);
+        if (mHandle) ref = '@' + mHandle[1];
+      }
+      if (/^UC[\w-]+$/.test(ref)) return ref;
+      if (ref.startsWith('@')) {
+        const handle = ref.slice(1);
+        const r = await fetch(base + '&forHandle=' + encodeURIComponent(handle) + '&key=' + apiKey);
+        const d = await r.json();
+        if (d.items && d.items[0] && d.items[0].id) return d.items[0].id;
+        return null;
+      }
+      return null;
     },
     _parseDuration(iso) {
       const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
