@@ -656,6 +656,7 @@ const CONFIG = {
   SURPRISE_MIN_DURATION: 3,
   SURPRISE_MAX_DURATION: 60,
   SURPRISE_REFRESH_DAYS: 7,
+  BLOCKED_CREATORS: ['Pamela Reif'],
   LS: {
     LIBRARY: 'arete_library',
     HISTORY: 'arete_history',
@@ -779,8 +780,13 @@ const COMPLETION_QUOTES = [
       return raw.filter(v => { if (seen.has(v.id)) return false; seen.add(v.id); return true; });
     },
     save() { Storage.set(CONFIG.LS.LIBRARY, State.library); },
+    purgeBlockedCreators() {
+      const before = State.library.length;
+      State.library = State.library.filter(v => !isBlockedCreator(v.creator));
+      if (State.library.length !== before) this.save();
+    },
     getByCategory(cat) {
-      return State.library.filter(v => v.category === cat && v.rpe !== 'remove');
+      return State.library.filter(v => v.category === cat && v.rpe !== 'remove' && !isBlockedCreator(v.creator));
     },
     findById(id) { return State.library.find(v => v.id === id); },
     updateVideo(id, updates) {
@@ -795,6 +801,7 @@ const COMPLETION_QUOTES = [
     },
     addFromSurprise(videoData, category) {
       if (State.library.find(v => v.id === videoData.id)) return;
+      if (isBlockedCreator(videoData.creator)) return;
       State.library.push({
         id: videoData.id, title: videoData.title, creator: videoData.creator,
         category: category, intensity: 'medium',
@@ -1086,11 +1093,28 @@ const COMPLETION_QUOTES = [
       const msg = errorMsgs[code] || 'Playback error (code ' + code + ')';
 
       if (code === 150 || code === 101) {
-        // Embedding restricted — common when opened from file:// protocol
+        const item = State.currentPlaylist[State.currentIndex];
+        const video = item && item.video;
+
+        // Common root cause: running from file:// (no origin)
         if (location.protocol === 'file:') {
-          UI.toast('YouTube requires HTTP server. Run: python3 -m http.server', 'warning');
+          UI.toast('YouTube requires HTTP server. Run: python3 -m http.server 8000', 'warning');
           return;
         }
+
+        // Fallback for embed-blocked videos (common for some Pamela videos)
+        if (video && video.id) {
+          const startAt = video.startAt || 0;
+          const url = 'https://www.youtube.com/watch?v=' + video.id + (startAt > 0 ? ('&t=' + startAt + 's') : '');
+          const openExternal = confirm('This video blocks embedded playback. Open it in YouTube now?');
+          if (openExternal) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+          }
+          UI.toast('Embed blocked. Skipping to next video...', 'warning');
+          setTimeout(() => this.advanceToNext(), 800);
+          return;
+        }
+
         this._errorRetryCount++;
         if (this._errorRetryCount > 3) {
           UI.toast('Multiple videos blocked. Check your connection.', 'warning');
@@ -1419,6 +1443,11 @@ const COMPLETION_QUOTES = [
     }
   };
 
+
+  function isBlockedCreator(name) {
+    return (CONFIG.BLOCKED_CREATORS || []).includes(name);
+  }
+
   function escHtml(s) {
     const d = document.createElement('div');
     d.textContent = s;
@@ -1428,6 +1457,7 @@ const COMPLETION_QUOTES = [
   // --- Init ---
   function init() {
     Library.init();
+    Library.purgeBlockedCreators();
 
     // Warn if opened from file:// protocol
     if (location.protocol === 'file:') {
@@ -1439,7 +1469,14 @@ const COMPLETION_QUOTES = [
     const cachedPlaylist = Storage.get(CONFIG.LS.PLAYLIST);
 
     if (cachedDate === today && cachedPlaylist && cachedPlaylist.length > 0) {
-      State.currentPlaylist = cachedPlaylist;
+      const hasBlocked = cachedPlaylist.some(it => it && it.video && isBlockedCreator(it.video.creator));
+      if (!hasBlocked) {
+        State.currentPlaylist = cachedPlaylist;
+      } else {
+        State.currentPlaylist = Playlist.generate(false);
+        Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
+        Storage.set(CONFIG.LS.PLAYLIST_DATE, today);
+      }
     } else {
       State.currentPlaylist = Playlist.generate(false);
       Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
@@ -1470,7 +1507,10 @@ const COMPLETION_QUOTES = [
       Player.startPlayback();
     });
     document.getElementById('btn-surprise').addEventListener('click', () => {
-      State.currentPlaylist = Playlist.generate(true);
+      State.currentPlaylist = Playlist.generate(true).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
+      if (State.currentPlaylist.length < 4) {
+        State.currentPlaylist = Playlist.generate(true).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
+      }
       Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
       UI.renderMainScreen();
       UI.toast('Surprise playlist generated!', 'success');
