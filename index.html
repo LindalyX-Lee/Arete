@@ -233,43 +233,65 @@
         padding: 10px 12px calc(8px + env(safe-area-inset-bottom));
       }
 
-      .app-header { padding: 4px 0 2px; }
-      .brand-title { font-size: 1.62rem; letter-spacing: 0.2em; }
-      .brand-subtitle { display: block; font-size: 0.74rem; margin-top: -2px; }
-      .icon-btn { min-width: 38px; min-height: 38px; font-size: 1.2rem; }
+      .app-header { padding: 6px 0 0; justify-content: center; position: relative; }
+      .brand { text-align: center; }
+      .brand-title { font-size: 1.82rem; letter-spacing: 0.24em; }
+      .brand-subtitle { display: block; font-size: 0.82rem; margin-top: -1px; }
+      #btn-settings { position: absolute; right: 0; top: 2px; }
+      .icon-btn { min-width: 38px; min-height: 38px; font-size: 1.15rem; }
 
-      .date-display { font-size: 0.78rem; margin-top: 2px; }
+      .date-display { font-size: 0.80rem; margin-top: 4px; text-align: center; }
       .quote-display {
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        font-size: 0.94rem;
-        line-height: 1.22;
-        margin: 4px 0 8px;
-        min-height: 2.3em;
+        font-size: 1rem;
+        line-height: 1.24;
+        margin: 6px 0 8px;
+        min-height: 2.4em;
+        text-align: center;
       }
-      .focus-label { font-size: 1.08rem; margin: 0 0 8px; line-height: 1.18; }
+      .focus-label { font-size: 1.12rem; margin: 0 0 10px; line-height: 1.2; text-align: center; }
 
-      .playlist { gap: 5px; margin-bottom: 8px; flex: 1 1 auto; min-height: 0; overflow: auto; }
-      .playlist-item { padding: 8px 10px; gap: 8px; border-left-width: 2px; }
-      .phase-tag { min-width: 58px; font-size: 0.52rem; padding: 2px 6px; }
-      .video-title { font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
-      .video-meta { font-size: 0.7rem; margin-top: 1px; }
-      .btn-edit-video { min-width: 26px; min-height: 26px; font-size: 0.8rem; opacity: 0.55; }
+      .playlist { gap: 6px; margin-bottom: 4px; flex: 1 1 auto; min-height: 0; overflow: auto; }
+      .playlist-item { padding: 9px 10px; gap: 8px; border-left-width: 2px; }
+      .phase-tag { min-width: 58px; font-size: 0.53rem; padding: 2px 6px; }
+      .video-title { font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
+      .video-meta { font-size: 0.72rem; margin-top: 1px; }
+      .btn-edit-video { min-width: 24px; min-height: 24px; font-size: 0.78rem; opacity: 0.45; }
 
       .action-buttons {
         position: sticky;
         bottom: 0;
         flex: 0 0 auto;
-        gap: 6px;
-        margin-top: 2px;
-        padding: 6px 0 calc(8px + env(safe-area-inset-bottom));
-        background: linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.84), transparent);
+        align-items: center;
+        gap: 4px;
+        margin-top: 0;
+        padding: 2px 0 calc(6px + env(safe-area-inset-bottom));
+        background: linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.70), transparent);
         backdrop-filter: blur(3px);
       }
-      .btn-primary { font-size: 0.95rem; padding: 10px 14px; }
-      .btn-secondary { font-size: 0.84rem; padding: 8px 14px; }
+      .btn-primary {
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        font-size: 0.78rem;
+        line-height: 1.1;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 8px 24px rgba(255,20,147,0.35);
+      }
+      .btn-secondary {
+        border: none;
+        background: transparent;
+        color: var(--pink-glow);
+        font-size: 0.82rem;
+        padding: 2px 8px;
+      }
     }
 
     @media (max-width: 375px) {
