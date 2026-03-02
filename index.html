@@ -358,6 +358,15 @@
     </div>
     <div class="settings-content">
       <div class="setting-group">
+        <label>Cloud Sync ID</label>
+        <div class="api-key-row">
+          <input type="text" id="input-sync-id" placeholder="your-name-or-email">
+          <button id="btn-save-sync-id" class="btn-small">Save</button>
+        </div>
+        <div class="settings-hint">Use same Sync ID on iPad + iPhone for auto sync</div>
+        <button id="btn-sync-now" class="btn-secondary" style="width:100%;margin-top:8px;">Sync Now ☁️</button>
+      </div>
+      <div class="setting-group">
         <label>YouTube API Key</label>
         <div class="api-key-row">
           <input type="text" id="input-api-key" placeholder="Enter your API key">
@@ -669,6 +678,8 @@ const CONFIG = {
   SURPRISE_MAX_DURATION: 60,
   SURPRISE_REFRESH_DAYS: 7,
   BLOCKED_CREATORS: ['Pamela Reif'],
+  SUPABASE_URL: 'https://toetpgkmykamurqjvwbm.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_a2Xp4GSf4x4mePjxzqRVNg_E9gSYOR_',
   LS: {
     LIBRARY: 'arete_library',
     HISTORY: 'arete_history',
@@ -679,7 +690,9 @@ const CONFIG = {
     ROUND_ROBIN: 'arete_round_robin',
     PLAYLIST: 'arete_playlist',
     PLAYLIST_DATE: 'arete_playlist_date',
-    BLOCKED_CREATORS: 'arete_blocked_creators'
+    BLOCKED_CREATORS: 'arete_blocked_creators',
+    SYNC_ID: 'arete_sync_id',
+    LAST_SYNC_AT: 'arete_last_sync_at'
   }
 };
 
@@ -761,7 +774,9 @@ const COMPLETION_QUOTES = [
     currentRpeVideo: null,
     currentRpeSource: null,
     editingVideoId: null,
-    catPickerCallback: null
+    catPickerCallback: null,
+    syncDirty: false,
+    syncTimerId: null
   };
 
   // --- Storage ---
@@ -771,7 +786,7 @@ const COMPLETION_QUOTES = [
       catch(e) { return null; }
     },
     set(key, val) {
-      try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+      try { localStorage.setItem(key, JSON.stringify(val)); State.syncDirty = true; } catch(e) {}
     },
     remove(key) { localStorage.removeItem(key); }
   };
@@ -1321,6 +1336,7 @@ const COMPLETION_QUOTES = [
     open() {
       const key = Storage.get(CONFIG.LS.API_KEY) || '';
       document.getElementById('input-api-key').value = key;
+      document.getElementById('input-sync-id').value = CloudSync.getSyncId();
       this.renderPoolStatus();
       this.renderBlockedCreators();
       this.renderWeeklyPlan();
@@ -1386,6 +1402,15 @@ const COMPLETION_QUOTES = [
       document.getElementById('library-stats').innerHTML = html;
     },
 
+    saveSyncId() {
+      const v = (document.getElementById('input-sync-id').value || '').trim();
+      CloudSync.setSyncId(v);
+      UI.toast(v ? 'Sync ID saved' : 'Sync ID cleared', 'success');
+      CloudSync.startAuto();
+    },
+    async syncNow() {
+      await CloudSync.syncNow();
+    },
     renderBlockedCreators() {
       const blocked = getBlockedCreators();
       const isBlocked = blocked.includes('Pamela Reif');
@@ -1416,6 +1441,100 @@ const COMPLETION_QUOTES = [
       if (!confirm('Reset all Arete data? This will clear your ratings, history, and surprise pool.')) return;
       Object.values(CONFIG.LS).forEach(k => Storage.remove(k));
       location.reload();
+    }
+  };
+
+  // --- Cloud Sync (Supabase REST) ---
+  const CloudSync = {
+    table: 'arete_state',
+    getSyncId() { return Storage.get(CONFIG.LS.SYNC_ID) || ''; },
+    setSyncId(v) { Storage.set(CONFIG.LS.SYNC_ID, (v||'').trim()); },
+    headers() {
+      return {
+        'Content-Type': 'application/json',
+        'apikey': CONFIG.SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY
+      };
+    },
+    snapshot() {
+      const keys = Object.values(CONFIG.LS);
+      const data = {};
+      keys.forEach(k => {
+        const raw = localStorage.getItem(k);
+        if (raw !== null) {
+          try { data[k] = JSON.parse(raw); } catch(e) { data[k] = raw; }
+        }
+      });
+      return data;
+    },
+    applySnapshot(data) {
+      if (!data || typeof data !== 'object') return;
+      Object.keys(data).forEach(k => {
+        try { localStorage.setItem(k, JSON.stringify(data[k])); } catch(e) {}
+      });
+      // reload in-memory state
+      Library.init();
+      Library.purgeBlockedCreators();
+      const today = new Date().toISOString().split('T')[0];
+      const cachedDate = Storage.get(CONFIG.LS.PLAYLIST_DATE);
+      const cachedPlaylist = Storage.get(CONFIG.LS.PLAYLIST);
+      if (cachedDate === today && cachedPlaylist && cachedPlaylist.length > 0) {
+        State.currentPlaylist = cachedPlaylist.filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
+      } else {
+        State.currentPlaylist = Playlist.generate(false).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
+        Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
+        Storage.set(CONFIG.LS.PLAYLIST_DATE, today);
+      }
+      UI.renderMainScreen();
+    },
+    async push() {
+      const syncId = this.getSyncId();
+      if (!syncId) return;
+      const payload = this.snapshot();
+      const body = [{ sync_id: syncId, payload: payload, updated_at: new Date().toISOString() }];
+      const url = CONFIG.SUPABASE_URL + '/rest/v1/' + this.table;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { ...this.headers(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error('push failed: ' + res.status);
+      Storage.set(CONFIG.LS.LAST_SYNC_AT, new Date().toISOString());
+      State.syncDirty = false;
+    },
+    async pull() {
+      const syncId = this.getSyncId();
+      if (!syncId) return null;
+      const url = CONFIG.SUPABASE_URL + '/rest/v1/' + this.table + '?sync_id=eq.' + encodeURIComponent(syncId) + '&select=payload,updated_at&order=updated_at.desc&limit=1';
+      const res = await fetch(url, { headers: this.headers() });
+      if (!res.ok) throw new Error('pull failed: ' + res.status);
+      const rows = await res.json();
+      return rows && rows[0] ? rows[0] : null;
+    },
+    async syncNow() {
+      const syncId = this.getSyncId();
+      if (!syncId) { UI.toast('Set Sync ID first', 'warning'); return; }
+      try {
+        const remote = await this.pull();
+        if (remote && remote.payload) {
+          const localTs = Storage.get(CONFIG.LS.LAST_SYNC_AT);
+          if (!localTs || new Date(remote.updated_at).getTime() > new Date(localTs).getTime()) {
+            this.applySnapshot(remote.payload);
+          }
+        }
+        await this.push();
+        UI.toast('Cloud sync complete', 'success');
+      } catch (e) {
+        UI.toast('Sync failed: ' + e.message, 'warning');
+      }
+    },
+    startAuto() {
+      if (State.syncTimerId) clearInterval(State.syncTimerId);
+      State.syncTimerId = setInterval(async () => {
+        if (!this.getSyncId()) return;
+        if (!State.syncDirty) return;
+        try { await this.push(); } catch (e) {}
+      }, 30000);
     }
   };
 
@@ -1556,6 +1675,8 @@ const COMPLETION_QUOTES = [
     UI.showScreen('screen-main');
     Player.init();
     bindEvents();
+    CloudSync.startAuto();
+    CloudSync.syncNow().catch(() => {});
   }
 
   function showFileProtocolWarning() {
@@ -1620,6 +1741,8 @@ const COMPLETION_QUOTES = [
     document.getElementById('btn-close-settings').addEventListener('click', () => Settings.close());
     document.getElementById('settings-backdrop').addEventListener('click', () => Settings.close());
     document.getElementById('btn-save-api-key').addEventListener('click', () => Settings.saveApiKey());
+    document.getElementById('btn-save-sync-id').addEventListener('click', () => Settings.saveSyncId());
+    document.getElementById('btn-sync-now').addEventListener('click', () => Settings.syncNow());
     document.getElementById('btn-fetch-surprise').addEventListener('click', () => Settings.fetchSurprise());
     document.getElementById('btn-toggle-pamela').addEventListener('click', () => Settings.toggleBlockedCreator('Pamela Reif'));
     document.getElementById('btn-reset-data').addEventListener('click', () => Settings.resetData());
