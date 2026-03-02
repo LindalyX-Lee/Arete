@@ -224,21 +224,23 @@
     }
     @media (max-width: 767px) {
       :root { --max-width: 100%; }
-
-      /* 1/2/3 layout: header+quote / list / actions */
       #screen-main {
         min-height: 100dvh;
         display: flex;
         flex-direction: column;
         padding: 10px 12px calc(8px + env(safe-area-inset-bottom));
+        gap: 0;
       }
+      .zone-top{flex:0 0 33%; display:flex; flex-direction:column; justify-content:flex-start;}
+      .zone-middle{flex:0 0 33%; min-height:0; overflow:auto;}
+      .zone-bottom{flex:1 1 34%; display:flex; align-items:center; justify-content:center; position:relative; background:linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.70), transparent);}
 
-      .app-header { padding: 6px 0 0; justify-content: center; position: relative; }
+      .app-header { padding: 4px 0 0; justify-content: center; position: relative; }
       .brand { text-align: center; }
-      .brand-title { font-size: 1.82rem; letter-spacing: 0.24em; }
+      .brand-title { font-size: 1.88rem; letter-spacing: 0.24em; }
       .brand-subtitle { display: block; font-size: 0.82rem; margin-top: -1px; }
       #btn-settings { position: absolute; right: 0; top: 2px; }
-      .icon-btn { min-width: 38px; min-height: 38px; font-size: 1.15rem; }
+      .icon-btn { min-width: 36px; min-height: 36px; font-size: 1.1rem; }
 
       .date-display { font-size: 0.80rem; margin-top: 4px; text-align: center; }
       .quote-display {
@@ -248,49 +250,55 @@
         overflow: hidden;
         font-size: 1rem;
         line-height: 1.24;
-        margin: 6px 0 8px;
-        min-height: 2.4em;
+        margin: 8px 0 10px;
+        min-height: 2.45em;
         text-align: center;
       }
-      .focus-label { font-size: 1.12rem; margin: 0 0 10px; line-height: 1.2; text-align: center; }
+      .focus-label { font-size: 1.12rem; margin: 0 0 8px; line-height: 1.2; text-align: center; }
 
-      .playlist { gap: 6px; margin-bottom: 4px; flex: 1 1 auto; min-height: 0; overflow: auto; }
+      .playlist { gap: 6px; margin-bottom: 0; }
       .playlist-item { padding: 9px 10px; gap: 8px; border-left-width: 2px; }
-      .phase-tag { min-width: 58px; font-size: 0.53rem; padding: 2px 6px; }
-      .video-title { font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
+      .phase-tag { min-width: 56px; font-size: 0.52rem; padding: 2px 6px; }
+      .video-title { font-size: 0.90rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
       .video-meta { font-size: 0.72rem; margin-top: 1px; }
-      .btn-edit-video { min-width: 24px; min-height: 24px; font-size: 0.78rem; opacity: 0.45; }
+      .btn-edit-video { min-width: 24px; min-height: 24px; font-size: 0.78rem; opacity: 0.42; }
 
-      .action-buttons {
-        position: sticky;
-        bottom: 0;
-        flex: 0 0 auto;
-        align-items: center;
-        gap: 4px;
-        margin-top: 0;
-        padding: 2px 0 calc(6px + env(safe-area-inset-bottom));
-        background: linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.70), transparent);
-        backdrop-filter: blur(3px);
-      }
+      .action-buttons { gap: 0; margin-top: 0; padding: 0; }
       .btn-primary {
-        width: 88px;
-        height: 88px;
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
-        font-size: 0.78rem;
-        line-height: 1.1;
         padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
-        box-shadow: 0 8px 24px rgba(255,20,147,0.35);
+        font-size: 0;
+        box-shadow: 0 10px 28px rgba(255,20,147,0.36);
+      }
+      .btn-primary::after{
+        content:'GO';
+        font-size: 1.15rem;
+        font-weight: 800;
+        letter-spacing: .08em;
       }
       .btn-secondary {
-        border: none;
-        background: transparent;
+        position: absolute;
+        right: calc(50% - 78px);
+        top: calc(50% - 58px);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid var(--pink-glow);
+        background: rgba(255,20,147,.12);
+        padding: 0;
+        font-size: 0;
+        color: transparent;
+      }
+      .btn-secondary::after{
+        content:'✨';
+        font-size: 1rem;
         color: var(--pink-glow);
-        font-size: 0.82rem;
-        padding: 2px 8px;
       }
     }
 
@@ -308,20 +316,22 @@
 
   <!-- ===== SCREEN: Main (Today's Menu) ===== -->
   <div id="screen-main" class="screen active">
-    <header class="app-header">
-      <div class="brand">
-        <h1 class="brand-title">ARETE</h1>
-        <span class="brand-subtitle">ἀρετή</span>
-      </div>
-      <button id="btn-settings" class="icon-btn" aria-label="Settings">&#9881;</button>
-    </header>
-    <div id="date-display" class="date-display"></div>
-    <div id="quote-display" class="quote-display"></div>
-    <div id="focus-label" class="focus-label"></div>
-    <div id="playlist-container" class="playlist">
+    <div class="zone-top">
+      <header class="app-header">
+        <div class="brand">
+          <h1 class="brand-title">ARETE</h1>
+          <span class="brand-subtitle">ἀρετή</span>
+        </div>
+        <button id="btn-settings" class="icon-btn" aria-label="Settings">&#9881;</button>
+      </header>
+      <div id="date-display" class="date-display"></div>
+      <div id="quote-display" class="quote-display"></div>
+      <div id="focus-label" class="focus-label"></div>
+    </div>
+    <div id="playlist-container" class="playlist zone-middle">
       <div class="loading-text">Generating your workout...</div>
     </div>
-    <div class="action-buttons">
+    <div class="action-buttons zone-bottom">
       <button id="btn-lets-go" class="btn-primary">LET'S GO &#128293;</button>
       <button id="btn-surprise" class="btn-secondary">SURPRISE ME &#10024;</button>
     </div>
