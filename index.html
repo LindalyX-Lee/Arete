@@ -370,6 +370,11 @@
         <div id="surprise-pool-status" class="surprise-pool-status">Not yet fetched</div>
       </div>
       <div class="setting-group">
+        <h3>Blocked Creators</h3>
+        <button id="btn-toggle-pamela" class="btn-secondary" style="width:100%">Pamela Reif: Blocked</button>
+        <div class="settings-hint">One tap to block/unblock creator</div>
+      </div>
+      <div class="setting-group">
         <h3>Weekly Plan</h3>
         <table class="weekly-plan-table" id="weekly-plan-table"></table>
       </div>
@@ -666,7 +671,8 @@ const CONFIG = {
     API_KEY: 'arete_api_key',
     ROUND_ROBIN: 'arete_round_robin',
     PLAYLIST: 'arete_playlist',
-    PLAYLIST_DATE: 'arete_playlist_date'
+    PLAYLIST_DATE: 'arete_playlist_date',
+    BLOCKED_CREATORS: 'arete_blocked_creators'
   }
 };
 
@@ -1287,6 +1293,7 @@ const COMPLETION_QUOTES = [
       const key = Storage.get(CONFIG.LS.API_KEY) || '';
       document.getElementById('input-api-key').value = key;
       this.renderPoolStatus();
+      this.renderBlockedCreators();
       this.renderWeeklyPlan();
       this.renderLibraryStats();
       document.getElementById('panel-settings').classList.add('open');
@@ -1348,6 +1355,33 @@ const COMPLETION_QUOTES = [
         if (cats[c]) html += CATEGORIES[c].label + ': ' + cats[c] + '<br>';
       });
       document.getElementById('library-stats').innerHTML = html;
+    },
+
+    renderBlockedCreators() {
+      const blocked = getBlockedCreators();
+      const isBlocked = blocked.includes('Pamela Reif');
+      const btn = document.getElementById('btn-toggle-pamela');
+      if (!btn) return;
+      btn.textContent = 'Pamela Reif: ' + (isBlocked ? 'Blocked' : 'Allowed');
+      btn.style.borderColor = isBlocked ? 'var(--pink)' : 'var(--text-muted)';
+      btn.style.color = isBlocked ? 'var(--pink)' : 'var(--text-secondary)';
+      btn.style.background = isBlocked ? 'var(--pink-dim)' : 'transparent';
+    },
+    toggleBlockedCreator(name) {
+      const blocked = getBlockedCreators();
+      const idx = blocked.indexOf(name);
+      if (idx >= 0) blocked.splice(idx, 1);
+      else blocked.push(name);
+      Storage.set(CONFIG.LS.BLOCKED_CREATORS, blocked);
+
+      // keep library clean + regenerate today's playlist in one step
+      Library.purgeBlockedCreators();
+      State.currentPlaylist = Playlist.generate(false).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
+      Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
+      Storage.set(CONFIG.LS.PLAYLIST_DATE, new Date().toISOString().split('T')[0]);
+      UI.renderMainScreen();
+      this.renderBlockedCreators();
+      UI.toast(name + (idx >= 0 ? ' unblocked' : ' blocked'), 'success');
     },
     resetData() {
       if (!confirm('Reset all Arete data? This will clear your ratings, history, and surprise pool.')) return;
@@ -1444,8 +1478,14 @@ const COMPLETION_QUOTES = [
   };
 
 
+  function getBlockedCreators() {
+    const stored = Storage.get(CONFIG.LS.BLOCKED_CREATORS);
+    if (Array.isArray(stored)) return stored;
+    return CONFIG.BLOCKED_CREATORS || [];
+  }
+
   function isBlockedCreator(name) {
-    return (CONFIG.BLOCKED_CREATORS || []).includes(name);
+    return getBlockedCreators().includes(name);
   }
 
   function escHtml(s) {
@@ -1552,6 +1592,7 @@ const COMPLETION_QUOTES = [
     document.getElementById('settings-backdrop').addEventListener('click', () => Settings.close());
     document.getElementById('btn-save-api-key').addEventListener('click', () => Settings.saveApiKey());
     document.getElementById('btn-fetch-surprise').addEventListener('click', () => Settings.fetchSurprise());
+    document.getElementById('btn-toggle-pamela').addEventListener('click', () => Settings.toggleBlockedCreator('Pamela Reif'));
     document.getElementById('btn-reset-data').addEventListener('click', () => Settings.resetData());
 
     // Completion
