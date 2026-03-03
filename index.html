@@ -409,6 +409,19 @@
   </style>
 </head>
 <body>
+    <div id="player-inline-container" class="player-inline-container">
+      <div class="player-inline-header">
+        <button id="btn-player-close" class="btn-icon">&#10005;</button>
+        <div class="player-inline-title" id="player-inline-title">Video Title</div>
+        <button id="btn-player-skip" class="btn-skip-inline">Skip &#10132;</button>
+      </div>
+      <div id="player-inline-frame" class="player-inline-frame"></div>
+      <div class="player-inline-controls">
+        <button id="btn-player-prev" class="btn-control">&#9664;</button>
+        <button id="btn-player-play" class="btn-control btn-play">&#9654;</button>
+        <button id="btn-player-next" class="btn-control">&#9654;</button>
+      </div>
+    </div>
 
   <!-- ===== SCREEN: Main (Today's Menu) ===== -->
   <div id="screen-main" class="screen active">
@@ -1254,11 +1267,11 @@ const COMPLETION_QUOTES = [
     },
     onAPIReady() {
       const pv = { playsinline: 1, controls: 1, modestbranding: 1, rel: 0, fs: 1, iv_load_policy: 3, cc_load_policy: 0 };
-      // Add origin for HTTPS hosts (required by YouTube IFrame API)
       if (location.protocol === 'https:' || location.protocol === 'http:') {
         pv.origin = location.origin;
       }
-      State.ytPlayer = new YT.Player('youtube-player', {
+      // Create player in inline frame
+      State.ytPlayer = new YT.Player('player-inline-frame', {
         height: '100%', width: '100%',
         playerVars: pv,
         events: {
@@ -1888,7 +1901,7 @@ const COMPLETION_QUOTES = [
       if (State.currentPlaylist.length === 0) { UI.toast('No playlist to play', 'warning'); return; }
       State.currentIndex = 0;
       Player.inlineExpand(); // Show container first
-      setTimeout(() => Player.load(State.currentPlaylist[0]), 50); // Then load video
+      setTimeout(() => Player.loadVideo(State.currentPlaylist[0]), 50); // Then load video
     });
     document.getElementById('btn-surprise').addEventListener('click', () => {
       State.currentPlaylist = Playlist.generate(true).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
@@ -1931,7 +1944,7 @@ const COMPLETION_QUOTES = [
         if (!isNaN(idx)) {
           State.currentIndex = idx;
           Player.inlineExpand(); // Show container first
-          setTimeout(() => Player.load(State.currentPlaylist[idx]), 50); // Then load
+          setTimeout(() => Player.loadVideo(State.currentPlaylist[idx]), 50); // Then load
         }
       }
     });
