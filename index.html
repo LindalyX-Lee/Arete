@@ -1397,6 +1397,25 @@ const COMPLETION_QUOTES = [
       this.clearEndCheck();
       this.advanceToNext();
     },
+    togglePlay() {
+      if (!State.ytPlayer || !State.ytPlayer.getPlayerState) return;
+      try {
+        const state = State.ytPlayer.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+          State.ytPlayer.pauseVideo();
+        } else {
+          State.ytPlayer.playVideo();
+        }
+      } catch(e) {}
+    },
+    previous() {
+      if (State.currentIndex > 0) {
+        State.currentIndex--;
+        this.loadVideo(State.currentPlaylist[State.currentIndex]);
+      } else {
+        UI.toast('Already at first video', 'info');
+      }
+    },
     advanceToNext() {
       State.currentIndex++;
       if (State.currentIndex >= State.currentPlaylist.length) {
