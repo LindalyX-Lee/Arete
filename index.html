@@ -1296,7 +1296,9 @@ const COMPLETION_QUOTES = [
     onStateChange(e) {
       const item = State.currentPlaylist[State.currentIndex];
       if (!item) return;
+      // Update play button icon based on state
       if (e.data === YT.PlayerState.PLAYING) {
+        this.updatePlayButtonIcon(true);
         const v = item.video;
         this.clearEndCheck();
         if (v.endAt && v.endAt > 0) {
@@ -1308,6 +1310,7 @@ const COMPLETION_QUOTES = [
           }, 1000);
         }
       } else if (e.data === YT.PlayerState.ENDED) {
+        this.updatePlayButtonIcon(false);
         this.clearEndCheck();
         this.onVideoEnded();
       } else {
@@ -1401,12 +1404,20 @@ const COMPLETION_QUOTES = [
       if (!State.ytPlayer || !State.ytPlayer.getPlayerState) return;
       try {
         const state = State.ytPlayer.getPlayerState();
+        const btn = document.getElementById('btn-player-play');
         if (state === YT.PlayerState.PLAYING) {
           State.ytPlayer.pauseVideo();
+          if (btn) btn.innerHTML = '&#9654;'; // Show play icon when paused
         } else {
           State.ytPlayer.playVideo();
+          if (btn) btn.innerHTML = '&#10074;&#10074;'; // Show pause icon when playing
         }
       } catch(e) {}
+    },
+    updatePlayButtonIcon(isPlaying) {
+      const btn = document.getElementById('btn-player-play');
+      if (!btn) return;
+      btn.innerHTML = isPlaying ? '&#10074;&#10074;' : '&#9654;';
     },
     previous() {
       if (State.currentIndex > 0) {
