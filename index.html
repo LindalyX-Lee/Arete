@@ -1288,6 +1288,9 @@ const COMPLETION_QUOTES = [
       this._endedHandled = false;
       this.clearEndCheck();
       const v = item.video;
+      // Update inline player title
+      const titleEl = document.getElementById('player-inline-title');
+      if (titleEl && v.title) titleEl.textContent = v.title;
       const params = { videoId: v.id, startSeconds: v.startAt || 0 };
       if (v.endAt && v.endAt > 0) params.endSeconds = v.endAt;
       State.ytPlayer.loadVideoById(params);
