@@ -228,12 +228,12 @@
         min-height: 100dvh;
         display: flex;
         flex-direction: column;
-        padding: 10px 12px calc(8px + env(safe-area-inset-bottom));
+        padding: 10px 10px calc(8px + env(safe-area-inset-bottom));
         gap: 0;
       }
-      .zone-top{flex:0 0 38%; display:flex; flex-direction:column; justify-content:flex-start;}
-      .zone-middle{flex:0 0 30%; min-height:0; display:flex; align-items:center;}
-      .zone-bottom{flex:1 1 32%; display:flex; align-items:center; justify-content:center; position:relative; background:linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.78), rgba(26,26,26,0.45), transparent);}
+      .zone-top{flex:0 0 42%; display:flex; flex-direction:column; justify-content:flex-start;}
+      .zone-middle{flex:0 0 28%; min-height:0; display:flex; align-items:center;}
+      .zone-bottom{flex:1 1 30%; display:flex; align-items:center; justify-content:center; position:relative; background:linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.78), rgba(26,26,26,0.45), transparent);}
 
       .app-header { padding: 4px 0 0; justify-content: center; position: relative; }
       .brand { text-align: center; }
@@ -256,11 +256,11 @@
       }
       .focus-label { font-size: 1.16rem; margin: 4px 0 10px; line-height: 1.2; text-align: center; }
 
-      .playlist { gap: 5px; margin-bottom: 0; width: 100%; }
-      .playlist-item { padding: 8px 10px; gap: 8px; border-left-width: 2px; }
-      .phase-tag { min-width: 56px; font-size: 0.52rem; padding: 2px 6px; }
-      .video-title { font-size: 0.93rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
-      .video-meta { font-size: 0.72rem; margin-top: 1px; }
+      .playlist { gap: 5px; margin-bottom: 0; width: 100%; max-width: 100%; }
+      .playlist-item { width: 100%; padding: 8px 10px; gap: 8px; border-left-width: 2px; }
+      .phase-tag { min-width: 50px; font-size: 0.5rem; padding: 2px 5px; }
+      .video-title { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
+      .video-meta { font-size: 0.70rem; margin-top: 1px; }
       .btn-edit-video { min-width: 24px; min-height: 24px; font-size: 0.78rem; opacity: 0.42; }
 
       .action-buttons { gap: 0; margin-top: 0; padding: 0; transform: translateY(-20px); }
