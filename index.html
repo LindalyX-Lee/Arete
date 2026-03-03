@@ -1886,7 +1886,9 @@ const COMPLETION_QUOTES = [
     // Main buttons
     document.getElementById('btn-lets-go').addEventListener('click', () => {
       if (State.currentPlaylist.length === 0) { UI.toast('No playlist to play', 'warning'); return; }
-      Player.startPlayback();
+      State.currentIndex = 0;
+      Player.load(State.currentPlaylist[0]);
+      Player.inlineExpand();
     });
     document.getElementById('btn-surprise').addEventListener('click', () => {
       State.currentPlaylist = Playlist.generate(true).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
