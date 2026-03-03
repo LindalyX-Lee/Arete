@@ -89,7 +89,7 @@
 
     /* === Date & Quote === */
     .date-display { font-size: 0.9rem; color: var(--text-secondary); margin-top: var(--space-sm); }
-    .quote-display { font-family: var(--font-display); font-style: italic; color: var(--pink-glow); font-size: 1rem; margin: var(--space-md) 0; line-height: 1.5; min-height: 2.5em; }
+    .quote-display { font-family: var(--font-display); font-style: italic; color: var(--pink-glow); font-size: 1.05rem; margin: var(--space-md) 0; line-height: 1.5; min-height: 2.5em; }
 
     /* === Focus Label === */
     .focus-label { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: var(--space-sm) 0 var(--space-lg); color: var(--text-primary); }
@@ -231,9 +231,9 @@
         padding: 10px 12px calc(8px + env(safe-area-inset-bottom));
         gap: 0;
       }
-      .zone-top{flex:0 0 33%; display:flex; flex-direction:column; justify-content:flex-start;}
-      .zone-middle{flex:0 0 33%; min-height:0; overflow:auto;}
-      .zone-bottom{flex:1 1 34%; display:flex; align-items:center; justify-content:center; position:relative; background:linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.78), rgba(26,26,26,0.45), transparent);}
+      .zone-top{flex:0 0 38%; display:flex; flex-direction:column; justify-content:flex-start;}
+      .zone-middle{flex:0 0 30%; min-height:0; display:flex; align-items:center;}
+      .zone-bottom{flex:1 1 32%; display:flex; align-items:center; justify-content:center; position:relative; background:linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.78), rgba(26,26,26,0.45), transparent);}
 
       .app-header { padding: 4px 0 0; justify-content: center; position: relative; }
       .brand { text-align: center; }
@@ -242,7 +242,7 @@
       #btn-settings { position: absolute; right: 0; top: 2px; }
       .icon-btn { min-width: 36px; min-height: 36px; font-size: 1.1rem; }
 
-      .date-display { font-size: 0.80rem; margin-top: 4px; text-align: center; }
+      .date-display { font-size: 0.84rem; margin-top: 6px; text-align: center; }
       .quote-display {
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -254,19 +254,19 @@
         min-height: 2.45em;
         text-align: center;
       }
-      .focus-label { font-size: 1.12rem; margin: 0 0 8px; line-height: 1.2; text-align: center; }
+      .focus-label { font-size: 1.16rem; margin: 4px 0 10px; line-height: 1.2; text-align: center; }
 
-      .playlist { gap: 4px; margin-bottom: 0; }
-      .playlist-item { padding: 7px 10px; gap: 8px; border-left-width: 2px; }
+      .playlist { gap: 5px; margin-bottom: 0; width: 100%; }
+      .playlist-item { padding: 8px 10px; gap: 8px; border-left-width: 2px; }
       .phase-tag { min-width: 56px; font-size: 0.52rem; padding: 2px 6px; }
-      .video-title { font-size: 0.90rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
+      .video-title { font-size: 0.93rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
       .video-meta { font-size: 0.72rem; margin-top: 1px; }
       .btn-edit-video { min-width: 24px; min-height: 24px; font-size: 0.78rem; opacity: 0.42; }
 
-      .action-buttons { gap: 0; margin-top: 0; padding: 0; transform: translateY(-46px); }
+      .action-buttons { gap: 0; margin-top: 0; padding: 0; transform: translateY(-20px); }
       .btn-primary {
-        width: 108px;
-        height: 108px;
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
         padding: 0;
         display: flex;
@@ -284,8 +284,8 @@
       }
       .btn-secondary {
         position: absolute;
-        right: calc(50% - 92px);
-        top: calc(50% - 68px);
+        right: calc(50% - 98px);
+        top: calc(50% - 74px);
         width: 44px;
         height: 44px;
         border-radius: 50%;
@@ -320,7 +320,7 @@
       <header class="app-header">
         <div class="brand">
           <h1 class="brand-title">ARETE</h1>
-          <span class="brand-subtitle">ἀρετή</span>
+          <span class="brand-subtitle">🏛 ἀρετή</span>
         </div>
         <button id="btn-settings" class="icon-btn" aria-label="Settings">&#9881;</button>
       </header>
