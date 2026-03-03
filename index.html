@@ -1920,6 +1920,13 @@ const COMPLETION_QUOTES = [
       UI.showScreen('screen-main');
     });
     document.getElementById('btn-skip').addEventListener('click', () => Player.skipCurrent());
+    
+    // Inline player controls
+    document.getElementById('btn-player-close').addEventListener('click', () => Player.inlineCollapse());
+    document.getElementById('btn-player-skip').addEventListener('click', () => Player.advanceToNext());
+    document.getElementById('btn-player-play').addEventListener('click', () => Player.togglePlay());
+    document.getElementById('btn-player-prev').addEventListener('click', () => Player.previous());
+    document.getElementById('btn-player-next').addEventListener('click', () => Player.advanceToNext());
 
     // RPE
     document.querySelectorAll('.rpe-btn').forEach(btn => {
