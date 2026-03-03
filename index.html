@@ -1887,8 +1887,8 @@ const COMPLETION_QUOTES = [
     document.getElementById('btn-lets-go').addEventListener('click', () => {
       if (State.currentPlaylist.length === 0) { UI.toast('No playlist to play', 'warning'); return; }
       State.currentIndex = 0;
-      Player.load(State.currentPlaylist[0]);
-      Player.inlineExpand();
+      Player.inlineExpand(); // Show container first
+      setTimeout(() => Player.load(State.currentPlaylist[0]), 50); // Then load video
     });
     document.getElementById('btn-surprise').addEventListener('click', () => {
       State.currentPlaylist = Playlist.generate(true).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
@@ -1930,8 +1930,8 @@ const COMPLETION_QUOTES = [
         const idx = parseInt(item.dataset.index);
         if (!isNaN(idx)) {
           State.currentIndex = idx;
-          Player.load(State.currentPlaylist[idx]);
-          Player.inlineExpand();
+          Player.inlineExpand(); // Show container first
+          setTimeout(() => Player.load(State.currentPlaylist[idx]), 50); // Then load
         }
       }
     });
