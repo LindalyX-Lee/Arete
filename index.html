@@ -264,7 +264,20 @@
       .btn-edit-video { min-width: 24px; min-height: 24px; font-size: 0.78rem; opacity: 0.42; }
 
       .action-buttons { gap: 0; margin-top: 0; padding: 0; transform: translateY(-20px); }
-      .btn-primary {
+
+      #panel-settings .btn-secondary {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        border-radius: var(--radius-full) !important;
+        border: 1.5px solid var(--pink) !important;
+        background: transparent !important;
+        color: var(--pink) !important;
+        font-size: 0.88rem !important;
+        padding: 10px 16px !important;
+      }
+      #panel-settings .btn-secondary::after { content: none !important; }
+       .action-buttons .btn-primary {
         width: 120px;
         height: 120px;
         border-radius: 50%;
@@ -276,13 +289,13 @@
         font-size: 0;
         box-shadow: 0 10px 28px rgba(255,20,147,0.36);
       }
-      .btn-primary::after{
+       .action-buttons .btn-primary::after{
         content:'GO';
         font-size: 1.15rem;
         font-weight: 800;
         letter-spacing: .08em;
       }
-      .btn-secondary {
+       .action-buttons .btn-secondary {
         position: absolute;
         right: calc(50% - 98px);
         top: calc(50% - 74px);
@@ -295,7 +308,7 @@
         font-size: 0;
         color: transparent;
       }
-      .btn-secondary::after{
+       .action-buttons .btn-secondary::after{
         content:'✨';
         font-size: 1rem;
         color: var(--pink-glow);
