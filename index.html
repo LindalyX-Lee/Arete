@@ -1688,10 +1688,13 @@ const COMPLETION_QUOTES = [
     getSyncId() { return Storage.get(CONFIG.LS.SYNC_ID) || ''; },
     setSyncId(v) { Storage.set(CONFIG.LS.SYNC_ID, (v||'').trim()); },
     headers() {
+      const syncId = this.getSyncId();
       return {
         'Content-Type': 'application/json',
         'apikey': CONFIG.SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY
+        'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY,
+        // RLS ownership anchor (DB policy): required for SELECT/INSERT/UPDATE
+        'x-arete-sync-id': syncId
       };
     },
     snapshot() {
