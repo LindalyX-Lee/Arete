@@ -1688,12 +1688,13 @@ const COMPLETION_QUOTES = [
     getSyncId() { return Storage.get(CONFIG.LS.SYNC_ID) || ''; },
     setSyncId(v) { Storage.set(CONFIG.LS.SYNC_ID, (v||'').trim()); },
     headers() {
-      // Note: Ownership is enforced via RLS using query param `x_sync_id`.
-      // Avoid custom headers to prevent CORS preflight issues on iOS.
+      const syncId = this.getSyncId();
       return {
         'Content-Type': 'application/json',
         'apikey': CONFIG.SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY
+        'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY,
+        // RLS ownership anchor (DB policy): required for SELECT/INSERT/UPDATE
+        'x-arete-sync-id': syncId
       };
     },
     snapshot() {
@@ -1732,8 +1733,7 @@ const COMPLETION_QUOTES = [
       if (!syncId) return;
       const payload = this.snapshot();
       const body = [{ sync_id: syncId, payload: payload, updated_at: new Date().toISOString() }];
-      // RLS ownership anchor: include sync_id filter in query params so PostgREST exposes it in request.query_params
-      const url = CONFIG.SUPABASE_URL + '/rest/v1/' + this.table + '?sync_id=eq.' + encodeURIComponent(syncId);
+      const url = CONFIG.SUPABASE_URL + '/rest/v1/' + this.table;
       const res = await fetch(url, {
         method: 'POST',
         headers: { ...this.headers(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
@@ -1746,10 +1746,7 @@ const COMPLETION_QUOTES = [
     async pull() {
       const syncId = this.getSyncId();
       if (!syncId) return null;
-      // RLS ownership anchor: the sync_id filter appears in PostgREST request.query_params
-      const url = CONFIG.SUPABASE_URL + '/rest/v1/' + this.table +
-        '?sync_id=eq.' + encodeURIComponent(syncId) +
-        '&select=payload,updated_at&order=updated_at.desc&limit=1';
+      const url = CONFIG.SUPABASE_URL + '/rest/v1/' + this.table + '?sync_id=eq.' + encodeURIComponent(syncId) + '&select=payload,updated_at&order=updated_at.desc&limit=1';
       const res = await fetch(url, { headers: this.headers() });
       if (!res.ok) throw new Error('pull failed: ' + res.status);
       const rows = await res.json();
