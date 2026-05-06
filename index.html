@@ -89,7 +89,26 @@
 
     /* === Date & Quote === */
     .date-display { font-size: 0.9rem; color: var(--text-secondary); margin-top: var(--space-sm); }
-    .quote-display { font-family: var(--font-display); font-style: italic; color: var(--pink-glow); font-size: 1.05rem; margin: var(--space-md) 0; line-height: 1.5; min-height: 2.5em; }
+    .energy-card { margin: var(--space-md) 0 var(--space-lg); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08); }
+    .energy-visual { display: grid; grid-template-columns: repeat(4, 1fr); min-height: 86px; background: var(--bg-secondary); }
+    .energy-visual img { width: 100%; height: 100%; min-height: 86px; object-fit: cover; filter: saturate(1.08) contrast(1.04); }
+    .energy-tile-fallback { min-height: 86px; display: flex; align-items: center; justify-content: center; padding: var(--space-sm); background: linear-gradient(135deg, rgba(255,20,147,0.24), rgba(212,175,55,0.18)); color: var(--text-primary); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-align: center; text-transform: uppercase; }
+    .energy-tile-fallback:nth-child(2n) { background: linear-gradient(135deg, rgba(139,92,246,0.26), rgba(6,182,212,0.16)); }
+    .energy-copy { padding: var(--space-lg); background: linear-gradient(135deg, rgba(255,20,147,0.24), rgba(139,92,246,0.18)); }
+    .energy-line { font-family: var(--font-display); font-size: clamp(1.45rem, 6vw, 2.35rem); line-height: 1.04; color: var(--text-primary); font-weight: 800; text-transform: uppercase; text-wrap: balance; }
+    .energy-subline { margin-top: 6px; font-size: 0.78rem; color: var(--text-secondary); letter-spacing: 0.08em; text-transform: uppercase; }
+    .dashboard { margin: 0 0 var(--space-lg); }
+    .dashboard-head { display: flex; align-items: end; justify-content: space-between; gap: var(--space-sm); margin-bottom: var(--space-sm); }
+    .dashboard-title { font-family: var(--font-display); font-size: 1.25rem; color: var(--gold); }
+    .dashboard-progress { font-size: 0.72rem; color: var(--text-secondary); text-align: right; }
+    .dashboard-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: var(--radius-full); overflow: hidden; margin-bottom: var(--space-sm); }
+    .dashboard-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--pink), var(--gold)); transition: width var(--transition-normal); }
+    .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+    .quadrant-card { min-height: 92px; border: 1px solid rgba(255,255,255,0.09); border-radius: var(--radius-md); background: var(--bg-card); padding: var(--space-sm); }
+    .quadrant-card.locked { opacity: 0.55; }
+    .quadrant-label { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .quadrant-value { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); line-height: 1.25; }
+    .quadrant-note { font-size: 0.72rem; color: var(--text-secondary); margin-top: 5px; line-height: 1.35; }
 
     /* === Focus Label === */
     .focus-label { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: var(--space-sm) 0 var(--space-lg); color: var(--text-primary); }
@@ -118,6 +137,11 @@
     .phase-tag.tag-main { background: rgba(139,92,246,0.2); color: var(--purple); }
     .phase-tag.tag-surprise { background: rgba(212,175,55,0.2); color: var(--gold); }
     .phase-tag.tag-cooldown { background: rgba(74,222,128,0.2); color: var(--green); }
+    .rpe-followup { margin-top: var(--space-md); }
+    .rpe-followup-title { margin-bottom: var(--space-sm); color: var(--text-secondary); font-size: 0.86rem; }
+    .rpe-reason-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-sm); }
+    .rpe-reason-btn { border: 1px solid rgba(255,255,255,0.12); background: var(--bg-card); color: var(--text-primary); border-radius: var(--radius-sm); padding: var(--space-sm); font-size: 0.86rem; cursor: pointer; }
+    .rpe-reason-btn:active { background: rgba(255,255,255,0.12); }
     .video-info { flex: 1; min-width: 0; }
     .video-title { font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .video-meta { display: flex; gap: var(--space-sm); font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
@@ -243,17 +267,6 @@
       .icon-btn { min-width: 36px; min-height: 36px; font-size: 1.1rem; }
 
       .date-display { font-size: 0.84rem; margin-top: 6px; text-align: center; }
-      .quote-display {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        font-size: 1rem;
-        line-height: 1.24;
-        margin: 8px 0 10px;
-        min-height: 2.45em;
-        text-align: center;
-      }
       .focus-label { font-size: 1.16rem; margin: 4px 0 10px; line-height: 1.2; text-align: center; }
 
       .playlist { gap: 5px; margin-bottom: 0; width: 100%; max-width: 100%; }
@@ -317,7 +330,6 @@
 
     @media (max-width: 375px) {
       .brand-title { font-size: 1.5rem; }
-      .quote-display { font-size: 0.85rem; }
       .phase-tag { font-size: 0.55rem; min-width: 60px; }
     }
 
@@ -434,8 +446,22 @@
         <button id="btn-settings" class="icon-btn" aria-label="Settings">&#9881;</button>
       </header>
       <div id="date-display" class="date-display"></div>
-      <div id="quote-display" class="quote-display"></div>
       <div id="focus-label" class="focus-label"></div>
+      <div id="energy-card" class="energy-card" hidden>
+        <div id="energy-visual" class="energy-visual"></div>
+        <div class="energy-copy">
+          <div id="energy-line" class="energy-line"></div>
+          <div id="energy-subline" class="energy-subline"></div>
+        </div>
+      </div>
+      <section id="dashboard" class="dashboard">
+        <div class="dashboard-head">
+          <div class="dashboard-title">Feedback Map</div>
+          <div id="dashboard-progress" class="dashboard-progress"></div>
+        </div>
+        <div class="dashboard-bar"><div id="dashboard-bar-fill" class="dashboard-bar-fill"></div></div>
+        <div id="quadrant-grid" class="quadrant-grid"></div>
+      </section>
     </div>
     <div id="playlist-container" class="playlist zone-middle">
       <div class="loading-text">Generating your workout...</div>
@@ -492,12 +518,22 @@
       <h3>How was that?</h3>
       <div id="rpe-video-title" style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-md);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
       <div class="rpe-options">
-        <button class="rpe-btn" data-rpe="loved">&#128293; Loved</button>
-        <button class="rpe-btn" data-rpe="good">&#9989; Good</button>
-        <button class="rpe-btn" data-rpe="easy">&#128564; Too Easy</button>
-        <button class="rpe-btn" data-rpe="remove">&#10060; Remove</button>
+        <button class="rpe-btn" data-rpe="like">&#128293; 喜欢</button>
+        <button class="rpe-btn" data-rpe="neutral">&#9989; 一般</button>
+        <button class="rpe-btn" data-rpe="dislike">&#10060; 不喜欢</button>
       </div>
-      <div class="auto-advance-timer">Auto-advancing in <span id="rpe-countdown">3</span>s...</div>
+      <div id="rpe-followup" class="rpe-followup" hidden>
+        <p class="rpe-followup-title">What made it not work?</p>
+        <div class="rpe-reason-grid">
+          <button class="rpe-reason-btn" data-reason="too_hard" data-action="keep_but_down_rank">太难</button>
+          <button class="rpe-reason-btn" data-reason="too_easy" data-action="keep_but_down_rank">太简单</button>
+          <button class="rpe-reason-btn" data-reason="not_my_focus" data-action="keep_but_down_rank">不适合今天</button>
+          <button class="rpe-reason-btn" data-reason="boring" data-action="keep_but_down_rank">无聊</button>
+          <button class="rpe-reason-btn" data-reason="bad_quality" data-action="hide_video">不再推荐</button>
+          <button class="rpe-reason-btn" data-reason="none" data-action="keep_but_down_rank">先跳过原因</button>
+        </div>
+      </div>
+      <div class="auto-advance-timer">Auto-advancing in <span id="rpe-countdown">8</span>s...</div>
     </div>
   </div>
 
@@ -844,9 +880,12 @@ const ARETE_LIBRARY_RAW = [
 
 // === CONSTANTS ===
 const CONFIG = {
+  PLAYLIST_SCHEMA_VERSION: 2,
   HISTORY_DEPTH: 3,
   SMALL_POOL_THRESHOLD: 6,
-  RPE_AUTO_ADVANCE_MS: 3000,
+  RPE_AUTO_ADVANCE_MS: 8000,
+  TOAST_MS: 2500,
+  DEBUG_TOAST_MS: 5500,
   // Support channel IDs, @handles, or full YouTube URLs
   SURPRISE_CHANNELS: {
     'UCFKE7WVJfvaHW5q283SxchA': 'Yoga With Adriene',
@@ -875,26 +914,35 @@ const CONFIG = {
     API_KEY: 'arete_api_key',
     ROUND_ROBIN: 'arete_round_robin',
     PLAYLIST: 'arete_playlist',
+    PLAYLIST_SCHEMA: 'arete_playlist_schema',
     PLAYLIST_DATE: 'arete_playlist_date',
     BLOCKED_CREATORS: 'arete_blocked_creators',
+    SESSION_HISTORY: 'arete_session_history',
+    PLAY_EVENTS: 'arete_play_events',
+    RATING_HISTORY: 'arete_rating_history',
+    WILDCARD_DAYS: 'arete_wildcard_days',
     SYNC_ID: 'arete_sync_id',
     LAST_SYNC_AT: 'arete_last_sync_at'
   }
 };
 
 const WEEKLY_PLAN = {
-  1: { focus: 'Full Body Pilates', category: 'fullbody_pilates' },
-  2: { focus: 'Abs & Core',        category: 'abs' },
-  3: { focus: 'Upper Body',        category: 'upper_body' },
-  4: { focus: 'Glutes & Legs',     category: 'glutes_legs' },
-  5: { focus: 'Targeted Pilates',  category: 'targeted_pilates' },
-  6: { focus: 'Surprise',          category: 'surprise' },
-  0: { focus: 'Surprise',          category: 'surprise' }
+  1: { focus: 'Full Body',          focusKey: 'full_body' },
+  2: { focus: 'Abs & Core',         focusKey: 'abs_core' },
+  3: { focus: 'Upper Body',         focusKey: 'upper_body' },
+  4: { focus: 'Glutes / Legs',      focusKey: 'glutes_legs' },
+  5: { focus: 'Cardio / HIIT',      focusKey: 'cardio_hiit' },
+  6: { focus: 'Pilates',            focusKey: 'pilates' },
+  0: { focus: 'Dance',              focusKey: 'dance' }
 };
 
 const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 const CATEGORIES = {
+  full_body:        { label: 'Full Body',         color: '#8B5CF6' },
+  abs_core:         { label: 'Abs & Core',        color: '#8B5CF6' },
+  cardio_hiit:      { label: 'Cardio / HIIT',     color: '#06B6D4' },
+  pilates:          { label: 'Pilates',           color: '#8B5CF6' },
   warmup:           { label: 'Warm Up',           color: '#FF69B4' },
   cardio:           { label: 'Cardio',            color: '#06B6D4' },
   fullbody_pilates: { label: 'Full Body Pilates', color: '#8B5CF6' },
@@ -907,6 +955,45 @@ const CATEGORIES = {
   meridian_yoga:    { label: 'Meridian Yoga',     color: '#D4AF37' },
   cooldown:         { label: 'Cool Down',         color: '#4ADE80' }
 };
+
+const FOCUS_ALIASES = {
+  full_body: ['full_body', 'fullbody_pilates'],
+  abs_core: ['abs_core', 'abs'],
+  upper_body: ['upper_body'],
+  glutes_legs: ['glutes_legs'],
+  cardio_hiit: ['cardio_hiit', 'cardio'],
+  pilates: ['pilates', 'fullbody_pilates', 'targeted_pilates'],
+  dance: ['dance'],
+  warmup: ['warmup'],
+  cooldown: ['cooldown']
+};
+
+const FOCUS_KEYWORDS = {
+  full_body: ['full body', 'total body', 'all standing', 'metabolism', 'fat burn'],
+  abs_core: ['abs', 'core', 'waist', 'sixpack', 'lower abs', 'standing abs'],
+  upper_body: ['upper body', 'arms', 'back', 'shoulder', 'chest', 'posture'],
+  glutes_legs: ['glutes', 'legs', 'booty', 'butt', 'thigh', 'lower body'],
+  cardio_hiit: ['cardio', 'hiit', 'tabata', 'fat burn', 'walking', 'steps', 'sweaty', 'no jumping'],
+  pilates: ['pilates', 'barre', 'mat', 'flow', 'toning'],
+  dance: ['dance', 'latin', 'barbie', 'hip hop', 'zumba', 'cardio dance', 'salsa', 'kpop', 'c-pop', 'bollywood'],
+  warmup: ['warm up', 'warmup', 'morning', 'rise', 'wake up', 'mobility'],
+  cooldown: ['cool down', 'cooldown', 'stretch', 'stretching', 'recovery', 'relaxation', 'yoga', 'mobility']
+};
+
+const CATEGORY_PICKER_CATEGORIES = ['full_body','abs_core','upper_body','glutes_legs','cardio_hiit','pilates','dance','warmup','cooldown'];
+
+const LIBRARY_STATS_GROUPS = [
+  { key: 'warmup', label: 'Warm Up', categories: ['warmup'] },
+  { key: 'full_body', label: 'Full Body', categories: ['full_body','fullbody_pilates'] },
+  { key: 'abs_core', label: 'Abs & Core', categories: ['abs_core','abs'] },
+  { key: 'upper_body', label: 'Upper Body', categories: ['upper_body'] },
+  { key: 'glutes_legs', label: 'Glutes / Legs', categories: ['glutes_legs'] },
+  { key: 'cardio_hiit', label: 'Cardio / HIIT', categories: ['cardio_hiit','cardio'] },
+  { key: 'pilates', label: 'Pilates', categories: ['pilates','targeted_pilates'] },
+  { key: 'dance', label: 'Dance', categories: ['dance'] },
+  { key: 'cooldown', label: 'Cool Down', categories: ['cooldown'] },
+  { key: 'yoga', label: 'Yoga / Mobility', categories: ['yoga','meridian_yoga'] }
+];
 
 const QUOTES = [
   "Excellence is not a singular act, but a habit.",
@@ -938,6 +1025,17 @@ const COMPLETION_QUOTES = [
   "The hardest part was starting. You conquered it."
 ];
 
+const ENERGY_LINES = [
+  "Start before the mind negotiates.",
+  "One strong choice changes the whole day.",
+  "Move first. Confidence catches up.",
+  "Your body is waiting for proof.",
+  "Today is built by the first rep.",
+  "Make energy, then use it.",
+  "Do not wait to feel ready.",
+  "Train the woman you are becoming."
+];
+
 // ============================================================
 // APPLICATION
 // ============================================================
@@ -959,10 +1057,12 @@ const COMPLETION_QUOTES = [
     rpeCallback: null,
     currentRpeVideo: null,
     currentRpeSource: null,
+    pendingDebugError: null,
     editingVideoId: null,
     catPickerCallback: null,
     syncDirty: false,
-    syncTimerId: null
+    syncTimerId: null,
+    dataWarningsShown: {}
   };
 
   // --- Storage ---
@@ -975,6 +1075,93 @@ const COMPLETION_QUOTES = [
       try { localStorage.setItem(key, JSON.stringify(val)); State.syncDirty = true; } catch(e) {}
     },
     remove(key) { localStorage.removeItem(key); }
+  };
+
+  function persistPlaylist(items) {
+    Storage.set(CONFIG.LS.PLAYLIST, items);
+    Storage.set(CONFIG.LS.PLAYLIST_SCHEMA, CONFIG.PLAYLIST_SCHEMA_VERSION);
+    Storage.set(CONFIG.LS.PLAYLIST_DATE, new Date().toISOString().split('T')[0]);
+  }
+
+  function getValidCachedPlaylist(today) {
+    const cachedDate = Storage.get(CONFIG.LS.PLAYLIST_DATE);
+    const cachedSchema = Storage.get(CONFIG.LS.PLAYLIST_SCHEMA);
+    const cachedPlaylist = Storage.get(CONFIG.LS.PLAYLIST);
+    if (cachedDate !== today) return null;
+    if (cachedSchema !== CONFIG.PLAYLIST_SCHEMA_VERSION) return null;
+    if (!Array.isArray(cachedPlaylist) || cachedPlaylist.length === 0) return null;
+    return cachedPlaylist;
+  }
+
+  // --- Data Log ---
+  const DataLog = {
+    todayKey() {
+      return new Date().toISOString().split('T')[0];
+    },
+    playlistId() {
+      return this.todayKey() + '-local';
+    },
+    currentItem() {
+      return State.currentPlaylist[State.currentIndex] || null;
+    },
+    append(key, record) {
+      const rows = Storage.get(key) || [];
+      rows.push(Object.assign({ createdAt: new Date().toISOString() }, record));
+      Storage.set(key, rows.slice(-1000));
+    },
+    recordSession(reason) {
+      if (!State.currentPlaylist || State.currentPlaylist.length === 0) return;
+      const sessions = Storage.get(CONFIG.LS.SESSION_HISTORY) || [];
+      const playlistId = this.playlistId();
+      const row = {
+        playlistId,
+        dateLocal: this.todayKey(),
+        reason: reason || 'generated',
+        focus: (WEEKLY_PLAN[new Date().getDay()] || {}).focus || '',
+        focusKey: (WEEKLY_PLAN[new Date().getDay()] || {}).focusKey || '',
+        items: State.currentPlaylist.map((item, index) => ({
+          index,
+          phase: item.phase,
+          videoId: item.video && item.video.id,
+          title: item.video && item.video.title,
+          creator: item.video && item.video.creator,
+          source: item.source || 'library'
+        })),
+        updatedAt: new Date().toISOString()
+      };
+      const next = sessions.filter(s => s.playlistId !== playlistId);
+      next.push(row);
+      Storage.set(CONFIG.LS.SESSION_HISTORY, next.slice(-180));
+    },
+    recordPlayEvent(event, extra) {
+      const item = this.currentItem();
+      this.append(CONFIG.LS.PLAY_EVENTS, Object.assign({
+        playlistId: this.playlistId(),
+        event,
+        index: State.currentIndex,
+        phase: item && item.phase,
+        videoId: item && item.video && item.video.id,
+        title: item && item.video && item.video.title,
+        creator: item && item.video && item.video.creator,
+        source: item && (item.source || 'library')
+      }, extra || {}));
+    },
+    recordRating(video, source, rating, extra) {
+      const item = this.currentItem();
+      this.append(CONFIG.LS.RATING_HISTORY, Object.assign({
+        playlistId: this.playlistId(),
+        rating,
+        reason: 'none',
+        action: 'none',
+        index: State.currentIndex,
+        phase: item && item.phase,
+        focus: (WEEKLY_PLAN[new Date().getDay()] || {}).focusKey || '',
+        source: source || (item && item.source) || 'library',
+        videoId: video && video.id,
+        title: video && video.title,
+        creator: video && video.creator
+      }, extra || {}));
+    }
   };
 
   // --- Library ---
@@ -1014,7 +1201,12 @@ const COMPLETION_QUOTES = [
       this.save();
     },
     addFromSurprise(videoData, category) {
-      if (State.library.find(v => v.id === videoData.id)) return;
+      const existing = State.library.find(v => v.id === videoData.id);
+      if (existing) {
+        existing.category = category;
+        this.save();
+        return 'updated';
+      }
       if (isBlockedCreator(videoData.creator)) return;
       State.library.push({
         id: videoData.id, title: videoData.title, creator: videoData.creator,
@@ -1025,6 +1217,7 @@ const COMPLETION_QUOTES = [
         rpe: null, addedAt: new Date().toISOString()
       });
       this.save();
+      return 'added';
     }
   };
 
@@ -1033,40 +1226,39 @@ const COMPLETION_QUOTES = [
     generate(forceSurprise) {
       const dow = new Date().getDay();
       const plan = WEEKLY_PLAN[dow];
-      const isSurprise = plan.category === 'surprise' || forceSurprise;
+      const focusKey = (plan && plan.focusKey) || 'full_body';
+      const isWildcard = !!forceSurprise || this.isWildcardDay(dow);
       const items = [];
+      const used = new Set();
 
       // 1. Warm Up
-      const warmup = this.pickFromCategory('warmup');
-      if (warmup) { items.push({ video: warmup, phase: 'WARM UP', source: 'library' }); this.addToHistory('warmup', warmup.id); }
+      const warmup = this.pickWarmOrCool('warmup', used);
+      if (warmup) this.addItem(items, used, warmup, 'WARM UP', 'library', 'warmup');
 
-      // 2. Cardio
-      const cardio = this.pickFromCategory('cardio');
-      if (cardio) { items.push({ video: cardio, phase: 'CARDIO', source: 'library' }); this.addToHistory('cardio', cardio.id); }
+      // 2. Main. Cardio/HIIT is now a main focus, not a separate daily stage.
+      const main = this.pickMain(focusKey, used);
+      if (main) this.addItem(items, used, main.video, 'MAIN', main.source, focusKey);
 
-      // 3. Main
-      if (isSurprise) {
-        const main = this.pickWeekendMain();
-        if (main) items.push({ video: main.video, phase: 'MAIN', source: main.source });
-      } else {
-        const main = this.pickFromCategory(plan.category);
-        if (main) { items.push({ video: main, phase: 'MAIN', source: 'library' }); this.addToHistory(plan.category, main.id); }
-      }
+      // 3. Cool Down
+      const cooldown = this.pickWarmOrCool('cooldown', used);
+      if (cooldown) this.addItem(items, used, cooldown, 'COOL DOWN', 'library', 'cooldown');
 
-      // 4. Surprise (1-2 videos)
-      const sCount = Math.random() < 0.5 ? 1 : 2;
-      const surprises = this.pickSurpriseVideos(sCount);
-      surprises.forEach(sv => items.push({ video: sv, phase: 'SURPRISE', source: 'surprise' }));
-
-      // 5. Cool Down
-      const cooldown = this.pickFromCategory('cooldown');
-      if (cooldown) { items.push({ video: cooldown, phase: 'COOL DOWN', source: 'library' }); this.addToHistory('cooldown', cooldown.id); }
+      // 4. Surprise, every day.
+      const surprise = this.pickSurpriseSlot(focusKey, isWildcard, used);
+      if (surprise) this.addItem(items, used, surprise.video, 'SURPRISE', surprise.source, isWildcard ? 'wildcard' : 'surprise');
 
       return items;
     },
 
+    addItem(items, used, video, phase, source, historyKey) {
+      if (!video || used.has(video.id)) return;
+      items.push({ video, phase, source });
+      used.add(video.id);
+      this.addToHistory(historyKey, video.id);
+    },
+
     pickFromCategory(cat) {
-      const pool = Library.getByCategory(cat);
+      const pool = this.availableLibrary().filter(v => this.matchesFocus(v, cat));
       if (pool.length === 0) return null;
       return pool.length <= CONFIG.SMALL_POOL_THRESHOLD
         ? this.pickRoundRobin(pool, cat)
@@ -1090,51 +1282,165 @@ const COMPLETION_QUOTES = [
       return sorted[next];
     },
 
-    pickSurpriseVideos(count) {
-      const pool = SurprisePool.getAvailable();
-      if (pool.length === 0) return this.pickSurpriseFallback(count);
-      const result = [];
-      const used = new Set();
-      for (let i = 0; i < Math.min(count, pool.length); i++) {
-        const eligible = pool.filter(v => !used.has(v.id));
-        if (eligible.length === 0) break;
-        const pick = weightedRandom(eligible);
-        result.push(pick);
-        used.add(pick.id);
-      }
-      return result.length > 0 ? result : this.pickSurpriseFallback(1);
+    pickMain(focusKey, used) {
+      const pool = this.availableLibrary()
+        .filter(v => !used.has(v.id))
+        .filter(v => this.duration(v) >= 15 && this.duration(v) <= 60)
+        .filter(v => this.matchesCategoryAlias(v, focusKey));
+      if (pool.length > 0) return { video: this.pickScored(pool, focusKey), source: 'library' };
+
+      const fallback = this.availableLibrary()
+        .filter(v => !used.has(v.id))
+        .filter(v => this.duration(v) >= 15 && this.duration(v) <= 60)
+        .filter(v => this.matchesFocus(v, focusKey));
+      return fallback.length > 0 ? { video: this.pickScored(fallback, focusKey), source: 'library' } : null;
     },
 
-    pickSurpriseFallback(count) {
-      const cats = ['dance', 'yoga', 'meridian_yoga'];
-      const all = cats.flatMap(c => Library.getByCategory(c));
-      if (all.length === 0) return [];
-      const result = [];
-      const used = new Set();
-      for (let i = 0; i < Math.min(count, all.length); i++) {
-        const eligible = all.filter(v => !used.has(v.id));
-        if (eligible.length === 0) break;
-        const pick = eligible[Math.floor(Math.random() * eligible.length)];
-        result.push(pick);
-        used.add(pick.id);
-      }
-      return result;
+    pickWarmOrCool(focusKey, used) {
+      const strict = this.availableLibrary()
+        .filter(v => !used.has(v.id))
+        .filter(v => this.matchesCategoryAlias(v, focusKey))
+        .filter(v => this.duration(v) >= 3 && this.duration(v) <= 10);
+      if (strict.length > 0) return this.pickScored(strict, focusKey);
+
+      const soft = this.availableLibrary()
+        .filter(v => !used.has(v.id))
+        .filter(v => this.matchesCategoryAlias(v, focusKey))
+        .filter(v => this.duration(v) >= 3 && this.duration(v) <= 10);
+      if (soft.length > 0) return this.pickScored(soft, focusKey);
+
+      const keywordFallback = this.availableLibrary()
+        .filter(v => !used.has(v.id))
+        .filter(v => this.matchesFocus(v, focusKey))
+        .filter(v => this.duration(v) >= 3 && this.duration(v) <= 10);
+      return keywordFallback.length > 0 ? this.pickScored(keywordFallback, focusKey) : null;
     },
 
-    pickWeekendMain() {
-      if (Math.random() < 0.5) {
-        const pool = SurprisePool.getAvailable();
-        if (pool.length > 0) {
-          return { video: weightedRandom(pool), source: 'surprise' };
-        }
+    pickSurpriseSlot(focusKey, isWildcard, used) {
+      if (isWildcard) {
+        return Math.random() < 0.5
+          ? this.pickUnreviewedLibrary(used)
+          : this.pickFromSurprisePool(used);
       }
-      const cats = ['dance', 'yoga', 'meridian_yoga'];
-      const all = cats.flatMap(c => Library.getByCategory(c));
-      if (all.length > 0) {
-        return { video: all[Math.floor(Math.random() * all.length)], source: 'library' };
+
+      const pickLiked = Math.random() < 0.5;
+      const first = pickLiked ? this.pickLikedVideo(used) : this.pickSimilarToLiked(focusKey, used);
+      if (first) return first;
+      const second = pickLiked ? this.pickSimilarToLiked(focusKey, used) : this.pickLikedVideo(used);
+      if (second) return second;
+      return this.pickUnreviewedLibrary(used) || this.pickFromSurprisePool(used);
+    },
+
+    pickLikedVideo(used) {
+      const pool = this.availableLibrary()
+        .filter(v => !used.has(v.id))
+        .filter(v => this.userRating(v) === 'like');
+      return pool.length > 0 ? { video: this.pickScored(pool, 'liked'), source: 'library' } : null;
+    },
+
+    pickSimilarToLiked(focusKey, used) {
+      const liked = this.availableLibrary().filter(v => this.userRating(v) === 'like');
+      if (liked.length === 0) return null;
+      const anchors = liked.filter(v => this.matchesFocus(v, focusKey));
+      const base = anchors.length > 0 ? anchors : liked;
+      const avgDuration = base.reduce((sum, v) => sum + this.duration(v), 0) / base.length;
+      const pool = this.availableLibrary()
+        .filter(v => !used.has(v.id))
+        .filter(v => this.userRating(v) !== 'like')
+        .filter(v => this.matchesFocus(v, focusKey) || Math.abs(this.duration(v) - avgDuration) <= 5);
+      if (pool.length === 0) return null;
+      return { video: this.pickScored(pool, focusKey, avgDuration), source: 'library' };
+    },
+
+    pickUnreviewedLibrary(used) {
+      const pool = this.availableLibrary()
+        .filter(v => !used.has(v.id))
+        .filter(v => !this.userRating(v));
+      return pool.length > 0 ? { video: this.pickScored(pool, 'wildcard'), source: 'library' } : null;
+    },
+
+    pickFromSurprisePool(used) {
+      const pool = SurprisePool.getAvailable().filter(v => !used.has(v.id));
+      return pool.length > 0 ? { video: weightedRandom(pool), source: 'surprise' } : this.pickUnreviewedLibrary(used);
+    },
+
+    pickScored(pool, focusKey, targetDuration) {
+      const hist = new Set(this.getHistory(focusKey));
+      const scored = pool.map(v => ({
+        video: v,
+        score: this.scoreVideo(v, focusKey, hist, targetDuration)
+      })).sort((a, b) => b.score - a.score);
+      const top = scored.slice(0, Math.min(5, scored.length));
+      return top[Math.floor(Math.random() * top.length)].video;
+    },
+
+    scoreVideo(video, focusKey, historySet, targetDuration) {
+      let score = Math.random();
+      const rating = this.userRating(video);
+      if (rating === 'like') score += 5;
+      if (rating === 'neutral') score += 1.5;
+      if (rating === 'dislike') score -= 4;
+      if (historySet.has(video.id)) score -= 3;
+      if (this.matchesFocus(video, focusKey)) score += 3;
+      if (video.intensity === 'gentle' && (focusKey === 'warmup' || focusKey === 'cooldown')) score += 1;
+      if (video.intensity === 'hard' && focusKey === 'cardio_hiit') score += 1;
+      if (targetDuration) score += Math.max(0, 2 - Math.abs(this.duration(video) - targetDuration) / 5);
+      return score;
+    },
+
+    availableLibrary() {
+      return State.library.filter(v => v && v.id && v.rpe !== 'remove' && !isBlockedCreator(v.creator));
+    },
+
+    matchesAnyMainFocus(video) {
+      return ['full_body','abs_core','upper_body','glutes_legs','cardio_hiit','pilates','dance'].some(f => this.matchesFocus(video, f));
+    },
+
+    matchesFocus(video, focusKey) {
+      if (!video) return false;
+      if (this.matchesCategoryAlias(video, focusKey)) return true;
+      const title = (video.title || '').toLowerCase();
+      return (FOCUS_KEYWORDS[focusKey] || []).some(k => title.includes(k));
+    },
+
+    matchesCategoryAlias(video, focusKey) {
+      if (!video) return false;
+      const aliases = FOCUS_ALIASES[focusKey] || [focusKey];
+      return aliases.includes(video.category);
+    },
+
+    userRating(video) {
+      if (!video) return null;
+      if (video.rpe === 'remove') return 'remove';
+      if (video.rpe === 'like' || video.rpe === 'neutral' || video.rpe === 'dislike') return video.rpe;
+      const rows = Storage.get(CONFIG.LS.RATING_HISTORY) || [];
+      for (let i = rows.length - 1; i >= 0; i--) {
+        if (rows[i].videoId === video.id) return rows[i].rating;
       }
-      const fb = Library.getByCategory('fullbody_pilates');
-      return fb.length > 0 ? { video: fb[0], source: 'library' } : null;
+      return null;
+    },
+
+    duration(video) {
+      return video ? (video.effectiveDuration || video.totalDuration || 0) : 0;
+    },
+
+    isWildcardDay(dow) {
+      const weekKey = this.weekKey();
+      let state = Storage.get(CONFIG.LS.WILDCARD_DAYS);
+      if (!state || state.weekKey !== weekKey || !Array.isArray(state.days)) {
+        const weekend = Math.random() < 0.5 ? 0 : 6;
+        const weekday = [1,2,3,4,5][Math.floor(Math.random() * 5)];
+        state = { weekKey, days: [weekday, weekend] };
+        Storage.set(CONFIG.LS.WILDCARD_DAYS, state);
+      }
+      return state.days.includes(dow);
+    },
+
+    weekKey() {
+      const d = new Date();
+      const first = new Date(d.getFullYear(), 0, 1);
+      const day = Math.floor((d - first) / 86400000);
+      return d.getFullYear() + '-W' + Math.ceil((day + first.getDay() + 1) / 7);
     },
 
     getHistory(cat) {
@@ -1280,6 +1586,10 @@ const COMPLETION_QUOTES = [
           onError: (e) => Player.onError(e)
         }
       });
+      const debugError = new URLSearchParams(location.search).get('debugError');
+      if (debugError) {
+        State.pendingDebugError = parseInt(debugError, 10) || 100;
+      }
     },
     whenReady(fn) {
       if (State.ytReady) fn(); else State.ytReadyCallbacks.push(fn);
@@ -1287,6 +1597,7 @@ const COMPLETION_QUOTES = [
     loadVideo(item) {
       this._endedHandled = false;
       this.clearEndCheck();
+      if (!item || !item.video) return;
       const v = item.video;
       // Update inline player title
       const titleEl = document.getElementById('player-inline-title');
@@ -1294,7 +1605,13 @@ const COMPLETION_QUOTES = [
       const params = { videoId: v.id, startSeconds: v.startAt || 0 };
       if (v.endAt && v.endAt > 0) params.endSeconds = v.endAt;
       State.ytPlayer.loadVideoById(params);
+      DataLog.recordPlayEvent('started');
       UI.renderPlayerScreen(item);
+      if (State.pendingDebugError) {
+        const code = State.pendingDebugError;
+        State.pendingDebugError = null;
+        setTimeout(() => Player.onError({ data: code }), 800);
+      }
     },
     onStateChange(e) {
       const item = State.currentPlaylist[State.currentIndex];
@@ -1339,6 +1656,7 @@ const COMPLETION_QUOTES = [
     onError(e) {
       this.clearEndCheck();
       const code = e.data;
+      DataLog.recordPlayEvent('embed_error', { code });
       // Error codes: 2=invalid param, 5=HTML5 error, 100=not found, 101/150=embed disabled
       const errorMsgs = {
         2: 'Invalid video ID',
@@ -1365,6 +1683,7 @@ const COMPLETION_QUOTES = [
           const url = 'https://www.youtube.com/watch?v=' + video.id + (startAt > 0 ? ('&t=' + startAt + 's') : '');
           const openExternal = confirm('This video blocks embedded playback. Open it in YouTube now?');
           if (openExternal) {
+            DataLog.recordPlayEvent('external_opened', { code });
             window.open(url, '_blank', 'noopener,noreferrer');
           }
           UI.toast('Embed blocked. Skipping to next video...', 'warning');
@@ -1390,19 +1709,21 @@ const COMPLETION_QUOTES = [
       this._endedHandled = true;
       const item = State.currentPlaylist[State.currentIndex];
       if (!item) { this._endedHandled = false; this.advanceToNext(); return; }
+      DataLog.recordPlayEvent('completed');
       RPE.show(item.video, item.source, () => { this._endedHandled = false; this.advanceToNext(); });
     },
     startPlayback() {
-      State.currentIndex = 0;
+      this.beginPlaybackAt(0, 'start');
+    },
+    beginPlaybackAt(index, reason) {
+      State.currentIndex = index || 0;
       State.isPlaying = true;
       State.sessionStartTime = Date.now();
-      UI.showScreen('screen-player');
-      this.whenReady(() => this.loadVideo(State.currentPlaylist[0]));
+      DataLog.recordSession(reason || 'playback');
+      this.inlineExpand();
+      this.whenReady(() => this.loadVideo(State.currentPlaylist[State.currentIndex]));
     },
-    skip() {
-      this.clearEndCheck();
-      this.advanceToNext();
-    },
+    skip() { this.skipCurrent(); },
     togglePlay() {
       if (!State.ytPlayer || !State.ytPlayer.getPlayerState) return;
       try {
@@ -1424,6 +1745,7 @@ const COMPLETION_QUOTES = [
     },
     previous() {
       if (State.currentIndex > 0) {
+        DataLog.recordPlayEvent('previous', { toIndex: State.currentIndex - 1 });
         State.currentIndex--;
         this.loadVideo(State.currentPlaylist[State.currentIndex]);
       } else {
@@ -1443,7 +1765,18 @@ const COMPLETION_QUOTES = [
       this.clearEndCheck();
       this._endedHandled = false;
       try { State.ytPlayer.pauseVideo(); } catch(e) {}
+      DataLog.recordPlayEvent('skipped', { reason: 'manual_skip' });
       const cur = State.currentPlaylist[State.currentIndex];
+      if (!cur || !cur.video) {
+        this.advanceToNext();
+        return;
+      }
+      RPE.show(cur.video, cur.source, () => {
+        this._endedHandled = false;
+        this.advanceAfterSkip(cur);
+      });
+    },
+    advanceAfterSkip(cur) {
       if (cur && cur.phase === 'SURPRISE') {
         let next = State.currentIndex + 1;
         while (next < State.currentPlaylist.length && State.currentPlaylist[next].phase === 'SURPRISE') next++;
@@ -1456,8 +1789,10 @@ const COMPLETION_QUOTES = [
     },
     showCompletion() {
       State.isPlaying = false;
+      DataLog.recordPlayEvent('session_completed', { videosCompleted: State.currentIndex });
       this.clearEndCheck();
       try { State.ytPlayer.stopVideo(); } catch(e) {}
+      this.inlineCollapse();
       const elapsed = Math.round((Date.now() - State.sessionStartTime) / 60000);
       UI.showCompletionScreen(elapsed, State.currentIndex);
     },
@@ -1475,13 +1810,19 @@ const COMPLETION_QUOTES = [
       State.currentRpeSource = source;
       State.rpeCallback = onComplete;
       document.getElementById('rpe-video-title').textContent = video.title;
+      document.querySelector('.rpe-options').hidden = false;
+      document.getElementById('rpe-followup').hidden = true;
       document.getElementById('overlay-rpe').hidden = false;
-      let count = 3;
+      let count = Math.ceil(CONFIG.RPE_AUTO_ADVANCE_MS / 1000);
       document.getElementById('rpe-countdown').textContent = count;
       State.rpeTimerId = setInterval(() => {
         count--;
         document.getElementById('rpe-countdown').textContent = count;
-        if (count <= 0) { RPE.hide(); if (State.rpeCallback) { const cb = State.rpeCallback; State.rpeCallback = null; cb(); } }
+        if (count <= 0) {
+          DataLog.recordPlayEvent('rating_auto_skipped');
+          RPE.hide();
+          if (State.rpeCallback) { const cb = State.rpeCallback; State.rpeCallback = null; cb(); }
+        }
       }, 1000);
     },
     hide() {
@@ -1489,25 +1830,48 @@ const COMPLETION_QUOTES = [
       if (State.rpeTimerId) { clearInterval(State.rpeTimerId); State.rpeTimerId = null; }
     },
     handleRating(rpe) {
+      const overlay = document.getElementById('overlay-rpe');
+      if (!overlay || overlay.hidden) return;
+      if (rpe === 'dislike') {
+        document.querySelector('.rpe-options').hidden = true;
+        document.getElementById('rpe-followup').hidden = false;
+        return;
+      }
+      this.finalizeRating(rpe, { reason: 'none', action: 'none' });
+    },
+    handleDislikeReason(reason, action) {
+      const overlay = document.getElementById('overlay-rpe');
+      if (!overlay || overlay.hidden) return;
+      this.finalizeRating('dislike', { reason: reason || 'none', action: action || 'keep_but_down_rank' });
+    },
+    finalizeRating(rpe, feedback) {
       this.hide();
       const video = State.currentRpeVideo;
       const source = State.currentRpeSource;
       const cb = State.rpeCallback;
       State.rpeCallback = null;
+      DataLog.recordRating(video, source, rpe, feedback);
+      Dashboard.render();
 
       if (source === 'library' || (!source || source === 'library')) {
-        if (video.id) Library.updateVideo(video.id, { rpe: rpe });
+        if (video.id) {
+          const updates = { rpe: rpe };
+          if (feedback && feedback.action === 'hide_video') updates.rpe = 'remove';
+          Library.updateVideo(video.id, updates);
+        }
       } else if (source === 'surprise') {
-        if (rpe === 'loved' || rpe === 'good') {
+        if (rpe === 'like' || rpe === 'neutral') {
           CategoryPicker.show(video, (category) => {
-            if (category) Library.addFromSurprise(video, category);
+            if (category) {
+              const result = Library.addFromSurprise(video, category);
+              if (result === 'updated') UI.toast('Video category updated', 'success');
+            }
             if (cb) cb();
           });
           return;
-        } else if (rpe === 'remove') {
-          SurprisePool.excludeVideo(video.id);
-        } else if (rpe === 'easy') {
-          SurprisePool.deprioritize(video.id);
+        } else if (rpe === 'dislike') {
+          if (feedback && feedback.action === 'hide_video') SurprisePool.excludeVideo(video.id);
+          else SurprisePool.deprioritize(video.id);
         }
       }
       if (cb) cb();
@@ -1521,8 +1885,7 @@ const COMPLETION_QUOTES = [
       document.getElementById('cat-video-title').textContent = video.title;
       const grid = document.getElementById('category-grid');
       grid.innerHTML = '';
-      const mainCats = ['warmup','cardio','fullbody_pilates','abs','upper_body','glutes_legs','targeted_pilates','dance','yoga','meridian_yoga','cooldown'];
-      mainCats.forEach(cat => {
+      CATEGORY_PICKER_CATEGORIES.forEach(cat => {
         const btn = document.createElement('button');
         btn.className = 'cat-btn';
         btn.textContent = CATEGORIES[cat].label;
@@ -1634,8 +1997,9 @@ const COMPLETION_QUOTES = [
       const cats = {};
       State.library.forEach(v => { cats[v.category] = (cats[v.category] || 0) + 1; });
       let html = '<strong>' + State.library.length + ' videos</strong><br>';
-      Object.keys(CATEGORIES).forEach(c => {
-        if (cats[c]) html += CATEGORIES[c].label + ': ' + cats[c] + '<br>';
+      LIBRARY_STATS_GROUPS.forEach(group => {
+        const count = group.categories.reduce((sum, cat) => sum + (cats[cat] || 0), 0);
+        if (count) html += group.label + ': ' + count + '<br>';
       });
       document.getElementById('library-stats').innerHTML = html;
     },
@@ -1669,8 +2033,7 @@ const COMPLETION_QUOTES = [
       // keep library clean + regenerate today's playlist in one step
       Library.purgeBlockedCreators();
       State.currentPlaylist = Playlist.generate(false).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
-      Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
-      Storage.set(CONFIG.LS.PLAYLIST_DATE, new Date().toISOString().split('T')[0]);
+      persistPlaylist(State.currentPlaylist);
       UI.renderMainScreen();
       this.renderBlockedCreators();
       UI.toast(name + (idx >= 0 ? ' unblocked' : ' blocked'), 'success');
@@ -1714,14 +2077,12 @@ const COMPLETION_QUOTES = [
       Library.init();
       Library.purgeBlockedCreators();
       const today = new Date().toISOString().split('T')[0];
-      const cachedDate = Storage.get(CONFIG.LS.PLAYLIST_DATE);
-      const cachedPlaylist = Storage.get(CONFIG.LS.PLAYLIST);
-      if (cachedDate === today && cachedPlaylist && cachedPlaylist.length > 0) {
+      const cachedPlaylist = getValidCachedPlaylist(today);
+      if (cachedPlaylist) {
         State.currentPlaylist = cachedPlaylist.filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
       } else {
         State.currentPlaylist = Playlist.generate(false).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
-        Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
-        Storage.set(CONFIG.LS.PLAYLIST_DATE, today);
+        persistPlaylist(State.currentPlaylist);
       }
       UI.renderMainScreen();
     },
@@ -1776,6 +2137,115 @@ const COMPLETION_QUOTES = [
     }
   };
 
+  // --- Feedback Dashboard ---
+  const Dashboard = {
+    render() {
+      const ratings = Storage.get(CONFIG.LS.RATING_HISTORY) || [];
+      const plays = Storage.get(CONFIG.LS.PLAY_EVENTS) || [];
+      const sessions = Storage.get(CONFIG.LS.SESSION_HISTORY) || [];
+      const total = ratings.length;
+      const grid = document.getElementById('quadrant-grid');
+      const progress = document.getElementById('dashboard-progress');
+      const fill = document.getElementById('dashboard-bar-fill');
+      if (!grid || !progress || !fill) return;
+
+      const next = total < 5 ? (5 - total) + ' ratings to first insight'
+        : total < 10 ? (10 - total) + ' ratings to full map'
+        : sessions.length < 14 ? '4 quadrants unlocked'
+        : 'trend ready';
+      progress.textContent = total + ' ratings · ' + next;
+      fill.style.width = Math.min(100, Math.round((total / 10) * 100)) + '%';
+
+      const cards = [
+        this.knownKnown(ratings, total),
+        this.knownUnknown(ratings, total),
+        this.blindSpot(ratings, total),
+        this.unknownUnknown(ratings, plays, total)
+      ];
+      grid.innerHTML = cards.map(card => this.cardHtml(card)).join('');
+    },
+
+    knownKnown(ratings, total) {
+      if (total < 5) return this.locked('Known Known', '还在收集中', '再评价 ' + (5 - total) + ' 个视频，解锁你明确喜欢的类型。');
+      const liked = ratings.filter(r => r.rating === 'like');
+      const creator = this.top(liked.map(r => r.creator).filter(Boolean));
+      const focus = this.top(liked.map(r => r.focus).filter(Boolean));
+      return {
+        label: 'Known Known',
+        value: creator || focus || '喜欢数据还不够',
+        note: creator ? '你明确喜欢的 creator。' : '继续评价会更准。'
+      };
+    },
+
+    knownUnknown(ratings, total) {
+      if (total < 10) return this.locked('Known Unknown', '还没解锁', '第 10 个评价后显示数据不足的训练方向。');
+      const focusCounts = {};
+      ratings.forEach(r => { if (r.focus) focusCounts[r.focus] = (focusCounts[r.focus] || 0) + 1; });
+      const gaps = Object.values(WEEKLY_PLAN).map(p => p.focusKey).filter(k => (focusCounts[k] || 0) < 2);
+      const first = gaps[0];
+      return {
+        label: 'Known Unknown',
+        value: first ? this.focusLabel(first) : '覆盖均衡',
+        note: first ? '这个方向样本少，需要更多评价。' : '各方向都有基础反馈。'
+      };
+    },
+
+    blindSpot(ratings, total) {
+      if (total < 10) return this.locked('Blind Spot', '还没解锁', '第 10 个评价后显示反复卡住的原因。');
+      const dislikes = ratings.filter(r => r.rating === 'dislike');
+      const reason = this.top(dislikes.map(r => r.reason).filter(r => r && r !== 'none'));
+      return {
+        label: 'Blind Spot',
+        value: reason ? this.reasonLabel(reason) : '暂无明显盲点',
+        note: reason ? '这是最近不喜欢里最常见的原因。' : '目前没有高频负反馈。'
+      };
+    },
+
+    unknownUnknown(ratings, plays, total) {
+      if (total < 10) return this.locked('Unknown Unknown', '还没解锁', '第 10 个评价后显示值得探索的新区域。');
+      const surprisePlayed = plays.filter(e => e.phase === 'SURPRISE' && e.event === 'started').length;
+      const poolCount = SurprisePool.getAvailable().length;
+      return {
+        label: 'Unknown Unknown',
+        value: poolCount > 0 ? poolCount + ' surprise videos' : surprisePlayed + ' tried',
+        note: poolCount > 0 ? '还有新视频可以探索。' : '补 surprise pool 后会更有发现感。'
+      };
+    },
+
+    locked(label, value, note) {
+      return { label, value, note, locked: true };
+    },
+
+    cardHtml(card) {
+      return '<div class="quadrant-card' + (card.locked ? ' locked' : '') + '">' +
+        '<div class="quadrant-label">' + escHtml(card.label) + '</div>' +
+        '<div class="quadrant-value">' + escHtml(card.value) + '</div>' +
+        '<div class="quadrant-note">' + escHtml(card.note) + '</div>' +
+        '</div>';
+    },
+
+    top(values) {
+      const counts = {};
+      values.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
+      return Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || '';
+    },
+
+    focusLabel(key) {
+      const plan = Object.values(WEEKLY_PLAN).find(p => p.focusKey === key);
+      return plan ? plan.focus : key;
+    },
+
+    reasonLabel(reason) {
+      return {
+        too_hard: '太难',
+        too_easy: '太简单',
+        not_my_focus: '不适合今天',
+        boring: '无聊',
+        bad_quality: '不再推荐'
+      }[reason] || reason;
+    }
+  };
+
   // --- UI ---
   const UI = {
     showScreen(id) {
@@ -1791,21 +2261,88 @@ const COMPLETION_QUOTES = [
       document.getElementById('date-display').textContent =
         now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-      // Quote
-      document.getElementById('quote-display').textContent =
-        '"' + QUOTES[Math.floor(Math.random() * QUOTES.length)] + '"';
-
       // Focus label
       const fl = document.getElementById('focus-label');
-      if (plan.category === 'surprise') {
-        const surpriseTypes = ['Dance Party', 'Yoga Flow', 'Mystery Workout', 'Explore Mode'];
-        fl.innerHTML = '<span class="focus-surprise">\u2728 Surprise Day \u2014 ' +
-          surpriseTypes[Math.floor(Math.random() * surpriseTypes.length)] + '</span>';
-      } else {
-        fl.innerHTML = '<span class="focus-type">' + plan.focus + '</span>';
+      fl.innerHTML = '<span class="focus-type">' + plan.focus + '</span>';
+
+      this.renderEnergyCard(plan);
+      Dashboard.render();
+      this.surfaceDataWarnings(plan);
+      this.renderPlaylist();
+    },
+    surfaceDataWarnings(plan) {
+      const todayKey = new Date().toISOString().split('T')[0];
+      const items = State.currentPlaylist || [];
+      const longSupport = items.find(item =>
+        (item.phase === 'WARM UP' || item.phase === 'COOL DOWN') &&
+        (item.video.effectiveDuration || item.video.totalDuration || 0) > 10
+      );
+      if (longSupport && State.dataWarningsShown.support !== todayKey) {
+        State.dataWarningsShown.support = todayKey;
+        setTimeout(() => UI.toast(longSupport.phase + ' pool is thin; using a longer support video today.', 'warning'), 500);
       }
 
-      this.renderPlaylist();
+      if (plan && plan.focusKey === 'dance' && State.dataWarningsShown.dance !== todayKey) {
+        const danceCount = Playlist.availableLibrary().filter(v => Playlist.matchesCategoryAlias(v, 'dance')).length;
+        if (danceCount < 4) {
+          State.dataWarningsShown.dance = todayKey;
+          setTimeout(() => UI.toast('Dance library is thin. Fetch surprise pool when ready.', 'warning'), 900);
+        }
+      }
+
+      if (plan && plan.focusKey === 'upper_body' && State.dataWarningsShown.upperBody !== todayKey) {
+        const upperCount = Playlist.availableLibrary().filter(v => Playlist.matchesCategoryAlias(v, 'upper_body')).length;
+        if (upperCount < 8) {
+          State.dataWarningsShown.upperBody = todayKey;
+          setTimeout(() => UI.toast('Upper Body pool is thin. Add more videos for less repeat.', 'warning'), 900);
+        }
+      }
+    },
+    renderEnergyCard(plan) {
+      const card = document.getElementById('energy-card');
+      const visual = document.getElementById('energy-visual');
+      const line = document.getElementById('energy-line');
+      const subline = document.getElementById('energy-subline');
+      if (!card || !visual || !line || !subline) return;
+      const videos = (State.currentPlaylist || []).map(item => item.video).filter(v => v && v.id).slice(0, 4);
+      visual.innerHTML = '';
+      const fallbackLabels = ['Warm Up', (plan && plan.focus) || 'Main', 'Cool Down', 'Surprise'];
+      for (let i = 0; i < 4; i++) {
+        const video = videos[i];
+        if (video) visual.appendChild(this.createEnergyThumb(video, fallbackLabels[i]));
+        else visual.appendChild(this.createEnergyFallback(fallbackLabels[i]));
+      }
+      line.textContent = ENERGY_LINES[Math.floor(Math.random() * ENERGY_LINES.length)];
+      subline.textContent = 'Today: ' + ((plan && plan.focus) || 'Workout') + ' · ' + videos.length + ' moves queued';
+      card.hidden = false;
+    },
+    createEnergyThumb(video, fallbackLabel) {
+      const img = document.createElement('img');
+      img.alt = '';
+      img.loading = 'lazy';
+      img.dataset.videoId = video.id;
+      img.dataset.fallbackLabel = fallbackLabel || 'Workout';
+      img.dataset.thumbStage = '0';
+      img.src = ytThumbUrl(video.id, 'maxresdefault');
+      img.addEventListener('error', () => this.handleEnergyThumbError(img));
+      return img;
+    },
+    handleEnergyThumbError(img) {
+      const stages = ['hqdefault', 'mqdefault', 'default'];
+      const stage = parseInt(img.dataset.thumbStage || '0', 10);
+      const next = stages[stage];
+      if (next) {
+        img.dataset.thumbStage = String(stage + 1);
+        img.src = ytThumbUrl(img.dataset.videoId, next);
+        return;
+      }
+      img.replaceWith(this.createEnergyFallback(img.dataset.fallbackLabel || 'Workout'));
+    },
+    createEnergyFallback(label) {
+      const tile = document.createElement('div');
+      tile.className = 'energy-tile-fallback';
+      tile.textContent = label || 'Workout';
+      return tile;
     },
     renderPlaylist() {
       const container = document.getElementById('playlist-container');
@@ -1856,10 +2393,14 @@ const COMPLETION_QUOTES = [
     },
     toast(msg, type) {
       const el = document.getElementById('toast');
+      const debugToast = new URLSearchParams(location.search).get('debugToast') === '1';
       el.textContent = msg;
       el.className = 'toast' + (type ? ' toast-' + type : '');
       el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 2500);
+      if (debugToast) {
+        try { DataLog.recordPlayEvent('toast_shown', { message: msg, type: type || 'info' }); } catch(e) {}
+      }
+      setTimeout(() => el.classList.remove('show'), debugToast ? CONFIG.DEBUG_TOAST_MS : CONFIG.TOAST_MS);
     }
   };
 
@@ -1880,6 +2421,10 @@ const COMPLETION_QUOTES = [
     return d.innerHTML;
   }
 
+  function ytThumbUrl(id, quality) {
+    return 'https://i.ytimg.com/vi/' + encodeURIComponent(id) + '/' + (quality || 'hqdefault') + '.jpg';
+  }
+
   // --- Init ---
   function init() {
     Library.init();
@@ -1891,24 +2436,22 @@ const COMPLETION_QUOTES = [
     }
 
     const today = new Date().toISOString().split('T')[0];
-    const cachedDate = Storage.get(CONFIG.LS.PLAYLIST_DATE);
-    const cachedPlaylist = Storage.get(CONFIG.LS.PLAYLIST);
+    const cachedPlaylist = getValidCachedPlaylist(today);
 
-    if (cachedDate === today && cachedPlaylist && cachedPlaylist.length > 0) {
+    if (cachedPlaylist) {
       const hasBlocked = cachedPlaylist.some(it => it && it.video && isBlockedCreator(it.video.creator));
       if (!hasBlocked) {
         State.currentPlaylist = cachedPlaylist;
       } else {
         State.currentPlaylist = Playlist.generate(false);
-        Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
-        Storage.set(CONFIG.LS.PLAYLIST_DATE, today);
+        persistPlaylist(State.currentPlaylist);
       }
     } else {
       State.currentPlaylist = Playlist.generate(false);
-      Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
-      Storage.set(CONFIG.LS.PLAYLIST_DATE, today);
+      persistPlaylist(State.currentPlaylist);
     }
 
+    DataLog.recordSession('init');
     UI.renderMainScreen();
     UI.showScreen('screen-main');
     Player.init();
@@ -1932,16 +2475,15 @@ const COMPLETION_QUOTES = [
     // Main buttons
     document.getElementById('btn-lets-go').addEventListener('click', () => {
       if (State.currentPlaylist.length === 0) { UI.toast('No playlist to play', 'warning'); return; }
-      State.currentIndex = 0;
-      Player.inlineExpand(); // Show container first
-      setTimeout(() => Player.loadVideo(State.currentPlaylist[0]), 50); // Then load video
+      Player.beginPlaybackAt(0, 'lets_go');
     });
     document.getElementById('btn-surprise').addEventListener('click', () => {
       State.currentPlaylist = Playlist.generate(true).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
       if (State.currentPlaylist.length < 4) {
         State.currentPlaylist = Playlist.generate(true).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
       }
-      Storage.set(CONFIG.LS.PLAYLIST, State.currentPlaylist);
+      persistPlaylist(State.currentPlaylist);
+      DataLog.recordSession('surprise_generated');
       UI.renderMainScreen();
       UI.toast('Surprise playlist generated!', 'success');
     });
@@ -1956,7 +2498,7 @@ const COMPLETION_QUOTES = [
     
     // Inline player controls
     document.getElementById('btn-player-close').addEventListener('click', () => Player.inlineCollapse());
-    document.getElementById('btn-player-skip').addEventListener('click', () => Player.advanceToNext());
+    document.getElementById('btn-player-skip').addEventListener('click', () => Player.skipCurrent());
     document.getElementById('btn-player-play').addEventListener('click', () => Player.togglePlay());
     document.getElementById('btn-player-prev').addEventListener('click', () => Player.previous());
     document.getElementById('btn-player-next').addEventListener('click', () => Player.advanceToNext());
@@ -1964,6 +2506,9 @@ const COMPLETION_QUOTES = [
     // RPE
     document.querySelectorAll('.rpe-btn').forEach(btn => {
       btn.addEventListener('click', () => RPE.handleRating(btn.dataset.rpe));
+    });
+    document.querySelectorAll('.rpe-reason-btn').forEach(btn => {
+      btn.addEventListener('click', () => RPE.handleDislikeReason(btn.dataset.reason, btn.dataset.action));
     });
 
     // Category picker skip
@@ -1982,9 +2527,7 @@ const COMPLETION_QUOTES = [
         // Click on list item to play that video directly
         const idx = parseInt(item.dataset.index);
         if (!isNaN(idx)) {
-          State.currentIndex = idx;
-          Player.inlineExpand(); // Show container first
-          setTimeout(() => Player.loadVideo(State.currentPlaylist[idx]), 50); // Then load
+          Player.beginPlaybackAt(idx, 'playlist_item');
         }
       }
     });
