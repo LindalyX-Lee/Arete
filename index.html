@@ -591,14 +591,15 @@
       <div class="setting-group">
         <label>YouTube API Key</label>
         <div class="api-key-row">
-          <input type="text" id="input-api-key" placeholder="Enter your API key">
+          <input type="password" id="input-api-key" placeholder="Enter your API key">
           <button id="btn-save-api-key" class="btn-small">Save</button>
         </div>
-        <div class="settings-hint">Required to fetch surprise pool videos</div>
+        <div class="settings-hint">Required for surprise pool + library metadata (tags/description)</div>
       </div>
       <div class="setting-group">
-        <button id="btn-fetch-surprise" class="btn-secondary" style="width:100%">Fetch Surprise Pool &#127922;</button>
+        <button id="btn-fetch-surprise" class="btn-secondary" style="width:100%">Fetch / Refresh Library &#128260;</button>
         <div id="surprise-pool-status" class="surprise-pool-status">Not yet fetched</div>
+        <div class="settings-hint">Fetches 14 channels — enriches library with tags/description for accurate Main matching, and refreshes surprise pool</div>
       </div>
       <div class="setting-group">
         <h3>Blocked Creators</h3>
@@ -886,7 +887,9 @@ const CONFIG = {
   RPE_AUTO_ADVANCE_MS: 8000,
   TOAST_MS: 2500,
   DEBUG_TOAST_MS: 5500,
-  // Support channel IDs, @handles, or full YouTube URLs
+  // Support channel IDs, @handles, or full YouTube URLs.
+  // V2 重分类: 14 博主完整 (per 09-补充健身博主-Lindaly.md). Some handles are best-guess;
+  // verify in fetch console if any channel fails.
   SURPRISE_CHANNELS: {
     'UCFKE7WVJfvaHW5q283SxchA': 'Yoga With Adriene',
     'UCWN2FPlvg9r-LnUyepH9IaQ': 'Boho Beautiful Yoga',
@@ -896,11 +899,20 @@ const CONFIG = {
     '@MarieSteffen': 'Marie Steffen',
     '@BaileyBrown': 'Bailey Brown',
     '@MadeleineAbeid': 'Madeleine Abeid',
-    // from user provided channel URL
-    '@MadFit': 'MadFit'
+    '@MadFit': 'MadFit',
+    // V2 新增 5 个 (verify handle if fetch fails)
+    '@PamelaRf1': 'Pamela Reif',
+    '@MoveWithNicole': 'Move with Nicole',
+    '@elenifit': 'Eleni Fit',
+    '@bigsis': 'Bigsis',
+    '@YogawithKassandra': 'Yoga with Kassandra'
   },
   SURPRISE_MIN_DURATION: 3,
-  SURPRISE_MAX_DURATION: 60,
+  SURPRISE_MAX_DURATION: Infinity,
+  // V2 重分类: YT API 防封 6 条
+  YT_REQUEST_INTERVAL_MS: 150,
+  YT_QUOTA_DAILY_LIMIT: 10000,
+  YT_QUOTA_RESERVE: 2000,
   SURPRISE_REFRESH_DAYS: 7,
   BLOCKED_CREATORS: ['Pamela Reif'],
   SUPABASE_URL: 'https://toetpgkmykamurqjvwbm.supabase.co',
@@ -922,7 +934,9 @@ const CONFIG = {
     RATING_HISTORY: 'arete_rating_history',
     WILDCARD_DAYS: 'arete_wildcard_days',
     SYNC_ID: 'arete_sync_id',
-    LAST_SYNC_AT: 'arete_last_sync_at'
+    LAST_SYNC_AT: 'arete_last_sync_at',
+    YT_QUOTA: 'arete_yt_quota',  // V2 重分类: { date: 'YYYY-MM-DD', used: <units> }
+    YT_CHANNEL_SYNC_STATE: 'arete_yt_channel_sync_state'
   }
 };
 
@@ -968,16 +982,42 @@ const FOCUS_ALIASES = {
   cooldown: ['cooldown']
 };
 
+// V2 重分类 spec: keywords 用于 4-field match (tags > title > description > channelMainCategory)
+// dedupe: 'fat burn' only in cardio_hiit; 'yoga' only in cooldown; 'mat pilates' precise.
 const FOCUS_KEYWORDS = {
-  full_body: ['full body', 'total body', 'all standing', 'metabolism', 'fat burn'],
-  abs_core: ['abs', 'core', 'waist', 'sixpack', 'lower abs', 'standing abs'],
-  upper_body: ['upper body', 'arms', 'back', 'shoulder', 'chest', 'posture'],
-  glutes_legs: ['glutes', 'legs', 'booty', 'butt', 'thigh', 'lower body'],
-  cardio_hiit: ['cardio', 'hiit', 'tabata', 'fat burn', 'walking', 'steps', 'sweaty', 'no jumping'],
-  pilates: ['pilates', 'barre', 'mat', 'flow', 'toning'],
-  dance: ['dance', 'latin', 'barbie', 'hip hop', 'zumba', 'cardio dance', 'salsa', 'kpop', 'c-pop', 'bollywood'],
-  warmup: ['warm up', 'warmup', 'morning', 'rise', 'wake up', 'mobility'],
-  cooldown: ['cool down', 'cooldown', 'stretch', 'stretching', 'recovery', 'relaxation', 'yoga', 'mobility']
+  full_body:   ['full body', 'full-body', 'total body', 'total-body', 'all standing', 'metabolism', 'whole body', 'complete'],
+  abs_core:    ['abs', 'core', 'waist', 'sixpack', 'six pack', 'six-pack', 'oblique', 'belly', 'plank', 'crunch', 'lower abs', 'standing abs', 'abdominal'],
+  upper_body:  ['upper body', 'upper-body', 'arms', 'arm ', 'back', 'shoulder', 'chest', 'posture', 'push', 'pull', 'lat ', 'bicep', 'tricep', 'deltoid'],
+  glutes_legs: ['glutes', 'glute', 'legs', 'leg ', 'booty', 'butt', 'thigh', 'lower body', 'lower-body', 'quad', 'hamstring', 'calf'],
+  cardio_hiit: ['cardio', 'hiit', 'tabata', 'fat burn', 'walking', 'steps', 'sweaty', 'no jumping', 'interval', 'burn', 'sweat'],
+  pilates:     ['pilates', 'pilate', 'barre', 'mat pilates', 'pilates flow', 'pilates toning', 'reformer'],
+  dance:       ['dance', 'dancing', 'latin', 'barbie', 'hip hop', 'zumba', 'cardio dance', 'salsa', 'kpop', 'k-pop', 'c-pop', 'bollywood', 'choreography'],
+  // phase keywords (warm/cool 区分用，不参与 weekly focus main 选择)
+  warmup:      ['warm up', 'warm-up', 'warmup', 'morning', 'rise', 'wake up', 'mobility', 'mobilize', 'energize'],
+  cooldown:    ['cool down', 'cool-down', 'cooldown', 'stretch', 'stretching', 'recovery', 'relaxation', 'gentle', 'evening', 'wind down', 'savasana', 'restorative', 'yoga']
+};
+
+// Channel-level default category (兜底). 视频自己 tags/title/description match 优先于此.
+// 来源: 09-补充健身博主-Lindaly + 06 ingest
+const CHANNEL_MAIN_CATEGORY = {
+  'Pamela Reif':         'full_body',
+  'Eleni Fit':           'pilates',
+  'Move With Nicole':    'pilates',
+  'Move with Nicole':    'pilates',
+  'Bigsis':              'glutes_legs',
+  'MadFit':              'cardio_hiit',
+  'Lidia Mera':          'pilates',
+  'Yoga With Adriene':   'cooldown',
+  'Yoga with Adriene':   'cooldown',
+  'growingannanas':      'cardio_hiit',
+  'Boho Beautiful Yoga': 'cooldown',
+  'Yoga with Kassandra': 'cooldown',
+  'Yoga With Kassandra': 'cooldown',
+  'Marie Steffen':       'cooldown',
+  'Marie Sreffen':       'cooldown',
+  'Bailey Brown':        'pilates',
+  'Charlie Follows':     'cardio_hiit',
+  'Madeleine Abeid':     'pilates'
 };
 
 const CATEGORY_PICKER_CATEGORIES = ['full_body','abs_core','upper_body','glutes_legs','cardio_hiit','pilates','dance','warmup','cooldown'];
@@ -1181,6 +1221,66 @@ const ENERGY_LINES = [
       return raw.filter(v => { if (seen.has(v.id)) return false; seen.add(v.id); return true; });
     },
     save() { Storage.set(CONFIG.LS.LIBRARY, State.library); },
+    // V2 重分类: merge YT metadata into the library so new videos can enter Main via tags/title/description.
+    absorbYTMetadata(rawVideos) {
+      if (!Array.isArray(rawVideos) || !rawVideos.length) return { enriched: 0, added: 0, skipped: 0 };
+      const byId = new Map(State.library.map(v => [v.id, v]));
+      let enriched = 0;
+      let added = 0;
+      let skipped = 0;
+      rawVideos.forEach(meta => {
+        if (!meta || !meta.id || isBlockedCreator(meta.creator)) { skipped++; return; }
+        const existing = byId.get(meta.id);
+        if (existing) {
+          this.applyYTMetadata(existing, meta);
+          enriched++;
+          return;
+        }
+        const duration = meta.effectiveDuration || meta.totalDuration || 0;
+        const video = {
+          id: meta.id,
+          title: meta.title || 'Untitled video',
+          creator: meta.creator || 'YouTube',
+          category: meta.category || this.inferCategory(meta),
+          intensity: 'medium',
+          totalDuration: duration,
+          startAt: 0,
+          endAt: 0,
+          effectiveDuration: duration,
+          rpe: null,
+          publishedAt: meta.publishedAt || null,
+          addedAt: new Date().toISOString(),
+          syncedAt: Date.now()
+        };
+        this.applyYTMetadata(video, meta);
+        State.library.push(video);
+        byId.set(video.id, video);
+        added++;
+      });
+      if (enriched > 0 || added > 0) this.save();
+      return { enriched, added, skipped };
+    },
+    applyYTMetadata(video, meta) {
+      if (Array.isArray(meta.ytTags)) video.ytTags = meta.ytTags;
+      if (meta.ytDescription) video.ytDescription = meta.ytDescription;
+      if (meta.publishedAt) video.publishedAt = meta.publishedAt;
+      video.channelMainCategory = meta.channelMainCategory || CHANNEL_MAIN_CATEGORY[meta.creator] || CHANNEL_MAIN_CATEGORY[video.creator] || video.channelMainCategory || null;
+      video.syncedAt = Date.now();
+    },
+    inferCategory(video) {
+      if (video.channelMainCategory) return video.channelMainCategory;
+      const haystack = [
+        Array.isArray(video.ytTags) ? video.ytTags.join(' ') : '',
+        video.title || '',
+        (video.ytDescription || '').slice(0, 200)
+      ].join(' ').toLowerCase();
+      const keys = ['warmup','cooldown','full_body','abs_core','upper_body','glutes_legs','cardio_hiit','pilates','dance'];
+      for (const key of keys) {
+        const keywords = FOCUS_KEYWORDS[key] || [];
+        if (keywords.some(k => haystack.includes(k))) return key;
+      }
+      return 'full_body';
+    },
     purgeBlockedCreators() {
       const before = State.library.length;
       State.library = State.library.filter(v => !isBlockedCreator(v.creator));
@@ -1230,6 +1330,7 @@ const ENERGY_LINES = [
       const isWildcard = !!forceSurprise || this.isWildcardDay(dow);
       const items = [];
       const used = new Set();
+      Playlist._warmCoolFallback = {};  // V2 重分类: reset per-generate fallback flags
 
       // 1. Warm Up
       const warmup = this.pickWarmOrCool('warmup', used);
@@ -1258,7 +1359,7 @@ const ENERGY_LINES = [
     },
 
     pickFromCategory(cat) {
-      const pool = this.availableLibrary().filter(v => this.matchesFocus(v, cat));
+      const pool = this.availableLibrary().filter(v => this.matchesCategoryAlias(v, cat) || this.matchesFocus(v, cat));
       if (pool.length === 0) return null;
       return pool.length <= CONFIG.SMALL_POOL_THRESHOLD
         ? this.pickRoundRobin(pool, cat)
@@ -1282,38 +1383,56 @@ const ENERGY_LINES = [
       return sorted[next];
     },
 
+    // V2 重分类: time > 15 && <= 80 (15.0 严格归 warm/cool, 80.0 仍可入 main).
+    // Strict matchesFocus (4-field aware). 候选 0 → fallback w/ warning source.
     pickMain(focusKey, used) {
-      const pool = this.availableLibrary()
-        .filter(v => !used.has(v.id))
-        .filter(v => this.duration(v) >= 15 && this.duration(v) <= 60)
-        .filter(v => this.matchesCategoryAlias(v, focusKey));
-      if (pool.length > 0) return { video: this.pickScored(pool, focusKey), source: 'library' };
-
-      const fallback = this.availableLibrary()
-        .filter(v => !used.has(v.id))
-        .filter(v => this.duration(v) >= 15 && this.duration(v) <= 60)
-        .filter(v => this.matchesFocus(v, focusKey));
-      return fallback.length > 0 ? { video: this.pickScored(fallback, focusKey), source: 'library' } : null;
-    },
-
-    pickWarmOrCool(focusKey, used) {
+      const inTimeRange = v => {
+        const d = this.duration(v);
+        return d > 15 && d <= 80;
+      };
       const strict = this.availableLibrary()
         .filter(v => !used.has(v.id))
-        .filter(v => this.matchesCategoryAlias(v, focusKey))
-        .filter(v => this.duration(v) >= 3 && this.duration(v) <= 10);
-      if (strict.length > 0) return this.pickScored(strict, focusKey);
+        .filter(inTimeRange)
+        .filter(v => this.matchesFocus(v, focusKey));
+      if (strict.length > 0) return { video: this.pickScored(strict, focusKey), source: 'library' };
 
-      const soft = this.availableLibrary()
+      // No strict match → graceful fallback to any time-range video, surface warning via source flag
+      const fallback = this.availableLibrary()
         .filter(v => !used.has(v.id))
-        .filter(v => this.matchesCategoryAlias(v, focusKey))
-        .filter(v => this.duration(v) >= 3 && this.duration(v) <= 10);
-      if (soft.length > 0) return this.pickScored(soft, focusKey);
+        .filter(inTimeRange);
+      return fallback.length > 0 ? { video: this.pickScored(fallback, focusKey), source: 'library-fallback' } : null;
+    },
 
-      const keywordFallback = this.availableLibrary()
+    // V2 重分类: shared pool duration <= 15 (15.0 闭). 3-tier priority:
+    //   1. explicit phase keyword match (matchesFocus uses 4-field for 'warmup'/'cooldown' keys)
+    //   2. channel-default category equals phase
+    //   3. any short video w/ warning flag
+    pickWarmOrCool(phase, used) {
+      const pool = this.availableLibrary()
         .filter(v => !used.has(v.id))
-        .filter(v => this.matchesFocus(v, focusKey))
-        .filter(v => this.duration(v) >= 3 && this.duration(v) <= 10);
-      return keywordFallback.length > 0 ? this.pickScored(keywordFallback, focusKey) : null;
+        .filter(v => {
+          const d = this.duration(v);
+          return d >= 3 && d <= 15;
+        });
+
+      // Tier 1: explicit phase keyword (4-field via matchesFocus)
+      const explicit = pool.filter(v => this.matchesFocus(v, phase));
+      if (explicit.length > 0) return this.pickScored(explicit, phase);
+
+      // Tier 2: channel/default category equals phase; legacy manual warm/cool stays useful here
+      const channelMatch = pool.filter(v => {
+        const ch = v.channelMainCategory || CHANNEL_MAIN_CATEGORY[v.creator] || null;
+        return ch === phase || this.matchesCategoryAlias(v, phase);
+      });
+      if (channelMatch.length > 0) return this.pickScored(channelMatch, phase);
+
+      // Tier 3: any short video, mark warning
+      if (pool.length > 0) {
+        Playlist._warmCoolFallback = (Playlist._warmCoolFallback || {});
+        Playlist._warmCoolFallback[phase] = true;
+        return this.pickScored(pool, phase);
+      }
+      return null;
     },
 
     pickSurpriseSlot(focusKey, isWildcard, used) {
@@ -1382,6 +1501,7 @@ const ENERGY_LINES = [
       if (rating === 'dislike') score -= 4;
       if (historySet.has(video.id)) score -= 3;
       if (this.matchesFocus(video, focusKey)) score += 3;
+      if (this.matchesCategoryAlias(video, focusKey)) score += 1.5;
       if (video.intensity === 'gentle' && (focusKey === 'warmup' || focusKey === 'cooldown')) score += 1;
       if (video.intensity === 'hard' && focusKey === 'cardio_hiit') score += 1;
       if (targetDuration) score += Math.max(0, 2 - Math.abs(this.duration(video) - targetDuration) / 5);
@@ -1396,11 +1516,30 @@ const ENERGY_LINES = [
       return ['full_body','abs_core','upper_body','glutes_legs','cardio_hiit','pilates','dance'].some(f => this.matchesFocus(video, f));
     },
 
+    // V2 重分类: 4-field priority match
+    //   1. video.ytTags[]                  (YT API snippet.tags)
+    //   2. video.title                     (YT API snippet.title)
+    //   3. video.ytDescription 前 200 字   (YT API snippet.description, truncated)
+    //   4. video.channelMainCategory === focusKey  (CHANNEL_MAIN_CATEGORY[creator] default)
+    // Manual category is a score boost only; it is not a strict Main match gate.
     matchesFocus(video, focusKey) {
       if (!video) return false;
-      if (this.matchesCategoryAlias(video, focusKey)) return true;
+      const keywords = FOCUS_KEYWORDS[focusKey] || [];
+      // field 1: ytTags
+      if (Array.isArray(video.ytTags)) {
+        const tagsJoined = video.ytTags.join(' ').toLowerCase();
+        if (keywords.some(k => tagsJoined.includes(k))) return true;
+      }
+      // field 2: title
       const title = (video.title || '').toLowerCase();
-      return (FOCUS_KEYWORDS[focusKey] || []).some(k => title.includes(k));
+      if (keywords.some(k => title.includes(k))) return true;
+      // field 3: description (前 200 字)
+      const desc = ((video.ytDescription || '').slice(0, 200)).toLowerCase();
+      if (desc && keywords.some(k => desc.includes(k))) return true;
+      // field 4: channelMainCategory (explicit on video, or fallback via creator mapping)
+      const ch = video.channelMainCategory || CHANNEL_MAIN_CATEGORY[video.creator] || null;
+      if (ch && ch === focusKey) return true;
+      return false;
     },
 
     matchesCategoryAlias(video, focusKey) {
@@ -1469,14 +1608,80 @@ const ENERGY_LINES = [
     return pool[pool.length - 1];
   }
 
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  // V2 重分类: YT Data API v3 防封 wrapper.
+  //   (1) Official API only        ✓ (callers pass URLs to v3)
+  //   (2) 150ms interval           ✓ (sleep after each successful fetch)
+  //   (3) 429/403 exponential back ✓ (1s, 2s, 4s, 8s, max 30s, 5 attempts)
+  //   (4) Cache + incremental      → caller responsibility (we just track quota)
+  //   (5) Quota guard <2000 unit   ✓ (canFetch / recordUsage)
+  //   (6) Key in header not URL    ✓ (X-Goog-Api-Key)
+  const YTApi = {
+    _quotaState() {
+      const today = new Date().toISOString().split('T')[0];
+      const stored = Storage.get(CONFIG.LS.YT_QUOTA);
+      if (!stored || stored.date !== today) {
+        const fresh = { date: today, used: 0 };
+        Storage.set(CONFIG.LS.YT_QUOTA, fresh);
+        return fresh;
+      }
+      return stored;
+    },
+    canFetch(estimatedCost) {
+      const c = estimatedCost || 1;
+      const state = this._quotaState();
+      const remaining = CONFIG.YT_QUOTA_DAILY_LIMIT - state.used - c;
+      return remaining >= CONFIG.YT_QUOTA_RESERVE;
+    },
+    recordUsage(units) {
+      const state = this._quotaState();
+      state.used += (units || 0);
+      Storage.set(CONFIG.LS.YT_QUOTA, state);
+    },
+    quotaUsedToday() {
+      return this._quotaState().used;
+    },
+    async fetch(url, apiKey, cost) {
+      const c = cost || 1;
+      if (!this.canFetch(c)) {
+        throw new Error('YT quota guard: <' + CONFIG.YT_QUOTA_RESERVE + ' unit reserve. Try again after midnight Pacific time.');
+      }
+      let lastErr = null;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try {
+          const r = await fetch(url, { headers: { 'X-Goog-Api-Key': apiKey } });
+          if (r.status === 200) {
+            const json = await r.json();
+            this.recordUsage(c);
+            await sleep(CONFIG.YT_REQUEST_INTERVAL_MS);
+            return json;
+          }
+          if (r.status === 429 || r.status === 403) {
+            const backoff = Math.min(1000 * Math.pow(2, attempt), 30000);
+            console.warn('YT API ' + r.status + ' attempt ' + (attempt + 1) + ', backoff ' + backoff + 'ms');
+            await sleep(backoff);
+            lastErr = new Error('YT API ' + r.status);
+            continue;
+          }
+          throw new Error('YT API failed: ' + r.status);
+        } catch (e) {
+          lastErr = e;
+          if (attempt === 4) throw e;
+          await sleep(Math.min(1000 * Math.pow(2, attempt), 30000));
+        }
+      }
+      throw lastErr || new Error('YT API max retries exceeded');
+    }
+  };
+
   // --- Surprise Pool ---
   const SurprisePool = {
     getPool() { return Storage.get(CONFIG.LS.SURPRISE_POOL) || []; },
     getAvailable() {
       const pool = this.getPool();
       const excluded = new Set(Storage.get(CONFIG.LS.EXCLUDED) || []);
-      const libIds = new Set(State.library.map(v => v.id));
-      return pool.filter(v => !excluded.has(v.id) && !libIds.has(v.id));
+      return pool.filter(v => !excluded.has(v.id) && !isBlockedCreator(v.creator));
     },
     needsRefresh() {
       const f = Storage.get(CONFIG.LS.SURPRISE_FETCHED);
@@ -1486,37 +1691,83 @@ const ENERGY_LINES = [
     async fetchFromYouTube(apiKey) {
       const channels = Object.keys(CONFIG.SURPRISE_CHANNELS);
       const allVids = [];
+      const failed = [];
+      const syncState = Storage.get(CONFIG.LS.YT_CHANNEL_SYNC_STATE) || {};
       for (const chId of channels) {
         try {
-          const vids = await this._fetchChannel(apiKey, chId);
+          const stateKey = this._syncKey(chId);
+          const previousSync = syncState[stateKey] && syncState[stateKey].lastPublishedAt;
+          const vids = await this._fetchChannel(apiKey, chId, previousSync);
           allVids.push(...vids);
-        } catch(e) { console.error('Fetch failed for', CONFIG.SURPRISE_CHANNELS[chId], e); }
+          const latest = this._latestPublishedAt(vids) || previousSync || null;
+          syncState[stateKey] = { lastPublishedAt: latest, syncedAt: new Date().toISOString() };
+        } catch(e) {
+          console.error('Fetch failed for', CONFIG.SURPRISE_CHANNELS[chId], e);
+          failed.push(CONFIG.SURPRISE_CHANNELS[chId]);
+        }
       }
+      Storage.set(CONFIG.LS.YT_CHANNEL_SYNC_STATE, syncState);
+      // V2 重分类: add/enrich library videos with tags/description (4-field match)
+      const absorbed = Library.absorbYTMetadata(allVids);
+      // surprise pool 独立 store (existing behavior preserved)
       this._filterAndStore(allVids);
       Storage.set(CONFIG.LS.SURPRISE_FETCHED, new Date().toISOString());
-      return allVids.length;
+      if (failed.length) console.warn('YT fetch failed channels:', failed);
+      const result = { fetched: allVids.length, libraryAdded: absorbed.added, libraryEnriched: absorbed.enriched, failedChannels: failed.length, quotaUsed: YTApi.quotaUsedToday() };
+      console.info('YT fetch result:', result);
+      return result;
     },
-    async _fetchChannel(apiKey, channelRef) {
+    async _fetchChannel(apiKey, channelRef, previousSync) {
       const base = 'https://www.googleapis.com/youtube/v3';
+      const creator = CONFIG.SURPRISE_CHANNELS[channelRef] || channelRef;
       const chId = await this._resolveChannelId(apiKey, channelRef);
       if (!chId) return [];
-      const chResp = await fetch(base + '/channels?part=contentDetails&id=' + encodeURIComponent(chId) + '&key=' + apiKey);
-      const chData = await chResp.json();
+      const chData = await YTApi.fetch(base + '/channels?part=contentDetails&id=' + encodeURIComponent(chId), apiKey, 1);
       if (!chData.items || !chData.items.length) return [];
       const uploadsId = chData.items[0].contentDetails.relatedPlaylists.uploads;
-      const plResp = await fetch(base + '/playlistItems?part=snippet,contentDetails&playlistId=' + encodeURIComponent(uploadsId) + '&maxResults=50&key=' + apiKey);
-      const plData = await plResp.json();
-      if (!plData.items) return [];
-      const ids = plData.items.map(i => i.contentDetails.videoId).join(',');
-      const vResp = await fetch(base + '/videos?part=contentDetails,snippet&id=' + encodeURIComponent(ids) + '&key=' + apiKey);
-      const vData = await vResp.json();
-      return (vData.items || []).map(i => ({
-        id: i.id,
-        title: i.snippet.title,
-        creator: CONFIG.SURPRISE_CHANNELS[channelRef] || i.snippet.channelTitle,
-        totalDuration: this._parseDuration(i.contentDetails.duration),
-        publishedAt: i.snippet.publishedAt
-      }));
+      const playlistItems = [];
+      let pageToken = '';
+      let reachedSynced = false;
+      do {
+        const token = pageToken ? ('&pageToken=' + encodeURIComponent(pageToken)) : '';
+        const plData = await YTApi.fetch(base + '/playlistItems?part=snippet,contentDetails&playlistId=' + encodeURIComponent(uploadsId) + '&maxResults=50' + token, apiKey, 1);
+        const items = plData.items || [];
+        items.forEach(item => {
+          const publishedAt = item.snippet && item.snippet.publishedAt;
+          if (previousSync && publishedAt && new Date(publishedAt).getTime() <= new Date(previousSync).getTime()) {
+            reachedSynced = true;
+            return;
+          }
+          playlistItems.push(item);
+        });
+        pageToken = plData.nextPageToken || '';
+      } while (pageToken && !reachedSynced);
+
+      const videos = [];
+      for (let i = 0; i < playlistItems.length; i += 50) {
+        const ids = playlistItems.slice(i, i + 50).map(item => item.contentDetails.videoId).filter(Boolean).join(',');
+        if (!ids) continue;
+        const vData = await YTApi.fetch(base + '/videos?part=contentDetails,snippet&id=' + encodeURIComponent(ids), apiKey, 1);
+        videos.push(...(vData.items || []).map(item => ({
+          id: item.id,
+          title: item.snippet.title,
+          creator: creator || item.snippet.channelTitle,
+          totalDuration: this._parseDuration(item.contentDetails.duration),
+          publishedAt: item.snippet.publishedAt,
+          // V2 重分类: 4-field match data
+          ytTags: item.snippet.tags || [],
+          ytDescription: (item.snippet.description || '').slice(0, 500),
+          channelMainCategory: CHANNEL_MAIN_CATEGORY[creator] || null
+        })));
+      }
+      return videos;
+    },
+    _syncKey(channelRef) {
+      return String(channelRef).replace(/^@/, '').toLowerCase();
+    },
+    _latestPublishedAt(videos) {
+      const times = (videos || []).map(v => v.publishedAt).filter(Boolean).sort();
+      return times.length ? times[times.length - 1] : null;
     },
     async _resolveChannelId(apiKey, channelRef) {
       const base = 'https://www.googleapis.com/youtube/v3/channels?part=id';
@@ -1531,8 +1782,7 @@ const ENERGY_LINES = [
       if (/^UC[\w-]+$/.test(ref)) return ref;
       if (ref.startsWith('@')) {
         const handle = ref.slice(1);
-        const r = await fetch(base + '&forHandle=' + encodeURIComponent(handle) + '&key=' + apiKey);
-        const d = await r.json();
+        const d = await YTApi.fetch(base + '&forHandle=' + encodeURIComponent(handle), apiKey, 1);
         if (d.items && d.items[0] && d.items[0].id) return d.items[0].id;
         return null;
       }
@@ -1544,13 +1794,17 @@ const ENERGY_LINES = [
       return parseInt(m[1]||0)*60 + parseInt(m[2]||0) + parseInt(m[3]||0)/60;
     },
     _filterAndStore(raw) {
-      const filtered = raw.filter(v => v.totalDuration >= CONFIG.SURPRISE_MIN_DURATION && v.totalDuration <= CONFIG.SURPRISE_MAX_DURATION);
+      const filtered = raw.filter(v => {
+        const d = v.totalDuration || 0;
+        return d >= CONFIG.SURPRISE_MIN_DURATION && (!isFinite(CONFIG.SURPRISE_MAX_DURATION) || d <= CONFIG.SURPRISE_MAX_DURATION);
+      });
       const existing = this.getPool();
       const map = new Map(existing.map(v => [v.id, v]));
-      const merged = filtered.map(v => {
+      filtered.forEach(v => {
         const prev = map.get(v.id);
-        return prev ? { ...v, deprioritized: prev.deprioritized } : v;
+        map.set(v.id, prev ? { ...v, deprioritized: prev.deprioritized } : v);
       });
+      const merged = Array.from(map.values());
       Storage.set(CONFIG.LS.SURPRISE_POOL, merged);
     },
     excludeVideo(id) {
@@ -1961,24 +2215,29 @@ const ENERGY_LINES = [
       btn.textContent = 'Fetching...';
       btn.disabled = true;
       try {
-        const count = await SurprisePool.fetchFromYouTube(key);
-        UI.toast(count + ' videos fetched from YouTube', 'success');
+        const result = await SurprisePool.fetchFromYouTube(key);
+        const used = YTApi.quotaUsedToday();
+        UI.toast(result.fetched + ' fetched · ' + result.libraryAdded + ' added · ' + result.libraryEnriched + ' enriched (quota ' + used + '/' + CONFIG.YT_QUOTA_DAILY_LIMIT + ')', 'success');
       } catch(e) {
         UI.toast('Failed to fetch: ' + e.message, 'warning');
       }
-      btn.textContent = 'Fetch Surprise Pool \u{1F3B2}';
+      btn.textContent = 'Fetch / Refresh Library \u{1F504}';
       btn.disabled = false;
       this.renderPoolStatus();
+      this.renderLibraryStats();
     },
     renderPoolStatus() {
       const pool = SurprisePool.getPool();
       const el = document.getElementById('surprise-pool-status');
+      const lastFetch = Storage.get(CONFIG.LS.SURPRISE_FETCHED);
       if (pool.length > 0) {
         const available = SurprisePool.getAvailable().length;
-        el.textContent = pool.length + ' videos in pool (' + available + ' available)';
+        const enrichedCount = State.library.filter(v => Array.isArray(v.ytTags) && v.ytTags.length).length;
+        const dt = lastFetch ? new Date(lastFetch).toLocaleDateString() : '?';
+        el.textContent = pool.length + ' surprise videos · ' + enrichedCount + '/' + State.library.length + ' library w/ tags · last ' + dt;
         el.className = 'surprise-pool-status has-data';
       } else {
-        el.textContent = 'Not yet fetched. Add API key and fetch to unlock surprise videos from 4 more creators.';
+        el.textContent = 'Not yet fetched. Add API key + fetch to unlock 14 channels (Main matching needs tags).';
         el.className = 'surprise-pool-status';
       }
     },
@@ -2273,14 +2532,23 @@ const ENERGY_LINES = [
     surfaceDataWarnings(plan) {
       const todayKey = new Date().toISOString().split('T')[0];
       const items = State.currentPlaylist || [];
-      const longSupport = items.find(item =>
-        (item.phase === 'WARM UP' || item.phase === 'COOL DOWN') &&
-        (item.video.effectiveDuration || item.video.totalDuration || 0) > 10
-      );
-      if (longSupport && State.dataWarningsShown.support !== todayKey) {
-        State.dataWarningsShown.support = todayKey;
-        setTimeout(() => UI.toast(longSupport.phase + ' pool is thin; using a longer support video today.', 'warning'), 500);
+
+      // V2 重分类: main fallback warning (strict focus 候选 = 0)
+      const mainFallback = items.find(item => item.phase === 'MAIN' && item.source === 'library-fallback');
+      if (mainFallback && plan && State.dataWarningsShown.mainFallback !== todayKey) {
+        State.dataWarningsShown.mainFallback = todayKey;
+        setTimeout(() => UI.toast('Today\'s ' + plan.focus + ' pool is empty — showing a generic Main.', 'warning'), 500);
       }
+
+      // V2 重分类: warm/cool fallback warning (no keyword/channel match → random short)
+      const wcFallback = (typeof Playlist !== 'undefined' && Playlist._warmCoolFallback) || {};
+      ['warmup', 'cooldown'].forEach((p, idx) => {
+        if (wcFallback[p] && State.dataWarningsShown['wc_' + p] !== todayKey) {
+          State.dataWarningsShown['wc_' + p] = todayKey;
+          const label = p === 'warmup' ? 'Warm Up' : 'Cool Down';
+          setTimeout(() => UI.toast(label + ' pool has no keyword match — used a generic short video.', 'warning'), 700 + idx * 200);
+        }
+      });
 
       if (plan && plan.focusKey === 'dance' && State.dataWarningsShown.dance !== todayKey) {
         const danceCount = Playlist.availableLibrary().filter(v => Playlist.matchesCategoryAlias(v, 'dance')).length;
