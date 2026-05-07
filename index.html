@@ -1091,6 +1091,7 @@ const ENERGY_LINES = [
     sessionStartTime: null,
     ytPlayer: null,
     ytReady: false,
+    ytPrewarmed: false,
     ytReadyCallbacks: [],
     endCheckInterval: null,
     rpeTimerId: null,
@@ -1821,6 +1822,7 @@ const ENERGY_LINES = [
   // --- YouTube Player ---
   const Player = {
     init() {
+      this.setStartButtonReady(false);
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
       document.head.appendChild(tag);
@@ -1835,7 +1837,7 @@ const ENERGY_LINES = [
         height: '100%', width: '100%',
         playerVars: pv,
         events: {
-          onReady: () => { State.ytReady = true; State.ytReadyCallbacks.forEach(fn => fn()); State.ytReadyCallbacks = []; },
+          onReady: () => Player.onReady(),
           onStateChange: (e) => Player.onStateChange(e),
           onError: (e) => Player.onError(e)
         }
@@ -1844,6 +1846,32 @@ const ENERGY_LINES = [
       if (debugError) {
         State.pendingDebugError = parseInt(debugError, 10) || 100;
       }
+    },
+    onReady() {
+      State.ytReady = true;
+      this.prewarm();
+      this.setStartButtonReady(true);
+      State.ytReadyCallbacks.forEach(fn => fn());
+      State.ytReadyCallbacks = [];
+    },
+    setStartButtonReady(ready) {
+      const btn = document.getElementById('btn-lets-go');
+      if (!btn) return;
+      btn.disabled = !ready;
+      btn.textContent = ready ? 'LET\'S GO \u{1F525}' : 'PREPARING PLAYER...';
+    },
+    prewarm() {
+      if (!State.ytPlayer || !State.ytPlayer.cueVideoById || !State.currentPlaylist.length) return;
+      const item = State.currentPlaylist[0];
+      if (!item || !item.video) return;
+      const v = item.video;
+      const params = { videoId: v.id, startSeconds: v.startAt || 0 };
+      if (v.endAt && v.endAt > 0) params.endSeconds = v.endAt;
+      try {
+        State.ytPlayer.cueVideoById(params);
+        State.ytPrewarmed = true;
+        DataLog.recordPlayEvent('player_prewarmed', { videoId: v.id, title: v.title });
+      } catch(e) {}
     },
     whenReady(fn) {
       if (State.ytReady) fn(); else State.ytReadyCallbacks.push(fn);
@@ -1970,12 +1998,18 @@ const ENERGY_LINES = [
       this.beginPlaybackAt(0, 'start');
     },
     beginPlaybackAt(index, reason) {
+      if (!State.ytReady || !State.ytPlayer || !State.ytPlayer.loadVideoById) {
+        this.setStartButtonReady(false);
+        DataLog.recordPlayEvent('player_start_blocked_not_ready', { reason: reason || 'playback' });
+        UI.toast('Player is preparing. Try again in a moment.', 'info');
+        return;
+      }
       State.currentIndex = index || 0;
       State.isPlaying = true;
       State.sessionStartTime = Date.now();
       DataLog.recordSession(reason || 'playback');
       this.inlineExpand();
-      this.whenReady(() => this.loadVideo(State.currentPlaylist[State.currentIndex]));
+      this.loadVideo(State.currentPlaylist[State.currentIndex]);
     },
     skip() { this.skipCurrent(); },
     togglePlay() {
