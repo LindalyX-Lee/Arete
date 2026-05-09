@@ -73,42 +73,52 @@
     .overlay-content { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: var(--space-xl); width: min(420px, 90vw); max-height: 85vh; overflow-y: auto; text-align: center; }
 
     /* === Settings Panel === */
-    .panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 88vw); background: var(--bg-secondary); z-index: 90; transform: translateX(100%); transition: transform var(--transition-normal); overflow-y: auto; padding: var(--space-lg); }
+    .panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(430px, 92vw); background: linear-gradient(180deg, #201923 0%, #171717 46%, #141414 100%); border-left: 1px solid rgba(255,255,255,0.08); z-index: 90; transform: translateX(100%); transition: transform var(--transition-normal); overflow-y: auto; padding: var(--space-lg); box-shadow: -24px 0 80px rgba(0,0,0,0.46); }
     .panel.open { transform: translateX(0); }
     .panel-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 89; display: none; }
     .panel-backdrop.open { display: block; }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl); }
-    .panel-header h2 { font-family: var(--font-display); font-size: 1.5rem; color: var(--gold); }
+    .panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-xl); gap: var(--space-md); }
+    .panel-kicker { font-size: 0.66rem; color: var(--gold); letter-spacing: 0.22em; text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
+    .panel-header h2 { font-family: var(--font-display); font-size: 2.5rem; line-height: 0.92; color: var(--text-primary); letter-spacing: 0.08em; text-transform: uppercase; }
+    .panel-subtitle { color: var(--text-secondary); font-size: 0.78rem; margin-top: 8px; line-height: 1.4; }
 
     /* === Header === */
-    .app-header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-md) 0; }
-    .brand-title { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; letter-spacing: 0.3em; color: var(--text-primary); }
-    .brand-subtitle { font-family: var(--font-display); font-size: 0.85rem; color: var(--gold); font-style: italic; display: block; letter-spacing: 0.15em; margin-top: -4px; }
+    .app-header { display: flex; justify-content: center; align-items: center; padding: var(--space-md) 0; position: relative; }
+    .brand { text-align: center; }
+    .brand-temple { display: block; font-size: 2.2rem; line-height: 0.9; margin-bottom: 2px; filter: drop-shadow(0 0 14px rgba(212,175,55,0.42)); }
+    .brand-title { font-family: var(--font-display); font-size: clamp(2.6rem, 8vw, 5.4rem); font-weight: 700; letter-spacing: 0.18em; color: var(--text-primary); line-height: 0.88; text-shadow: 0 0 26px rgba(255,255,255,0.14); max-width: 100%; }
+    .brand-subtitle { font-family: var(--font-display); font-size: clamp(1.1rem, 3.2vw, 1.8rem); color: var(--gold); font-style: italic; display: block; letter-spacing: 0.22em; margin-top: 6px; }
     .icon-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer; padding: var(--space-sm); min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
     .icon-btn:active { background: rgba(255,255,255,0.1); }
 
     /* === Date & Quote === */
     .date-display { font-size: 0.9rem; color: var(--text-secondary); margin-top: var(--space-sm); }
-    .energy-card { margin: var(--space-md) 0 var(--space-lg); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08); }
-    .energy-visual { display: grid; grid-template-columns: repeat(4, 1fr); min-height: 86px; background: var(--bg-secondary); }
-    .energy-visual img { width: 100%; height: 100%; min-height: 86px; object-fit: cover; filter: saturate(1.08) contrast(1.04); }
-    .energy-tile-fallback { min-height: 86px; display: flex; align-items: center; justify-content: center; padding: var(--space-sm); background: linear-gradient(135deg, rgba(255,20,147,0.24), rgba(212,175,55,0.18)); color: var(--text-primary); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-align: center; text-transform: uppercase; }
+    .energy-card { margin: var(--space-md) 0 var(--space-lg); border-radius: var(--radius-lg); overflow: hidden; background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015)); border: 1px solid rgba(255,255,255,0.09); display: flex; flex-direction: column; }
+    .energy-visual { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-sm); background: #101010; padding: var(--space-sm); }
+    .energy-visual img { width: 100%; aspect-ratio: 16 / 9; height: auto; min-height: 0; object-fit: cover; background: #050505; border-radius: var(--radius-sm); filter: saturate(1.08) contrast(1.04); box-shadow: 0 12px 26px rgba(0,0,0,0.26); }
+    .energy-tile-fallback { aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; padding: var(--space-sm); border-radius: var(--radius-sm); background: linear-gradient(135deg, rgba(255,20,147,0.24), rgba(212,175,55,0.18)); color: var(--text-primary); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-align: center; text-transform: uppercase; }
     .energy-tile-fallback:nth-child(2n) { background: linear-gradient(135deg, rgba(139,92,246,0.26), rgba(6,182,212,0.16)); }
-    .energy-copy { padding: var(--space-lg); background: linear-gradient(135deg, rgba(255,20,147,0.24), rgba(139,92,246,0.18)); }
-    .energy-line { font-family: var(--font-display); font-size: clamp(1.45rem, 6vw, 2.35rem); line-height: 1.04; color: var(--text-primary); font-weight: 800; text-transform: uppercase; text-wrap: balance; }
-    .energy-subline { margin-top: 6px; font-size: 0.78rem; color: var(--text-secondary); letter-spacing: 0.08em; text-transform: uppercase; }
-    .dashboard { margin: 0 0 var(--space-lg); }
+    .energy-copy { padding: clamp(14px, 2.2vw, 26px); background: linear-gradient(135deg, rgba(255,20,147,0.18), rgba(139,92,246,0.12)); }
+    .energy-mark { font-family: var(--font-ui); color: var(--gold); font-size: 0.74rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: var(--space-sm); }
+    .energy-line { font-family: var(--font-display); font-size: clamp(1.45rem, 3.2vw, 2.5rem); line-height: 1.04; color: var(--text-primary); font-weight: 800; text-transform: uppercase; text-wrap: balance; overflow-wrap: anywhere; max-width: 100%; }
+    .energy-subline { margin-top: var(--space-sm); font-size: 0.78rem; color: var(--text-secondary); letter-spacing: 0.08em; text-transform: uppercase; }
+    .dashboard { margin: var(--space-xl) 0 var(--space-lg); padding: var(--space-lg); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)); }
     .dashboard-head { display: flex; align-items: end; justify-content: space-between; gap: var(--space-sm); margin-bottom: var(--space-sm); }
-    .dashboard-title { font-family: var(--font-display); font-size: 1.25rem; color: var(--gold); }
-    .dashboard-progress { font-size: 0.72rem; color: var(--text-secondary); text-align: right; }
+    .dashboard-title { font-family: var(--font-display); font-size: clamp(1.6rem, 4vw, 2.25rem); line-height: 0.95; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.06em; }
+    .dashboard-progress { font-size: 0.72rem; color: var(--gold); text-align: right; letter-spacing: 0.08em; text-transform: uppercase; }
     .dashboard-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: var(--radius-full); overflow: hidden; margin-bottom: var(--space-sm); }
     .dashboard-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--pink), var(--gold)); transition: width var(--transition-normal); }
     .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
-    .quadrant-card { min-height: 92px; border: 1px solid rgba(255,255,255,0.09); border-radius: var(--radius-md); background: var(--bg-card); padding: var(--space-sm); }
-    .quadrant-card.locked { opacity: 0.55; }
-    .quadrant-label { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-    .quadrant-value { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); line-height: 1.25; }
-    .quadrant-note { font-size: 0.72rem; color: var(--text-secondary); margin-top: 5px; line-height: 1.35; }
+    .quadrant-card { --q-color: var(--gold); min-height: 132px; border: 1px solid color-mix(in srgb, var(--q-color) 58%, transparent); border-radius: var(--radius-md); background: linear-gradient(145deg, color-mix(in srgb, var(--q-color) 28%, transparent), rgba(42,42,42,0.9) 58%); padding: var(--space-md); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 34px rgba(0,0,0,0.22); position: relative; overflow: hidden; }
+    .quadrant-card::after { content: ''; position: absolute; width: 86px; height: 86px; right: -34px; top: -34px; border-radius: 50%; background: color-mix(in srgb, var(--q-color) 42%, transparent); filter: blur(2px); opacity: 0.75; }
+    .quadrant-card.locked { opacity: 0.82; filter: saturate(0.78); }
+    .quadrant-card.q-known { --q-color: var(--pink-glow); }
+    .quadrant-card.q-gap { --q-color: var(--cyan); }
+    .quadrant-card.q-friction { --q-color: var(--purple); }
+    .quadrant-card.q-frontier { --q-color: var(--gold); }
+    .quadrant-label { position: relative; z-index: 1; font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: color-mix(in srgb, var(--q-color) 82%, white); margin-bottom: 8px; font-weight: 800; }
+    .quadrant-value { position: relative; z-index: 1; font-family: var(--font-display); font-size: clamp(1.25rem, 4.8vw, 1.8rem); font-weight: 800; color: var(--text-primary); line-height: 1.02; text-transform: uppercase; text-wrap: balance; }
+    .quadrant-note { position: relative; z-index: 1; font-size: 0.74rem; color: rgba(255,255,255,0.72); margin-top: 10px; line-height: 1.35; }
 
     /* === Focus Label === */
     .focus-label { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: var(--space-sm) 0 var(--space-lg); color: var(--text-primary); }
@@ -202,12 +212,18 @@
     .edit-actions .btn-primary, .edit-actions .btn-secondary { flex: 1; font-size: 0.95rem; padding: var(--space-sm) var(--space-md); animation: none; }
 
     /* === Settings === */
-    .setting-group { margin-bottom: var(--space-xl); }
-    .setting-group label { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: var(--space-sm); }
-    .setting-group input[type="text"] { font-family: var(--font-ui); font-size: 0.9rem; width: 100%; padding: var(--space-sm) var(--space-md); background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); margin-bottom: var(--space-sm); }
-    .setting-group input[type="text"]:focus { outline: none; border-color: var(--pink); }
-    .setting-group h3 { font-family: var(--font-display); font-size: 1.1rem; color: var(--text-primary); margin-bottom: var(--space-sm); }
-    .surprise-pool-status { font-size: 0.8rem; color: var(--text-muted); margin-top: var(--space-sm); }
+    .setting-group { --s-color: var(--pink-glow); margin-bottom: var(--space-md); padding: var(--space-md); border: 1px solid color-mix(in srgb, var(--s-color) 34%, transparent); border-radius: var(--radius-md); background: linear-gradient(145deg, color-mix(in srgb, var(--s-color) 14%, transparent), rgba(42,42,42,0.62)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+    .setting-group:nth-child(2) { --s-color: var(--cyan); }
+    .setting-group:nth-child(3) { --s-color: var(--gold); }
+    .setting-group:nth-child(4) { --s-color: var(--purple); }
+    .setting-group:nth-child(5) { --s-color: var(--green); }
+    .setting-group:nth-child(6) { --s-color: var(--pink-glow); }
+    .setting-group label { font-size: 0.66rem; font-weight: 800; color: color-mix(in srgb, var(--s-color) 82%, white); display: block; margin-bottom: var(--space-sm); letter-spacing: 0.16em; text-transform: uppercase; }
+    .setting-group input[type="text"],
+    .setting-group input[type="password"] { font-family: var(--font-ui); font-size: 0.9rem; width: 100%; padding: 11px 12px; background: rgba(5,5,5,0.42); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.14); border-radius: var(--radius-sm); margin-bottom: var(--space-sm); }
+    .setting-group input:focus { outline: none; border-color: var(--s-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--s-color) 18%, transparent); }
+    .setting-group h3 { font-family: var(--font-display); font-size: 1.45rem; line-height: 1; color: var(--text-primary); margin-bottom: var(--space-sm); text-transform: uppercase; letter-spacing: 0.04em; }
+    .surprise-pool-status { font-size: 0.78rem; color: var(--text-secondary); margin-top: var(--space-sm); line-height: 1.45; }
     .surprise-pool-status.has-data { color: var(--green); }
     .weekly-plan-table { width: 100%; font-size: 0.8rem; border-collapse: collapse; }
     .weekly-plan-table th, .weekly-plan-table td { padding: var(--space-sm); text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
@@ -217,6 +233,12 @@
     .api-key-row { display: flex; gap: var(--space-sm); }
     .api-key-row input { flex: 1; }
     .settings-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: var(--space-xs); font-style: italic; }
+    .settings-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-sm); margin-top: var(--space-sm); }
+    .settings-metric { border-radius: var(--radius-sm); background: rgba(0,0,0,0.24); border: 1px solid rgba(255,255,255,0.08); padding: var(--space-sm); }
+    .settings-metric-value { font-family: var(--font-display); font-size: 1.5rem; color: var(--text-primary); line-height: 1; font-weight: 800; }
+    .settings-metric-label { margin-top: 4px; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-secondary); }
+    .settings-reference { margin-top: var(--space-sm); border-radius: var(--radius-sm); border: 1px solid rgba(212,175,55,0.28); background: rgba(212,175,55,0.08); padding: var(--space-sm); color: rgba(255,255,255,0.78); font-size: 0.76rem; line-height: 1.45; }
+    .settings-reference strong { color: var(--gold); font-weight: 800; }
 
     /* === Completion Screen === */
     #screen-complete { justify-content: center; align-items: center; text-align: center; }
@@ -241,10 +263,75 @@
 
     /* === Responsive === */
     @media (min-width: 768px) {
-      :root { --max-width: 680px; }
+      :root { --max-width: 1120px; }
+      #screen-main { padding-left: var(--space-xl); padding-right: var(--space-xl); }
+      .app-header { padding-top: var(--space-xl); }
+      .brand-temple { font-size: 2rem; }
+      .brand-title { font-size: clamp(3rem, 6vw, 4.8rem); letter-spacing: 0.16em; padding-left: 0.16em; }
+      .brand-subtitle { font-size: 1.25rem; }
+      #btn-settings { position: absolute; right: 0; top: var(--space-xl); opacity: 0.52; }
+      .date-display { text-align: center; }
+      .focus-label { text-align: center; margin-bottom: var(--space-md); }
+      .energy-card { max-width: 1040px; margin: var(--space-lg) auto var(--space-xl); }
+      .energy-visual { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .energy-copy { padding: 18px 28px 20px; }
+      .energy-line { font-size: clamp(1.7rem, 2.4vw, 2.35rem); }
+      .zone-top { order: 1; }
+      .zone-bottom { order: 2; }
+      .zone-middle { order: 3; }
+      .dashboard { order: 4; }
+      .action-buttons {
+        width: fit-content;
+        max-width: none;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 0 auto var(--space-xl);
+        padding: 0;
+      }
+      .action-buttons .btn-primary {
+        min-width: 190px;
+        padding: 15px 30px;
+        font-size: 1.02rem;
+        box-shadow: 0 12px 34px rgba(255,20,147,0.28);
+      }
+      .action-buttons .btn-secondary {
+        width: 52px;
+        height: 52px;
+        min-width: 52px;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 0;
+        color: transparent;
+        background: rgba(255,20,147,0.08);
+        border-color: rgba(255,105,180,0.72);
+        box-shadow: 0 10px 26px rgba(255,20,147,0.16);
+      }
+      .action-buttons .btn-secondary::after {
+        content: '✨';
+        color: var(--pink-glow);
+        font-size: 1.1rem;
+      }
+      .playlist { max-width: 760px; margin-left: auto; margin-right: auto; }
+      .dashboard { max-width: 760px; margin-left: auto; margin-right: auto; }
       .playlist-item { padding: var(--space-md) var(--space-lg); }
       .btn-primary { font-size: 1.2rem; padding: 18px var(--space-xl); }
       .rpe-btn { min-height: 70px; font-size: 1.1rem; }
+    }
+    @media (min-width: 768px) and (max-width: 1024px) {
+      :root { --max-width: 900px; }
+      #screen-main { padding-left: var(--space-lg); padding-right: var(--space-lg); }
+      .app-header { padding-top: var(--space-lg); }
+      .brand-temple { font-size: 2.4rem; }
+      .brand-title { font-size: clamp(4rem, 9vw, 5.6rem); letter-spacing: 0.14em; padding-left: 0.14em; }
+      .brand-subtitle { font-size: 1.5rem; }
+      .energy-card { max-width: 860px; }
+      .energy-visual { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 10px; }
+      .energy-visual img,
+      .energy-tile-fallback { aspect-ratio: 4 / 3; object-fit: contain; }
+      .energy-copy { padding: 18px 28px 20px; }
+      .energy-line { font-size: clamp(1.6rem, 3.5vw, 2.25rem); }
     }
     @media (max-width: 767px) {
       :root { --max-width: 100%; }
@@ -255,19 +342,45 @@
         padding: 10px 10px calc(8px + env(safe-area-inset-bottom));
         gap: 0;
       }
-      .zone-top{flex:0 0 42%; display:flex; flex-direction:column; justify-content:flex-start;}
-      .zone-middle{flex:0 0 28%; min-height:0; display:flex; align-items:center;}
-      .zone-bottom{flex:1 1 30%; display:flex; align-items:center; justify-content:center; position:relative; background:linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.78), rgba(26,26,26,0.45), transparent);}
+      .zone-top{flex:0 0 auto; min-height:calc(100dvh - 20px); display:flex; flex-direction:column; justify-content:flex-start;}
+      .zone-middle{flex:0 0 auto; min-height:0; display:flex; align-items:center;}
+      .zone-bottom{flex:0 0 auto; min-height:160px; display:flex; align-items:center; justify-content:center; position:relative; background:linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.78), rgba(26,26,26,0.45), transparent);}
 
-      .app-header { padding: 4px 0 0; justify-content: center; position: relative; }
-      .brand { text-align: center; }
-      .brand-title { font-size: 1.88rem; letter-spacing: 0.24em; }
-      .brand-subtitle { display: block; font-size: 0.82rem; margin-top: -1px; }
-      #btn-settings { position: absolute; right: 0; top: 2px; }
-      .icon-btn { min-width: 36px; min-height: 36px; font-size: 1.1rem; }
+      .app-header { padding: 8px 0 0; justify-content: center; position: relative; }
+      .brand-temple { font-size: 2.55rem; margin-bottom: 4px; }
+      .brand-title { font-size: clamp(2.75rem, 13vw, 4.1rem); letter-spacing: 0.1em; padding-left: 0.1em; }
+      .brand-subtitle { display: block; font-size: 1.18rem; margin-top: 5px; }
+      #btn-settings { position: absolute; right: 0; top: 4px; opacity: 0.42; }
+      .icon-btn { min-width: 34px; min-height: 34px; font-size: 1rem; }
 
-      .date-display { font-size: 0.84rem; margin-top: 6px; text-align: center; }
-      .focus-label { font-size: 1.16rem; margin: 4px 0 10px; line-height: 1.2; text-align: center; }
+      .date-display { font-size: 0.82rem; margin-top: 8px; text-align: center; }
+      .focus-label { font-size: 1.08rem; margin: 3px 0 10px; line-height: 1.2; text-align: center; }
+      .energy-card { flex:0 0 auto; margin: 0 0 var(--space-lg); border-radius: var(--radius-md); }
+      .energy-visual {
+        display: flex;
+        grid-template-columns: none;
+        gap: 8px;
+        padding: 8px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .energy-visual::-webkit-scrollbar { display: none; }
+      .energy-visual img,
+      .energy-tile-fallback {
+        flex: 0 0 calc(100vw - 36px);
+        aspect-ratio: 4 / 3;
+        object-fit: contain;
+        min-height: 0;
+        scroll-snap-align: start;
+      }
+      .energy-copy { min-height: 0; display:flex; flex-direction:column; justify-content:center; padding: 14px var(--space-lg) 16px; }
+      .energy-mark { font-size: 0.68rem; margin-bottom: 6px; }
+      .energy-line { font-size: clamp(0.86rem, 4vw, 1.18rem); line-height: 1.12; text-wrap: wrap; }
+      .energy-subline { font-size: 0.68rem; line-height: 1.35; margin-top: 7px; }
+      .dashboard { margin-top: var(--space-lg); }
 
       .playlist { gap: 5px; margin-bottom: 0; width: 100%; max-width: 100%; }
       .playlist-item { width: 100%; padding: 8px 10px; gap: 8px; border-left-width: 2px; }
@@ -276,7 +389,7 @@
       .video-meta { font-size: 0.70rem; margin-top: 1px; }
       .btn-edit-video { min-width: 24px; min-height: 24px; font-size: 0.78rem; opacity: 0.42; }
 
-      .action-buttons { gap: 0; margin-top: 0; padding: 0; transform: translateY(-20px); }
+      .action-buttons { gap: 0; margin-top: 0; padding: 0; transform: none; }
 
       #panel-settings .btn-secondary {
         position: static !important;
@@ -440,8 +553,9 @@
     <div class="zone-top">
       <header class="app-header">
         <div class="brand">
+          <span class="brand-temple">🏛</span>
           <h1 class="brand-title">ARETE</h1>
-          <span class="brand-subtitle">🏛 ἀρετή</span>
+          <span class="brand-subtitle">ἀρετή</span>
         </div>
         <button id="btn-settings" class="icon-btn" aria-label="Settings">&#9881;</button>
       </header>
@@ -450,18 +564,11 @@
       <div id="energy-card" class="energy-card" hidden>
         <div id="energy-visual" class="energy-visual"></div>
         <div class="energy-copy">
+          <div id="energy-mark" class="energy-mark"></div>
           <div id="energy-line" class="energy-line"></div>
           <div id="energy-subline" class="energy-subline"></div>
         </div>
       </div>
-      <section id="dashboard" class="dashboard">
-        <div class="dashboard-head">
-          <div class="dashboard-title">Feedback Map</div>
-          <div id="dashboard-progress" class="dashboard-progress"></div>
-        </div>
-        <div class="dashboard-bar"><div id="dashboard-bar-fill" class="dashboard-bar-fill"></div></div>
-        <div id="quadrant-grid" class="quadrant-grid"></div>
-      </section>
     </div>
     <div id="playlist-container" class="playlist zone-middle">
       <div class="loading-text">Generating your workout...</div>
@@ -470,6 +577,14 @@
       <button id="btn-lets-go" class="btn-primary">LET'S GO &#128293;</button>
       <button id="btn-surprise" class="btn-secondary">SURPRISE ME &#10024;</button>
     </div>
+    <section id="dashboard" class="dashboard">
+      <div class="dashboard-head">
+        <div class="dashboard-title">Feedback Map</div>
+        <div id="dashboard-progress" class="dashboard-progress"></div>
+      </div>
+      <div class="dashboard-bar"><div id="dashboard-bar-fill" class="dashboard-bar-fill"></div></div>
+      <div id="quadrant-grid" class="quadrant-grid"></div>
+    </section>
   </div>
 
   <!-- ===== SCREEN: Video Player ===== -->
@@ -575,7 +690,11 @@
   <div id="settings-backdrop" class="panel-backdrop"></div>
   <div id="panel-settings" class="panel">
     <div class="panel-header">
-      <h2>Settings</h2>
+      <div>
+        <div class="panel-kicker">ARETE CONTROL</div>
+        <h2>Settings</h2>
+        <div class="panel-subtitle">Sync, library growth, and training signal.</div>
+      </div>
       <button id="btn-close-settings" class="icon-btn">&#10005;</button>
     </div>
     <div class="settings-content">
@@ -611,8 +730,8 @@
         <table class="weekly-plan-table" id="weekly-plan-table"></table>
       </div>
       <div class="setting-group">
-        <h3>Library</h3>
-        <div id="library-stats" style="font-size:0.8rem;color:var(--text-secondary);"></div>
+        <h3>Video Pool</h3>
+        <div id="library-stats"></div>
       </div>
       <div class="setting-group">
         <button id="btn-reset-data" class="btn-cancel" style="color:var(--text-muted);font-size:0.75rem;">Reset all data</button>
@@ -881,8 +1000,16 @@ const ARETE_LIBRARY_RAW = [
 
 // === CONSTANTS ===
 const CONFIG = {
-  PLAYLIST_SCHEMA_VERSION: 2,
-  HISTORY_DEPTH: 3,
+  PLAYLIST_SCHEMA_VERSION: 3,
+  HISTORY_DEPTH: 5,
+  RECENT_GLOBAL_DEPTH: 28,
+  SUPPORT_HISTORY_DEPTH: 14,
+  FULL_FETCH_REFERENCE: {
+    library: 9877,
+    tagged: 6154,
+    surprisePool: 258,
+    source: 'May 7 iPad fetch'
+  },
   SMALL_POOL_THRESHOLD: 6,
   RPE_AUTO_ADVANCE_MS: 8000,
   TOAST_MS: 2500,
@@ -994,7 +1121,7 @@ const FOCUS_KEYWORDS = {
   dance:       ['dance', 'dancing', 'latin', 'barbie', 'hip hop', 'zumba', 'cardio dance', 'salsa', 'kpop', 'k-pop', 'c-pop', 'bollywood', 'choreography'],
   // phase keywords (warm/cool 区分用，不参与 weekly focus main 选择)
   warmup:      ['warm up', 'warm-up', 'warmup', 'morning', 'rise', 'wake up', 'mobility', 'mobilize', 'energize'],
-  cooldown:    ['cool down', 'cool-down', 'cooldown', 'stretch', 'stretching', 'recovery', 'relaxation', 'gentle', 'evening', 'wind down', 'savasana', 'restorative', 'yoga']
+  cooldown:    ['cool down', 'cool-down', 'cooldown', 'stretch', 'stretching', 'recovery', 'relaxation', 'gentle', 'evening', 'wind down', 'savasana', 'restorative']
 };
 
 // Channel-level default category (兜底). 视频自己 tags/title/description match 优先于此.
@@ -1324,13 +1451,13 @@ const ENERGY_LINES = [
 
   // --- Playlist ---
   const Playlist = {
-    generate(forceSurprise) {
+    generate(forceSurprise, excludedIds) {
       const dow = new Date().getDay();
       const plan = WEEKLY_PLAN[dow];
       const focusKey = (plan && plan.focusKey) || 'full_body';
       const isWildcard = !!forceSurprise || this.isWildcardDay(dow);
       const items = [];
-      const used = new Set();
+      const used = new Set(Array.isArray(excludedIds) ? excludedIds.filter(Boolean) : []);
       Playlist._warmCoolFallback = {};  // V2 重分类: reset per-generate fallback flags
 
       // 1. Warm Up
@@ -1385,17 +1512,24 @@ const ENERGY_LINES = [
     },
 
     // V2 重分类: time > 15 && <= 80 (15.0 严格归 warm/cool, 80.0 仍可入 main).
-    // Strict matchesFocus (4-field aware). 候选 0 → fallback w/ warning source.
+    // Strict focus match. Pilates requires explicit title/tag/description evidence, not creator default.
     pickMain(focusKey, used) {
       const inTimeRange = v => {
         const d = this.duration(v);
         return d > 15 && d <= 80;
       };
+      const recent = new Set([
+        ...this.recentPhaseIds('MAIN', CONFIG.SUPPORT_HISTORY_DEPTH),
+        ...this.recentGlobalIds(CONFIG.RECENT_GLOBAL_DEPTH)
+      ]);
       const strict = this.availableLibrary()
         .filter(v => !used.has(v.id))
         .filter(inTimeRange)
-        .filter(v => this.matchesFocus(v, focusKey));
-      if (strict.length > 0) return { video: this.pickScored(strict, focusKey), source: 'library' };
+        .filter(v => this.matchesStrictMainFocus(v, focusKey));
+      if (strict.length > 0) {
+        const freshStrict = strict.filter(v => !recent.has(v.id));
+        return { video: this.pickScored(freshStrict.length ? freshStrict : strict, focusKey), source: 'library' };
+      }
 
       // No strict match → graceful fallback to any time-range video, surface warning via source flag
       const fallback = this.availableLibrary()
@@ -1404,34 +1538,43 @@ const ENERGY_LINES = [
       return fallback.length > 0 ? { video: this.pickScored(fallback, focusKey), source: 'library-fallback' } : null;
     },
 
-    // V2 重分类: shared pool duration <= 15 (15.0 闭). 3-tier priority:
+    // V2 重分类: warmup stays short; cooldown can breathe up to 20 min for real stretch/yoga exits.
+    // 3-tier priority:
     //   1. explicit phase keyword match (matchesFocus uses 4-field for 'warmup'/'cooldown' keys)
     //   2. channel-default category equals phase
     //   3. any short video w/ warning flag
     pickWarmOrCool(phase, used) {
+      const phaseName = phase === 'warmup' ? 'WARM UP' : 'COOL DOWN';
+      const recent = new Set(this.recentPhaseIds(phaseName, CONFIG.SUPPORT_HISTORY_DEPTH));
+      const freshFirst = pool => {
+        const fresh = pool.filter(v => !recent.has(v.id));
+        return fresh.length ? fresh : pool;
+      };
       const pool = this.availableLibrary()
         .filter(v => !used.has(v.id))
+        .filter(v => !this.hasPhaseConflict(v, phase))
         .filter(v => {
           const d = this.duration(v);
-          return d >= 3 && d <= 15;
+          const maxDuration = phase === 'cooldown' ? 20 : 15;
+          return d >= 3 && d <= maxDuration;
         });
 
       // Tier 1: explicit phase keyword (4-field via matchesFocus)
       const explicit = pool.filter(v => this.matchesFocus(v, phase));
-      if (explicit.length > 0) return this.pickScored(explicit, phase);
+      if (explicit.length > 0) return this.pickScored(freshFirst(explicit), phase);
 
       // Tier 2: channel/default category equals phase; legacy manual warm/cool stays useful here
       const channelMatch = pool.filter(v => {
         const ch = v.channelMainCategory || CHANNEL_MAIN_CATEGORY[v.creator] || null;
         return ch === phase || this.matchesCategoryAlias(v, phase);
       });
-      if (channelMatch.length > 0) return this.pickScored(channelMatch, phase);
+      if (channelMatch.length > 0) return this.pickScored(freshFirst(channelMatch), phase);
 
       // Tier 3: any short video, mark warning
       if (pool.length > 0) {
         Playlist._warmCoolFallback = (Playlist._warmCoolFallback || {});
         Playlist._warmCoolFallback[phase] = true;
-        return this.pickScored(pool, phase);
+        return this.pickScored(freshFirst(pool), phase);
       }
       return null;
     },
@@ -1452,8 +1595,10 @@ const ENERGY_LINES = [
     },
 
     pickLikedVideo(used) {
+      const recent = new Set(this.recentGlobalIds(CONFIG.RECENT_GLOBAL_DEPTH));
       const pool = this.availableLibrary()
         .filter(v => !used.has(v.id))
+        .filter(v => !recent.has(v.id))
         .filter(v => this.userRating(v) === 'like');
       return pool.length > 0 ? { video: this.pickScored(pool, 'liked'), source: 'library' } : null;
     },
@@ -1466,6 +1611,7 @@ const ENERGY_LINES = [
       const avgDuration = base.reduce((sum, v) => sum + this.duration(v), 0) / base.length;
       const pool = this.availableLibrary()
         .filter(v => !used.has(v.id))
+        .filter(v => !this.recentGlobalIds(CONFIG.RECENT_GLOBAL_DEPTH).includes(v.id))
         .filter(v => this.userRating(v) !== 'like')
         .filter(v => this.matchesFocus(v, focusKey) || Math.abs(this.duration(v) - avgDuration) <= 5);
       if (pool.length === 0) return null;
@@ -1473,8 +1619,10 @@ const ENERGY_LINES = [
     },
 
     pickUnreviewedLibrary(used) {
+      const recent = new Set(this.recentGlobalIds(CONFIG.RECENT_GLOBAL_DEPTH));
       const pool = this.availableLibrary()
         .filter(v => !used.has(v.id))
+        .filter(v => !recent.has(v.id))
         .filter(v => !this.userRating(v));
       return pool.length > 0 ? { video: this.pickScored(pool, 'wildcard'), source: 'library' } : null;
     },
@@ -1486,21 +1634,23 @@ const ENERGY_LINES = [
 
     pickScored(pool, focusKey, targetDuration) {
       const hist = new Set(this.getHistory(focusKey));
+      const globalHist = new Set(this.recentGlobalIds(CONFIG.RECENT_GLOBAL_DEPTH));
       const scored = pool.map(v => ({
         video: v,
-        score: this.scoreVideo(v, focusKey, hist, targetDuration)
+        score: this.scoreVideo(v, focusKey, hist, targetDuration, globalHist)
       })).sort((a, b) => b.score - a.score);
       const top = scored.slice(0, Math.min(5, scored.length));
       return top[Math.floor(Math.random() * top.length)].video;
     },
 
-    scoreVideo(video, focusKey, historySet, targetDuration) {
+    scoreVideo(video, focusKey, historySet, targetDuration, globalHistorySet) {
       let score = Math.random();
       const rating = this.userRating(video);
       if (rating === 'like') score += 5;
       if (rating === 'neutral') score += 1.5;
       if (rating === 'dislike') score -= 4;
-      if (historySet.has(video.id)) score -= 3;
+      if (historySet.has(video.id)) score -= 8;
+      if (globalHistorySet && globalHistorySet.has(video.id)) score -= 6;
       if (this.matchesFocus(video, focusKey)) score += 3;
       if (this.matchesCategoryAlias(video, focusKey)) score += 1.5;
       if (video.intensity === 'gentle' && (focusKey === 'warmup' || focusKey === 'cooldown')) score += 1;
@@ -1511,6 +1661,70 @@ const ENERGY_LINES = [
 
     availableLibrary() {
       return State.library.filter(v => v && v.id && v.rpe !== 'remove' && !isBlockedCreator(v.creator));
+    },
+
+    recentGlobalIds(limit) {
+      const ids = [];
+      const add = id => {
+        if (id && !ids.includes(id)) ids.push(id);
+      };
+      (Storage.get(CONFIG.LS.PLAY_EVENTS) || []).slice().reverse().forEach(row => add(row.videoId));
+      (Storage.get(CONFIG.LS.SESSION_HISTORY) || []).slice().reverse().forEach(session => {
+        (session.items || []).forEach(item => add(item.videoId));
+      });
+      return ids.slice(0, limit || CONFIG.RECENT_GLOBAL_DEPTH);
+    },
+
+    recentPhaseIds(phase, limit) {
+      const ids = [];
+      const add = id => {
+        if (id && !ids.includes(id)) ids.push(id);
+      };
+      (Storage.get(CONFIG.LS.PLAY_EVENTS) || []).slice().reverse()
+        .filter(row => row.phase === phase)
+        .forEach(row => add(row.videoId));
+      (Storage.get(CONFIG.LS.SESSION_HISTORY) || []).slice().reverse().forEach(session => {
+        (session.items || [])
+          .filter(item => item.phase === phase)
+          .forEach(item => add(item.videoId));
+      });
+      return ids.slice(0, limit || CONFIG.SUPPORT_HISTORY_DEPTH);
+    },
+
+    matchesStrictMainFocus(video, focusKey) {
+      if (focusKey === 'pilates') return this.matchesTextFocus(video, focusKey);
+      return this.matchesFocus(video, focusKey);
+    },
+
+    matchesTextFocus(video, focusKey) {
+      if (!video) return false;
+      const keywords = FOCUS_KEYWORDS[focusKey] || [];
+      if (Array.isArray(video.ytTags)) {
+        const tagsJoined = video.ytTags.join(' ').toLowerCase();
+        if (keywords.some(k => tagsJoined.includes(k))) return true;
+      }
+      const title = (video.title || '').toLowerCase();
+      if (keywords.some(k => title.includes(k))) return true;
+      const desc = ((video.ytDescription || '').slice(0, 200)).toLowerCase();
+      return !!desc && keywords.some(k => desc.includes(k));
+    },
+
+    hasPhaseConflict(video, phase) {
+      if (!video) return false;
+      const text = [
+        video.title || '',
+        Array.isArray(video.ytTags) ? video.ytTags.join(' ') : '',
+        (video.ytDescription || '').slice(0, 200)
+      ].join(' ').toLowerCase();
+      if (phase === 'warmup') {
+        return ['cool down', 'cool-down', 'cooldown', '쿨다운', 'post workout', 'after workout', '운동 후', '정적 스트레칭']
+          .some(k => text.includes(k));
+      }
+      if (phase === 'cooldown') {
+        return ['warm up', 'warm-up', 'warmup', 'wake up', 'rise + shine', 'energised', 'energize']
+          .some(k => text.includes(k));
+      }
+      return false;
     },
 
     matchesAnyMainFocus(video) {
@@ -2289,11 +2503,29 @@ const ENERGY_LINES = [
     renderLibraryStats() {
       const cats = {};
       State.library.forEach(v => { cats[v.category] = (cats[v.category] || 0) + 1; });
-      let html = '<strong>' + State.library.length + ' videos</strong><br>';
-      LIBRARY_STATS_GROUPS.forEach(group => {
+      const pool = SurprisePool.getPool();
+      const available = SurprisePool.getAvailable();
+      const ref = CONFIG.FULL_FETCH_REFERENCE || {};
+      const uniqueIds = new Set();
+      State.library.forEach(v => { if (v && v.id) uniqueIds.add(v.id); });
+      pool.forEach(v => { if (v && v.id) uniqueIds.add(v.id); });
+      const enrichedCount = State.library.filter(v => Array.isArray(v.ytTags) && v.ytTags.length).length;
+      const restoreHint = State.library.length < 1000 && ref.library
+        ? '<div class="settings-reference"><strong>Full fetch reference:</strong> ' + ref.library + ' library videos · ' + ref.tagged + ' tagged · ' + ref.surprisePool + ' surprise pool (' + escHtml(ref.source || 'recorded fetch') + '). This browser is showing a smaller current cache; use the same Sync ID or fetch again to restore the full pool.</div>'
+        : '<div class="settings-reference"><strong>Full fetch reference:</strong> ' + ref.library + ' library videos · ' + ref.tagged + ' tagged · ' + ref.surprisePool + ' surprise pool (' + escHtml(ref.source || 'recorded fetch') + ').</div>';
+      let html = '<div class="settings-metrics">' +
+        '<div class="settings-metric"><div class="settings-metric-value">' + uniqueIds.size + '</div><div class="settings-metric-label">Unique Total</div></div>' +
+        '<div class="settings-metric"><div class="settings-metric-value">' + State.library.length + '</div><div class="settings-metric-label">Current Library</div></div>' +
+        '<div class="settings-metric"><div class="settings-metric-value">' + pool.length + '</div><div class="settings-metric-label">Surprise Pool</div></div>' +
+        '<div class="settings-metric"><div class="settings-metric-value">' + available.length + '</div><div class="settings-metric-label">Available Now</div></div>' +
+        '</div>' +
+        '<div class="surprise-pool-status">' + enrichedCount + ' current-library videos enriched with YouTube tags.</div>' +
+        restoreHint;
+      const groupLines = LIBRARY_STATS_GROUPS.map(group => {
         const count = group.categories.reduce((sum, cat) => sum + (cats[cat] || 0), 0);
-        if (count) html += group.label + ': ' + count + '<br>';
-      });
+        return count ? group.label + ': ' + count : '';
+      }).filter(Boolean);
+      if (groupLines.length) html += '<div class="settings-hint">' + groupLines.join(' · ') + '</div>';
       document.getElementById('library-stats').innerHTML = html;
     },
 
@@ -2304,7 +2536,7 @@ const ENERGY_LINES = [
       CloudSync.startAuto();
     },
     async syncNow() {
-      await CloudSync.syncNow();
+      await CloudSync.syncNow({ notify: true });
     },
     renderBlockedCreators() {
       const blocked = getBlockedCreators();
@@ -2403,9 +2635,13 @@ const ENERGY_LINES = [
       const rows = await res.json();
       return rows && rows[0] ? rows[0] : null;
     },
-    async syncNow() {
+    async syncNow(options) {
+      const notify = !options || options.notify !== false;
       const syncId = this.getSyncId();
-      if (!syncId) { UI.toast('Set Sync ID first', 'warning'); return; }
+      if (!syncId) {
+        if (notify) UI.toast('Set Sync ID first', 'warning');
+        return;
+      }
       try {
         const remote = await this.pull();
         if (remote && remote.payload) {
@@ -2415,9 +2651,9 @@ const ENERGY_LINES = [
           }
         }
         await this.push();
-        UI.toast('Cloud sync complete', 'success');
+        if (notify) UI.toast('Cloud sync complete', 'success');
       } catch (e) {
-        UI.toast('Sync failed: ' + e.message, 'warning');
+        if (notify) UI.toast('Sync failed: ' + e.message, 'warning');
       }
     },
     startAuto() {
@@ -2459,58 +2695,63 @@ const ENERGY_LINES = [
     },
 
     knownKnown(ratings, total) {
-      if (total < 5) return this.locked('Known Known', '还在收集中', '再评价 ' + (5 - total) + ' 个视频，解锁你明确喜欢的类型。');
+      if (total < 5) return this.locked('Known Known', 'Building Signal', (5 - total) + ' more ratings to unlock clear favorites.', 'known');
       const liked = ratings.filter(r => r.rating === 'like');
       const creator = this.top(liked.map(r => r.creator).filter(Boolean));
       const focus = this.top(liked.map(r => r.focus).filter(Boolean));
       return {
         label: 'Known Known',
-        value: creator || focus || '喜欢数据还不够',
-        note: creator ? '你明确喜欢的 creator。' : '继续评价会更准。'
+        value: creator || this.focusLabel(focus) || 'More Likes Needed',
+        note: creator ? 'Your strongest creator signal.' : 'More ratings will sharpen this.',
+        tone: 'known'
       };
     },
 
     knownUnknown(ratings, total) {
-      if (total < 10) return this.locked('Known Unknown', '还没解锁', '第 10 个评价后显示数据不足的训练方向。');
+      if (total < 10) return this.locked('Known Unknown', 'Still Locked', 'Unlocks at 10 ratings: the training gaps we can name.', 'gap');
       const focusCounts = {};
       ratings.forEach(r => { if (r.focus) focusCounts[r.focus] = (focusCounts[r.focus] || 0) + 1; });
       const gaps = Object.values(WEEKLY_PLAN).map(p => p.focusKey).filter(k => (focusCounts[k] || 0) < 2);
       const first = gaps[0];
       return {
         label: 'Known Unknown',
-        value: first ? this.focusLabel(first) : '覆盖均衡',
-        note: first ? '这个方向样本少，需要更多评价。' : '各方向都有基础反馈。'
+        value: first ? this.focusLabel(first) : 'Balanced Coverage',
+        note: first ? 'This focus needs more feedback.' : 'Every focus has basic signal.',
+        tone: 'gap'
       };
     },
 
     blindSpot(ratings, total) {
-      if (total < 10) return this.locked('Blind Spot', '还没解锁', '第 10 个评价后显示反复卡住的原因。');
+      if (total < 10) return this.locked('Blind Spot', 'Still Locked', 'Unlocks at 10 ratings: what keeps blocking the flow.', 'friction');
       const dislikes = ratings.filter(r => r.rating === 'dislike');
       const reason = this.top(dislikes.map(r => r.reason).filter(r => r && r !== 'none'));
       return {
         label: 'Blind Spot',
-        value: reason ? this.reasonLabel(reason) : '暂无明显盲点',
-        note: reason ? '这是最近不喜欢里最常见的原因。' : '目前没有高频负反馈。'
+        value: reason ? this.reasonLabel(reason) : 'No Clear Friction',
+        note: reason ? 'Most common recent dislike reason.' : 'No repeating negative signal yet.',
+        tone: 'friction'
       };
     },
 
     unknownUnknown(ratings, plays, total) {
-      if (total < 10) return this.locked('Unknown Unknown', '还没解锁', '第 10 个评价后显示值得探索的新区域。');
+      if (total < 10) return this.locked('Unknown Unknown', 'Still Locked', 'Unlocks at 10 ratings: the frontier to explore next.', 'frontier');
       const surprisePlayed = plays.filter(e => e.phase === 'SURPRISE' && e.event === 'started').length;
       const poolCount = SurprisePool.getAvailable().length;
       return {
         label: 'Unknown Unknown',
         value: poolCount > 0 ? poolCount + ' surprise videos' : surprisePlayed + ' tried',
-        note: poolCount > 0 ? '还有新视频可以探索。' : '补 surprise pool 后会更有发现感。'
+        note: poolCount > 0 ? 'Fresh movement still waiting.' : 'Refresh surprise pool for more discovery.',
+        tone: 'frontier'
       };
     },
 
-    locked(label, value, note) {
-      return { label, value, note, locked: true };
+    locked(label, value, note, tone) {
+      return { label, value, note, tone, locked: true };
     },
 
     cardHtml(card) {
-      return '<div class="quadrant-card' + (card.locked ? ' locked' : '') + '">' +
+      const tone = card.tone || 'known';
+      return '<div class="quadrant-card q-' + escHtml(tone) + (card.locked ? ' locked' : '') + '">' +
         '<div class="quadrant-label">' + escHtml(card.label) + '</div>' +
         '<div class="quadrant-value">' + escHtml(card.value) + '</div>' +
         '<div class="quadrant-note">' + escHtml(card.note) + '</div>' +
@@ -2530,11 +2771,11 @@ const ENERGY_LINES = [
 
     reasonLabel(reason) {
       return {
-        too_hard: '太难',
-        too_easy: '太简单',
-        not_my_focus: '不适合今天',
-        boring: '无聊',
-        bad_quality: '不再推荐'
+        too_hard: 'Too Hard',
+        too_easy: 'Too Easy',
+        not_my_focus: 'Wrong Focus',
+        boring: 'Boring',
+        bad_quality: 'Poor Fit'
       }[reason] || reason;
     }
   };
@@ -2574,13 +2815,12 @@ const ENERGY_LINES = [
         setTimeout(() => UI.toast('Today\'s ' + plan.focus + ' pool is empty — showing a generic Main.', 'warning'), 500);
       }
 
-      // V2 重分类: warm/cool fallback warning (no keyword/channel match → random short)
+      // V2 重分类: record warm/cool fallback diagnostics without covering the hero screen.
       const wcFallback = (typeof Playlist !== 'undefined' && Playlist._warmCoolFallback) || {};
-      ['warmup', 'cooldown'].forEach((p, idx) => {
+      ['warmup', 'cooldown'].forEach(p => {
         if (wcFallback[p] && State.dataWarningsShown['wc_' + p] !== todayKey) {
           State.dataWarningsShown['wc_' + p] = todayKey;
-          const label = p === 'warmup' ? 'Warm Up' : 'Cool Down';
-          setTimeout(() => UI.toast(label + ' pool has no keyword match — used a generic short video.', 'warning'), 700 + idx * 200);
+          try { DataLog.recordPlayEvent('playlist_data_warning', { phase: p, reason: 'generic_short_fallback' }); } catch(e) {}
         }
       });
 
@@ -2603,17 +2843,25 @@ const ENERGY_LINES = [
     renderEnergyCard(plan) {
       const card = document.getElementById('energy-card');
       const visual = document.getElementById('energy-visual');
+      const mark = document.getElementById('energy-mark');
       const line = document.getElementById('energy-line');
       const subline = document.getElementById('energy-subline');
-      if (!card || !visual || !line || !subline) return;
-      const videos = (State.currentPlaylist || []).map(item => item.video).filter(v => v && v.id).slice(0, 4);
+      if (!card || !visual || !mark || !line || !subline) return;
+      const heroOrder = ['MAIN', 'SURPRISE', 'COOL DOWN', 'WARM UP'];
+      const playlistItems = State.currentPlaylist || [];
+      const videos = heroOrder
+        .map(phase => playlistItems.find(item => item.phase === phase))
+        .map(item => item && item.video)
+        .filter(v => v && v.id)
+        .slice(0, 4);
       visual.innerHTML = '';
-      const fallbackLabels = ['Warm Up', (plan && plan.focus) || 'Main', 'Cool Down', 'Surprise'];
+      const fallbackLabels = [(plan && plan.focus) || 'Main', 'Surprise', 'Cool Down', 'Warm Up'];
       for (let i = 0; i < 4; i++) {
         const video = videos[i];
         if (video) visual.appendChild(this.createEnergyThumb(video, fallbackLabels[i]));
         else visual.appendChild(this.createEnergyFallback(fallbackLabels[i]));
       }
+      mark.textContent = ((plan && plan.focus) || 'Today') + ' ritual';
       line.textContent = ENERGY_LINES[Math.floor(Math.random() * ENERGY_LINES.length)];
       subline.textContent = 'Today: ' + ((plan && plan.focus) || 'Workout') + ' · ' + videos.length + ' moves queued';
       card.hidden = false;
@@ -2625,12 +2873,12 @@ const ENERGY_LINES = [
       img.dataset.videoId = video.id;
       img.dataset.fallbackLabel = fallbackLabel || 'Workout';
       img.dataset.thumbStage = '0';
-      img.src = ytThumbUrl(video.id, 'maxresdefault');
+      img.src = ytThumbUrl(video.id, 'hqdefault');
       img.addEventListener('error', () => this.handleEnergyThumbError(img));
       return img;
     },
     handleEnergyThumbError(img) {
-      const stages = ['hqdefault', 'mqdefault', 'default'];
+      const stages = ['sddefault', 'mqdefault', 'default'];
       const stage = parseInt(img.dataset.thumbStage || '0', 10);
       const next = stages[stage];
       if (next) {
@@ -2759,7 +3007,7 @@ const ENERGY_LINES = [
     Player.init();
     bindEvents();
     CloudSync.startAuto();
-    CloudSync.syncNow().catch(() => {});
+    CloudSync.syncNow({ notify: false }).catch(() => {});
   }
 
   function showFileProtocolWarning() {
@@ -2780,7 +3028,8 @@ const ENERGY_LINES = [
       Player.beginPlaybackAt(0, 'lets_go');
     });
     document.getElementById('btn-surprise').addEventListener('click', () => {
-      State.currentPlaylist = Playlist.generate(true).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
+      const previousIds = (State.currentPlaylist || []).map(it => it && it.video && it.video.id).filter(Boolean);
+      State.currentPlaylist = Playlist.generate(true, previousIds).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
       if (State.currentPlaylist.length < 4) {
         State.currentPlaylist = Playlist.generate(true).filter(it => !(it && it.video && isBlockedCreator(it.video.creator)));
       }
