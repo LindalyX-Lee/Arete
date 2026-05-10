@@ -162,8 +162,15 @@
 
     /* === Action Buttons === */
     .action-buttons { display: flex; flex-direction: column; gap: var(--space-sm); padding-bottom: var(--space-lg); }
-    .btn-primary { font-family: var(--font-ui); font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; color: #fff; background: linear-gradient(135deg, var(--pink), var(--pink-glow)); border: none; border-radius: var(--radius-full); padding: var(--space-md) var(--space-xl); cursor: pointer; animation: glow 2.5s ease-in-out infinite; transition: transform var(--transition-fast), opacity var(--transition-fast); }
-    .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+    .btn-primary { font-family: var(--font-ui); font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; color: #fff; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.24), transparent 28%), linear-gradient(135deg, #221719, #4b2734 44%, #8f3b67 100%); border: 1px solid rgba(212,175,55,0.5); border-radius: var(--radius-full); padding: var(--space-md) var(--space-xl); cursor: pointer; animation: templePulse 3s ease-in-out infinite; transition: transform var(--transition-fast), opacity var(--transition-fast), box-shadow var(--transition-fast); box-shadow: 0 16px 42px rgba(212,175,55,0.16), inset 0 1px 0 rgba(255,255,255,0.18); position: relative; overflow: hidden; }
+    .btn-primary::before { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(255,255,255,0.08); border-radius: inherit; pointer-events: none; }
+    .btn-primary:active { transform: scale(0.97); opacity: 0.92; }
+    .btn-primary:disabled { opacity: 0.68; cursor: wait; animation: none; }
+    .btn-ritual { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-width: 210px; position: relative; z-index: 1; }
+    .btn-ritual-icon { font-size: 1.42rem; line-height: 1; filter: drop-shadow(0 0 10px rgba(212,175,55,0.46)); }
+    .btn-ritual-copy { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
+    .btn-ritual-main { font-family: var(--font-display); font-size: 1.28rem; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase; }
+    .btn-ritual-sub { margin-top: 5px; font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
     .btn-secondary { font-family: var(--font-ui); font-size: 0.95rem; font-weight: 500; color: var(--pink); background: transparent; border: 1.5px solid var(--pink); border-radius: var(--radius-full); padding: var(--space-sm) var(--space-xl); cursor: pointer; transition: background var(--transition-fast); }
     .btn-secondary:active { background: var(--pink-dim); }
     .btn-small { font-family: var(--font-ui); font-size: 0.8rem; font-weight: 500; color: var(--pink); background: var(--pink-dim); border: none; border-radius: var(--radius-sm); padding: 6px 14px; cursor: pointer; }
@@ -260,6 +267,10 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(255, 20, 147, 0.35); } 50% { box-shadow: 0 0 35px rgba(255, 20, 147, 0.65); } }
+    @keyframes templePulse {
+      0%, 100% { box-shadow: 0 16px 42px rgba(212,175,55,0.16), 0 0 22px rgba(255,105,180,0.2), inset 0 1px 0 rgba(255,255,255,0.18); }
+      50% { box-shadow: 0 18px 50px rgba(212,175,55,0.28), 0 0 34px rgba(255,105,180,0.34), inset 0 1px 0 rgba(255,255,255,0.24); }
+    }
 
     /* === Responsive === */
     @media (min-width: 768px) {
@@ -292,9 +303,8 @@
       }
       .action-buttons .btn-primary {
         min-width: 190px;
-        padding: 15px 30px;
+        padding: 13px 28px;
         font-size: 1.02rem;
-        box-shadow: 0 12px 34px rgba(255,20,147,0.28);
       }
       .action-buttons .btn-secondary {
         width: 52px;
@@ -342,9 +352,10 @@
         padding: 10px 10px calc(8px + env(safe-area-inset-bottom));
         gap: 0;
       }
-      .zone-top{flex:0 0 auto; min-height:calc(100dvh - 20px); display:flex; flex-direction:column; justify-content:flex-start;}
-      .zone-middle{flex:0 0 auto; min-height:0; display:flex; align-items:center;}
-      .zone-bottom{flex:0 0 auto; min-height:160px; display:flex; align-items:center; justify-content:center; position:relative; background:linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.78), rgba(26,26,26,0.45), transparent);}
+      .zone-top{order:1; flex:0 0 auto; min-height:0; display:flex; flex-direction:column; justify-content:flex-start;}
+      .zone-bottom{order:2; flex:0 0 auto; min-height:150px; display:flex; align-items:center; justify-content:center; position:relative; background:linear-gradient(to top, rgba(26,26,26,0.98), rgba(26,26,26,0.78), rgba(26,26,26,0.45), transparent);}
+      .zone-middle{order:3; flex:0 0 auto; min-height:0; display:flex; align-items:center;}
+      .dashboard { order: 4; }
 
       .app-header { padding: 8px 0 0; justify-content: center; position: relative; }
       .brand-temple { font-size: 2.55rem; margin-bottom: 4px; }
@@ -404,8 +415,8 @@
       }
       #panel-settings .btn-secondary::after { content: none !important; }
        .action-buttons .btn-primary {
-        width: 120px;
-        height: 120px;
+        width: 132px;
+        height: 132px;
         border-radius: 50%;
         padding: 0;
         display: flex;
@@ -413,14 +424,13 @@
         justify-content: center;
         text-align: center;
         font-size: 0;
-        box-shadow: 0 10px 28px rgba(255,20,147,0.36);
       }
-       .action-buttons .btn-primary::after{
-        content:'GO';
-        font-size: 1.15rem;
-        font-weight: 800;
-        letter-spacing: .08em;
-      }
+       .action-buttons .btn-primary::before { inset: 7px; border-color: rgba(212,175,55,0.32); }
+       .btn-ritual { min-width: 0; width: 100%; height: 100%; flex-direction: column; gap: 7px; }
+       .btn-ritual-icon { font-size: 2.05rem; }
+       .btn-ritual-copy { align-items: center; }
+       .btn-ritual-main { font-size: 1.04rem; letter-spacing: 0.11em; }
+       .btn-ritual-sub { font-size: 0.52rem; margin-top: 6px; max-width: 86px; line-height: 1.15; color: rgba(255,255,255,0.72); }
        .action-buttons .btn-secondary {
         position: absolute;
         right: calc(50% - 98px);
@@ -574,7 +584,15 @@
       <div class="loading-text">Generating your workout...</div>
     </div>
     <div class="action-buttons zone-bottom">
-      <button id="btn-lets-go" class="btn-primary">LET'S GO &#128293;</button>
+      <button id="btn-lets-go" class="btn-primary" aria-label="Begin ARETE ritual">
+        <span class="btn-ritual">
+          <span class="btn-ritual-icon">&#127963;</span>
+          <span class="btn-ritual-copy">
+            <span class="btn-ritual-main">Enter ARETE</span>
+            <span class="btn-ritual-sub">Begin ritual</span>
+          </span>
+        </span>
+      </button>
       <button id="btn-surprise" class="btn-secondary">SURPRISE ME &#10024;</button>
     </div>
     <section id="dashboard" class="dashboard">
@@ -1000,10 +1018,13 @@ const ARETE_LIBRARY_RAW = [
 
 // === CONSTANTS ===
 const CONFIG = {
-  PLAYLIST_SCHEMA_VERSION: 3,
+  PLAYLIST_SCHEMA_VERSION: 4,
   HISTORY_DEPTH: 5,
   RECENT_GLOBAL_DEPTH: 28,
   SUPPORT_HISTORY_DEPTH: 14,
+  SUPPORT_HARD_AVOID_DEPTH: 24,
+  SUPPORT_GLOBAL_HARD_AVOID_DEPTH: 36,
+  SUPPORT_FATIGUE_COUNT: 2,
   FULL_FETCH_REFERENCE: {
     library: 9877,
     tagged: 6154,
@@ -1220,6 +1241,7 @@ const ENERGY_LINES = [
     ytReady: false,
     ytPrewarmed: false,
     ytReadyCallbacks: [],
+    pendingStart: null,
     endCheckInterval: null,
     rpeTimerId: null,
     rpeCallback: null,
@@ -1545,10 +1567,18 @@ const ENERGY_LINES = [
     //   3. any short video w/ warning flag
     pickWarmOrCool(phase, used) {
       const phaseName = phase === 'warmup' ? 'WARM UP' : 'COOL DOWN';
-      const recent = new Set(this.recentPhaseIds(phaseName, CONFIG.SUPPORT_HISTORY_DEPTH));
-      const freshFirst = pool => {
-        const fresh = pool.filter(v => !recent.has(v.id));
-        return fresh.length ? fresh : pool;
+      const hardAvoid = this.supportHardAvoidIds(phaseName);
+      const phaseRecent = new Set(this.recentPhaseIds(phaseName, CONFIG.SUPPORT_HISTORY_DEPTH));
+      const softAvoid = new Set([
+        ...phaseRecent,
+        ...this.recentGlobalIds(CONFIG.RECENT_GLOBAL_DEPTH)
+      ]);
+      const freshFirst = (pool, allowHardFallback) => {
+        const hardFresh = pool.filter(v => !hardAvoid.has(v.id));
+        const softFresh = hardFresh.filter(v => !softAvoid.has(v.id));
+        if (softFresh.length) return softFresh;
+        if (hardFresh.length) return hardFresh;
+        return allowHardFallback ? pool : [];
       };
       const pool = this.availableLibrary()
         .filter(v => !used.has(v.id))
@@ -1561,20 +1591,27 @@ const ENERGY_LINES = [
 
       // Tier 1: explicit phase keyword (4-field via matchesFocus)
       const explicit = pool.filter(v => this.matchesFocus(v, phase));
-      if (explicit.length > 0) return this.pickScored(freshFirst(explicit), phase);
+      const explicitFresh = freshFirst(explicit, false);
+      if (explicitFresh.length > 0) return this.pickScored(explicitFresh, phase);
 
       // Tier 2: channel/default category equals phase; legacy manual warm/cool stays useful here
       const channelMatch = pool.filter(v => {
         const ch = v.channelMainCategory || CHANNEL_MAIN_CATEGORY[v.creator] || null;
         return ch === phase || this.matchesCategoryAlias(v, phase);
       });
-      if (channelMatch.length > 0) return this.pickScored(freshFirst(channelMatch), phase);
+      const channelFresh = freshFirst(channelMatch, false);
+      if (channelFresh.length > 0) return this.pickScored(channelFresh, phase);
+
+      // Tier 2.5: if warmup keeps looping gentle yoga, try any non-conflicting short support video
+      // before allowing a fatigued yoga/mobility repeat back in.
+      const shortFresh = freshFirst(pool, false);
+      if (shortFresh.length > 0) return this.pickScored(shortFresh, phase);
 
       // Tier 3: any short video, mark warning
       if (pool.length > 0) {
         Playlist._warmCoolFallback = (Playlist._warmCoolFallback || {});
-        Playlist._warmCoolFallback[phase] = true;
-        return this.pickScored(freshFirst(pool), phase);
+        Playlist._warmCoolFallback[phase] = hardAvoid.size ? 'fatigue_fallback' : true;
+        return this.pickScored(freshFirst(pool, true), phase);
       }
       return null;
     },
@@ -1689,6 +1726,17 @@ const ENERGY_LINES = [
           .forEach(item => add(item.videoId));
       });
       return ids.slice(0, limit || CONFIG.SUPPORT_HISTORY_DEPTH);
+    },
+
+    supportHardAvoidIds(phase) {
+      const counts = {};
+      const add = id => {
+        if (!id) return;
+        counts[id] = (counts[id] || 0) + 1;
+      };
+      this.recentPhaseIds(phase, CONFIG.SUPPORT_HARD_AVOID_DEPTH).forEach(add);
+      this.recentGlobalIds(CONFIG.SUPPORT_GLOBAL_HARD_AVOID_DEPTH).forEach(add);
+      return new Set(Object.keys(counts).filter(id => counts[id] >= CONFIG.SUPPORT_FATIGUE_COUNT));
     },
 
     matchesStrictMainFocus(video, focusKey) {
@@ -2067,12 +2115,26 @@ const ENERGY_LINES = [
       this.setStartButtonReady(true);
       State.ytReadyCallbacks.forEach(fn => fn());
       State.ytReadyCallbacks = [];
+      if (State.pendingStart) {
+        const pending = State.pendingStart;
+        State.pendingStart = null;
+        this.beginPlaybackAt(pending.index, pending.reason);
+      }
     },
     setStartButtonReady(ready) {
       const btn = document.getElementById('btn-lets-go');
       if (!btn) return;
       btn.disabled = !ready;
-      btn.textContent = ready ? 'LET\'S GO \u{1F525}' : 'PREPARING PLAYER...';
+      btn.innerHTML = ready ? this.startButtonMarkup('Enter ARETE', 'Begin ritual') : this.startButtonMarkup('Preparing', 'Opening temple');
+    },
+    startButtonMarkup(main, sub) {
+      return '<span class="btn-ritual">' +
+        '<span class="btn-ritual-icon">&#127963;</span>' +
+        '<span class="btn-ritual-copy">' +
+          '<span class="btn-ritual-main">' + main + '</span>' +
+          '<span class="btn-ritual-sub">' + sub + '</span>' +
+        '</span>' +
+      '</span>';
     },
     prewarm() {
       if (!State.ytPlayer || !State.ytPlayer.cueVideoById || !State.currentPlaylist.length) return;
@@ -2100,7 +2162,14 @@ const ENERGY_LINES = [
       if (titleEl && v.title) titleEl.textContent = v.title;
       const params = { videoId: v.id, startSeconds: v.startAt || 0 };
       if (v.endAt && v.endAt > 0) params.endSeconds = v.endAt;
-      State.ytPlayer.loadVideoById(params);
+      try {
+        State.ytPlayer.loadVideoById(params);
+      } catch (error) {
+        DataLog.recordPlayEvent('player_load_exception', { message: error && error.message ? error.message : String(error) });
+        UI.toast('This video failed to start — skipping...', 'warning');
+        setTimeout(() => this.advanceToNext(), 600);
+        return;
+      }
       DataLog.recordPlayEvent('started');
       UI.renderPlayerScreen(item);
       if (State.pendingDebugError) {
@@ -2173,15 +2242,8 @@ const ENERGY_LINES = [
           return;
         }
 
-        // Fallback for embed-blocked videos (common for some Pamela videos)
+        // Fallback for embed-blocked videos. Keep the workout moving instead of stopping on a modal.
         if (video && video.id) {
-          const startAt = video.startAt || 0;
-          const url = 'https://www.youtube.com/watch?v=' + video.id + (startAt > 0 ? ('&t=' + startAt + 's') : '');
-          const openExternal = confirm('This video blocks embedded playback. Open it in YouTube now?');
-          if (openExternal) {
-            DataLog.recordPlayEvent('external_opened', { code });
-            window.open(url, '_blank', 'noopener,noreferrer');
-          }
           UI.toast('Embed blocked. Skipping to next video...', 'warning');
           setTimeout(() => this.advanceToNext(), 800);
           return;
@@ -2213,9 +2275,10 @@ const ENERGY_LINES = [
     },
     beginPlaybackAt(index, reason) {
       if (!State.ytReady || !State.ytPlayer || !State.ytPlayer.loadVideoById) {
+        State.pendingStart = { index: index || 0, reason: reason || 'playback' };
         this.setStartButtonReady(false);
         DataLog.recordPlayEvent('player_start_blocked_not_ready', { reason: reason || 'playback' });
-        UI.toast('Player is preparing. Try again in a moment.', 'info');
+        UI.toast('Opening the temple...', 'info');
         return;
       }
       State.currentIndex = index || 0;
@@ -2255,9 +2318,14 @@ const ENERGY_LINES = [
       }
     },
     advanceToNext() {
+      const cur = State.currentPlaylist[State.currentIndex];
+      if (cur && cur.phase === 'COOL DOWN') {
+        this.showCompletion(State.currentIndex + 1);
+        return;
+      }
       State.currentIndex++;
       if (State.currentIndex >= State.currentPlaylist.length) {
-        this.showCompletion();
+        this.showCompletion(State.currentPlaylist.length);
         return;
       }
       this.loadVideo(State.currentPlaylist[State.currentIndex]);
@@ -2283,20 +2351,37 @@ const ENERGY_LINES = [
         let next = State.currentIndex + 1;
         while (next < State.currentPlaylist.length && State.currentPlaylist[next].phase === 'SURPRISE') next++;
         State.currentIndex = next;
-        if (State.currentIndex >= State.currentPlaylist.length) { this.showCompletion(); return; }
+        if (State.currentIndex >= State.currentPlaylist.length) { this.showCompletion(State.currentPlaylist.length); return; }
         this.loadVideo(State.currentPlaylist[State.currentIndex]);
       } else {
         this.advanceToNext();
       }
     },
-    showCompletion() {
+    showCompletion(completedCount) {
       State.isPlaying = false;
-      DataLog.recordPlayEvent('session_completed', { videosCompleted: State.currentIndex });
+      const videosCompleted = Math.max(0, Math.min(
+        completedCount ?? (State.currentIndex + 1),
+        State.currentPlaylist.length || 0
+      ));
+      DataLog.recordPlayEvent('session_completed', { videosCompleted });
       this.clearEndCheck();
       try { State.ytPlayer.stopVideo(); } catch(e) {}
       this.inlineCollapse();
-      const elapsed = Math.round((Date.now() - State.sessionStartTime) / 60000);
-      UI.showCompletionScreen(elapsed, State.currentIndex);
+      const elapsed = this.completionMinutes(videosCompleted);
+      UI.showCompletionScreen(elapsed, videosCompleted);
+    },
+    completionMinutes(videosCompleted) {
+      const start = Number(State.sessionStartTime);
+      if (start && start > 0 && start <= Date.now()) {
+        const actual = Math.round((Date.now() - start) / 60000);
+        if (Number.isFinite(actual) && actual >= 0 && actual < 600) return Math.max(1, actual);
+      }
+      const completed = (State.currentPlaylist || []).slice(0, videosCompleted);
+      const estimated = completed.reduce((sum, item) => {
+        const v = item && item.video;
+        return sum + (v ? (v.effectiveDuration || v.totalDuration || 0) : 0);
+      }, 0);
+      return estimated > 0 ? Math.round(estimated) : null;
     },
     stop() {
       State.isPlaying = false;
@@ -2828,7 +2913,7 @@ const ENERGY_LINES = [
         const danceCount = Playlist.availableLibrary().filter(v => Playlist.matchesCategoryAlias(v, 'dance')).length;
         if (danceCount < 4) {
           State.dataWarningsShown.dance = todayKey;
-          setTimeout(() => UI.toast('Dance library is thin. Fetch surprise pool when ready.', 'warning'), 900);
+          try { DataLog.recordPlayEvent('playlist_data_warning', { phase: 'MAIN', reason: 'thin_dance_pool', count: danceCount }); } catch(e) {}
         }
       }
 
@@ -2935,7 +3020,7 @@ const ENERGY_LINES = [
       }).join('');
     },
     showCompletionScreen(minutes, videosCompleted) {
-      document.getElementById('stat-time').textContent = minutes;
+      document.getElementById('stat-time').textContent = minutes == null ? '--' : minutes;
       document.getElementById('stat-videos').textContent = videosCompleted;
       document.getElementById('completion-quote').textContent =
         '"' + COMPLETION_QUOTES[Math.floor(Math.random() * COMPLETION_QUOTES.length)] + '"';
