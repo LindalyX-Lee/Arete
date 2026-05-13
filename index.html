@@ -389,7 +389,7 @@
       }
       .energy-copy { min-height: 0; display:flex; flex-direction:column; justify-content:center; padding: 14px var(--space-lg) 16px; }
       .energy-mark { font-size: 0.68rem; margin-bottom: 6px; }
-      .energy-line { font-size: clamp(0.86rem, 4vw, 1.18rem); line-height: 1.12; text-wrap: wrap; }
+      .energy-line { font-size: clamp(0.84rem, 3.7vw, 1.08rem); line-height: 1.16; max-width: 24ch; white-space: normal; overflow-wrap: break-word; }
       .energy-subline { font-size: 0.68rem; line-height: 1.35; margin-top: 7px; }
       .dashboard { margin-top: var(--space-lg); }
 
@@ -1018,7 +1018,7 @@ const ARETE_LIBRARY_RAW = [
 
 // === CONSTANTS ===
 const CONFIG = {
-  PLAYLIST_SCHEMA_VERSION: 4,
+  PLAYLIST_SCHEMA_VERSION: 5,
   HISTORY_DEPTH: 5,
   RECENT_GLOBAL_DEPTH: 28,
   SUPPORT_HISTORY_DEPTH: 14,
@@ -1560,7 +1560,7 @@ const ENERGY_LINES = [
       return fallback.length > 0 ? { video: this.pickScored(fallback, focusKey), source: 'library-fallback' } : null;
     },
 
-    // V2 重分类: warmup stays short; cooldown can breathe up to 20 min for real stretch/yoga exits.
+    // V2 重分类: warmup stays short and easy; cooldown can breathe up to 20 min for real stretch/yoga exits.
     // 3-tier priority:
     //   1. explicit phase keyword match (matchesFocus uses 4-field for 'warmup'/'cooldown' keys)
     //   2. channel-default category equals phase
@@ -1585,7 +1585,7 @@ const ENERGY_LINES = [
         .filter(v => !this.hasPhaseConflict(v, phase))
         .filter(v => {
           const d = this.duration(v);
-          const maxDuration = phase === 'cooldown' ? 20 : 15;
+          const maxDuration = phase === 'cooldown' ? 20 : 12;
           return d >= 3 && d <= maxDuration;
         });
 
@@ -1691,6 +1691,15 @@ const ENERGY_LINES = [
       if (this.matchesFocus(video, focusKey)) score += 3;
       if (this.matchesCategoryAlias(video, focusKey)) score += 1.5;
       if (video.intensity === 'gentle' && (focusKey === 'warmup' || focusKey === 'cooldown')) score += 1;
+      if (focusKey === 'warmup') {
+        const duration = this.duration(video);
+        if (video.intensity === 'gentle') score += 2;
+        if (video.intensity === 'medium') score -= 1.5;
+        if (video.intensity === 'hard') score -= 5;
+        if (duration <= 9) score += 1;
+        if (duration > 10) score -= 1;
+        if (this.hasWarmupIntensityConflict(video)) score -= 4;
+      }
       if (video.intensity === 'hard' && focusKey === 'cardio_hiit') score += 1;
       if (targetDuration) score += Math.max(0, 2 - Math.abs(this.duration(video) - targetDuration) / 5);
       return score;
@@ -1773,6 +1782,20 @@ const ENERGY_LINES = [
           .some(k => text.includes(k));
       }
       return false;
+    },
+
+    hasWarmupIntensityConflict(video) {
+      if (!video) return false;
+      const text = [
+        video.title || '',
+        Array.isArray(video.ytTags) ? video.ytTags.join(' ') : '',
+        (video.ytDescription || '').slice(0, 200)
+      ].join(' ').toLowerCase();
+      return [
+        'hiit', 'tabata', 'fat burn', 'burn calories', 'sweaty', 'sweat',
+        'burns like fire', 'killer', 'intense', 'non stop', 'non-stop',
+        '논스톱', '체지방', '칼로리', '덤벨', 'dumbbell', 'weights'
+      ].some(k => text.includes(k));
     },
 
     matchesAnyMainFocus(video) {
