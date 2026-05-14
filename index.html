@@ -256,6 +256,7 @@
     .stat { display: flex; flex-direction: column; align-items: center; }
     .stat-value { font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--text-primary); }
     .stat-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; }
+    .lifetime-stats { margin: calc(-1 * var(--space-md)) 0 var(--space-xl); color: var(--text-secondary); font-size: 0.86rem; letter-spacing: 0.04em; text-transform: uppercase; }
 
     /* === Notification Toast === */
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--text-muted); border-radius: var(--radius-md); padding: var(--space-sm) var(--space-lg); font-size: 0.85rem; z-index: 200; transition: transform 0.3s ease; pointer-events: none; }
@@ -392,6 +393,9 @@
       .energy-line { font-size: clamp(0.84rem, 3.7vw, 1.08rem); line-height: 1.16; max-width: 24ch; white-space: normal; overflow-wrap: break-word; }
       .energy-subline { font-size: 0.68rem; line-height: 1.35; margin-top: 7px; }
       .dashboard { margin-top: var(--space-lg); }
+      .session-stats { gap: var(--space-xl); }
+      .stat-value { font-size: 2.15rem; }
+      .lifetime-stats { font-size: 0.74rem; line-height: 1.45; padding: 0 var(--space-lg); }
 
       .playlist { gap: 5px; margin-bottom: 0; width: 100%; max-width: 100%; }
       .playlist-item { width: 100%; padding: 8px 10px; gap: 8px; border-left-width: 2px; }
@@ -634,13 +638,14 @@
       <div class="session-stats">
         <div class="stat">
           <span id="stat-time" class="stat-value">--</span>
-          <span class="stat-label">minutes</span>
+          <span class="stat-label">today min</span>
         </div>
         <div class="stat">
           <span id="stat-videos" class="stat-value">--</span>
-          <span class="stat-label">videos</span>
+          <span class="stat-label">today videos</span>
         </div>
       </div>
+      <div id="lifetime-stats" class="lifetime-stats">All time -- min · -- videos</div>
       <button id="btn-done" class="btn-primary" style="animation:none">Done &#10003;</button>
     </div>
   </div>
@@ -1018,7 +1023,7 @@ const ARETE_LIBRARY_RAW = [
 
 // === CONSTANTS ===
 const CONFIG = {
-  PLAYLIST_SCHEMA_VERSION: 5,
+  PLAYLIST_SCHEMA_VERSION: 6,
   HISTORY_DEPTH: 5,
   RECENT_GLOBAL_DEPTH: 28,
   SUPPORT_HISTORY_DEPTH: 14,
@@ -1560,7 +1565,7 @@ const ENERGY_LINES = [
       return fallback.length > 0 ? { video: this.pickScored(fallback, focusKey), source: 'library-fallback' } : null;
     },
 
-    // V2 重分类: warmup stays short and easy; cooldown can breathe up to 20 min for real stretch/yoga exits.
+    // V2 重分类: warmup stays short and easy; cooldown stays short, gentle, and recovery-oriented.
     // 3-tier priority:
     //   1. explicit phase keyword match (matchesFocus uses 4-field for 'warmup'/'cooldown' keys)
     //   2. channel-default category equals phase
@@ -1583,9 +1588,10 @@ const ENERGY_LINES = [
       const pool = this.availableLibrary()
         .filter(v => !used.has(v.id))
         .filter(v => !this.hasPhaseConflict(v, phase))
+        .filter(v => phase !== 'cooldown' || this.isCooldownRecoveryCandidate(v))
         .filter(v => {
           const d = this.duration(v);
-          const maxDuration = phase === 'cooldown' ? 20 : 12;
+          const maxDuration = phase === 'cooldown' ? 15.49 : 12;
           return d >= 3 && d <= maxDuration;
         });
 
@@ -1700,6 +1706,14 @@ const ENERGY_LINES = [
         if (duration > 10) score -= 1;
         if (this.hasWarmupIntensityConflict(video)) score -= 4;
       }
+      if (focusKey === 'cooldown') {
+        const duration = this.duration(video);
+        if (video.intensity === 'gentle') score += 2;
+        if (video.intensity === 'medium') score -= 2;
+        if (video.intensity === 'hard') score -= 6;
+        if (duration <= 10) score += 1.5;
+        if (duration > 12) score -= 1.5;
+      }
       if (video.intensity === 'hard' && focusKey === 'cardio_hiit') score += 1;
       if (targetDuration) score += Math.max(0, 2 - Math.abs(this.duration(video) - targetDuration) / 5);
       return score;
@@ -1795,6 +1809,35 @@ const ENERGY_LINES = [
         'hiit', 'tabata', 'fat burn', 'burn calories', 'sweaty', 'sweat',
         'burns like fire', 'killer', 'intense', 'non stop', 'non-stop',
         '논스톱', '체지방', '칼로리', '덤벨', 'dumbbell', 'weights'
+      ].some(k => text.includes(k));
+    },
+
+    hasCooldownIntensityConflict(video) {
+      if (!video) return false;
+      const text = [
+        video.title || '',
+        Array.isArray(video.ytTags) ? video.ytTags.join(' ') : '',
+        (video.ytDescription || '').slice(0, 200)
+      ].join(' ').toLowerCase();
+      return [
+        'power yoga', 'vinyasa', 'strength', 'active & flowy', 'active flow',
+        'workout', 'hiit', 'tabata', 'fat burn', 'burn calories', 'sweaty',
+        'sweat', 'intense', 'challenge', '덤벨', '체지방', '논스톱'
+      ].some(k => text.includes(k));
+    },
+
+    isCooldownRecoveryCandidate(video) {
+      if (!video || this.hasCooldownIntensityConflict(video)) return false;
+      if (this.matchesCategoryAlias(video, 'cooldown')) return true;
+      const text = [
+        video.title || '',
+        Array.isArray(video.ytTags) ? video.ytTags.join(' ') : '',
+        (video.ytDescription || '').slice(0, 200)
+      ].join(' ').toLowerCase();
+      return [
+        'cool down', 'cool-down', 'cooldown', '쿨다운', 'stretch', 'stretching',
+        '스트레칭', 'recovery', 'relief', 'relaxation', 'stiffness', 'tension',
+        'back pain', 'neck', 'shoulder', 'restorative', 'wind down', 'mobility'
       ].some(k => text.includes(k));
     },
 
@@ -2386,25 +2429,37 @@ const ENERGY_LINES = [
         completedCount ?? (State.currentIndex + 1),
         State.currentPlaylist.length || 0
       ));
-      DataLog.recordPlayEvent('session_completed', { videosCompleted });
+      const summary = this.completionSummary(videosCompleted);
+      DataLog.recordPlayEvent('session_completed', {
+        videosCompleted,
+        requiredVideosCompleted: summary.todayVideos,
+        minutesCompleted: summary.todayMinutes
+      });
       this.clearEndCheck();
       try { State.ytPlayer.stopVideo(); } catch(e) {}
       this.inlineCollapse();
-      const elapsed = this.completionMinutes(videosCompleted);
-      UI.showCompletionScreen(elapsed, videosCompleted);
+      UI.showCompletionScreen(summary);
     },
-    completionMinutes(videosCompleted) {
-      const start = Number(State.sessionStartTime);
-      if (start && start > 0 && start <= Date.now()) {
-        const actual = Math.round((Date.now() - start) / 60000);
-        if (Number.isFinite(actual) && actual >= 0 && actual < 600) return Math.max(1, actual);
-      }
-      const completed = (State.currentPlaylist || []).slice(0, videosCompleted);
-      const estimated = completed.reduce((sum, item) => {
+    completionSummary(videosCompleted) {
+      const completed = (State.currentPlaylist || [])
+        .slice(0, videosCompleted)
+        .filter(item => item && item.phase !== 'SURPRISE');
+      const todayMinutesRaw = completed.reduce((sum, item) => {
         const v = item && item.video;
         return sum + (v ? (v.effectiveDuration || v.totalDuration || 0) : 0);
       }, 0);
-      return estimated > 0 ? Math.round(estimated) : null;
+      const todayMinutes = todayMinutesRaw > 0 ? Math.round(todayMinutesRaw) : null;
+      const todayVideos = completed.length;
+      const previous = (Storage.get(CONFIG.LS.PLAY_EVENTS) || [])
+        .filter(row => row && row.event === 'session_completed');
+      const previousMinutes = previous.reduce((sum, row) => sum + (Number(row.minutesCompleted) || 0), 0);
+      const previousVideos = previous.reduce((sum, row) => sum + (Number(row.requiredVideosCompleted ?? row.videosCompleted) || 0), 0);
+      return {
+        todayMinutes,
+        todayVideos,
+        totalMinutes: previousMinutes + (todayMinutes || 0),
+        totalVideos: previousVideos + todayVideos
+      };
     },
     stop() {
       State.isPlaying = false;
@@ -3042,9 +3097,16 @@ const ENERGY_LINES = [
         return '<div class="progress-dot ' + cls + '"></div>';
       }).join('');
     },
-    showCompletionScreen(minutes, videosCompleted) {
-      document.getElementById('stat-time').textContent = minutes == null ? '--' : minutes;
-      document.getElementById('stat-videos').textContent = videosCompleted;
+    showCompletionScreen(summary) {
+      const data = summary || {};
+      document.getElementById('stat-time').textContent = data.todayMinutes == null ? '--' : data.todayMinutes;
+      document.getElementById('stat-videos').textContent = data.todayVideos == null ? '--' : data.todayVideos;
+      const lifetime = document.getElementById('lifetime-stats');
+      if (lifetime) {
+        const totalMinutes = data.totalMinutes == null ? '--' : data.totalMinutes;
+        const totalVideos = data.totalVideos == null ? '--' : data.totalVideos;
+        lifetime.textContent = 'All time ' + totalMinutes + ' min · ' + totalVideos + ' videos';
+      }
       document.getElementById('completion-quote').textContent =
         '"' + COMPLETION_QUOTES[Math.floor(Math.random() * COMPLETION_QUOTES.length)] + '"';
       this.showScreen('screen-complete');
